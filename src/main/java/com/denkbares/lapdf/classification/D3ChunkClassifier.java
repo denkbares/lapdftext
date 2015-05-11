@@ -24,22 +24,41 @@ import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 
+import de.d3web.core.knowledge.KnowledgeBase;
+import de.d3web.core.session.Session;
+import de.d3web.core.session.SessionFactory;
+
 /**
  * @author Sebastian Furth (denkbares GmbH)
  * @created 11.05.15
  */
 public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 
+	private final KnowledgeBase knowledgeBase;
+
+	public D3ChunkClassifier(KnowledgeBase knowledgeBase) {
+		this.knowledgeBase = knowledgeBase;
+	}
+
+
 	@Override
 	public void classify(List<ChunkBlock> blockList) throws ClassificationException {
 
-		// TODO: load d3web knowledge base
+		for (ChunkBlock block : blockList) {
 
-		// TODO: for each ChunkBlock instance start a d3web session and derive classification
+			Session session = SessionFactory.createSession(knowledgeBase);
+
+			// TODO: set facts (block data) in knowledge base (@see https://www.d3web.de/Wiki.jsp?page=How-To%20Create%20a%20Session)
+
+			// TODO: derive solutions (classification)
+
+			// TODO: store solutions
+
+		}
 
 		// TODO: find most probable sequence of chunk classifications (e.g. using a viterbi style algorithm)
-			// TODO: * consider ambiguous classification
-			// TODO: * consider document model
+			// TODO: * consider ambiguous classifications
+			// TODO: * consider document model, i.e. avoid inconsistencies
 
 	}
 }
