@@ -110,7 +110,7 @@ public class DebugLapdfFeatures {
 					LapdfDocument lapdf = engine.blockifyFile(pdf);
 					engine.classifyDocument(lapdf, ruleFile);
 					
-					engine.writeSectionsToOpenAccessXmlFile(lapdf, outXmlFile);
+					//engine.writeSectionsToOpenAccessXmlFile(lapdf, outXmlFile);
 					engine.dumpChunkTypeImageOutlinesToFiles(lapdf, outImgDir, pdfStem);
 					engine.dumpFeaturesToSpreadsheet(lapdf, outCsvFile);
 				
@@ -144,7 +144,7 @@ public class DebugLapdfFeatures {
 			LapdfDocument lapdf = engine.blockifyFile(inputFileOrDir);
 			engine.classifyDocument(lapdf, ruleFile);
 
-			engine.writeSectionsToOpenAccessXmlFile(lapdf, outXmlFile);
+			//engine.writeSectionsToOpenAccessXmlFile(lapdf, outXmlFile);
 			engine.dumpChunkTypeImageOutlinesToFiles(lapdf, outImgDir, pdfStem);
 			engine.dumpFeaturesToSpreadsheet(lapdf, outCsvFile);
 			

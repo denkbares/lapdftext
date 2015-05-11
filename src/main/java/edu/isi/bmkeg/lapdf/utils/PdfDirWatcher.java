@@ -184,7 +184,7 @@ public class PdfDirWatcher extends DirWatcher {
 			try {
 				LapdfDocument lapdf = engine.blockifyFile(pdf);
 				engine.classifyDocument(lapdf, ruleFile);
-				engine.writeSectionsToOpenAccessXmlFile(lapdf, out);
+//				engine.writeSectionsToOpenAccessXmlFile(lapdf, out);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

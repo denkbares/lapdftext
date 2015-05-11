@@ -1,17 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.denkbares</groupId>
 	<artifactId>lapdftext</artifactId>
 	<version>1.7.4-SNAPSHOT</version>
 	<name>LA-PDFText</name>
 	<description>A text extraction tool based on the layout of blocks withing PDF files.</description>
-
-	<parent>
-		<groupId>edu.isi.bmkeg</groupId>
-		<artifactId>bmkeg-parent</artifactId>
-		<version>1.1.5-SNAPSHOT</version>
-		<relativePath>../bmkeg-parent</relativePath>
-	</parent>
 
 	<build>
 		<plugins>
@@ -62,11 +56,12 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!--plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
 				<executions>
 					<execution>
+						<phase>generate-sources</phase>
 						<id>xjc</id>
 						<goals>
 							<goal>xjc</goal>
@@ -78,7 +73,7 @@
 					<schemaFiles>XSD-Blue/journalpublishing3.xsd</schemaFiles>
 					<extension>true</extension>
 				</configuration>
-			</plugin>
+			</plugin-->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -122,6 +117,18 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
+				<!--
+					If we e.g. execute on JDK 1.7, we should compile for Java 7 to get
+					the same (or higher) JAXB API version as used during the xjc execution.
+				-->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.7</source>
+						<target>1.7</target>
+					</configuration>
+				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
@@ -238,22 +245,110 @@
 		</developer>
 	</developers>
 
+	<repositories>
+
+		<!-- JBoss Repository -->
+
+		<repository>
+			<id>org.jboss.repository.releases</id>
+			<name>JBoss Repository - Releases</name>
+			<url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+		</repository>
+
+		<!-- JSI Repository on SourceForge -->
+
+		<repository>
+			<id>jsi.sourceforge.net</id>
+			<name>sourceforge jsi repository</name>
+			<url>http://sourceforge.net/projects/jsi/files/m2_repo</url>
+		</repository>
+
+		<!-- BMKEG local repository at hugin.isi.edu -->
+
+		<repository>
+			<id>hugin-snapshots</id>
+			<name>Hugin ISI MRP repository SNAPSHOTS</name>
+			<url>http://hugin.isi.edu:8180/nexus/content/repositories/BMKEG-SNAPSHOT/</url>
+		</repository>
+
+		<repository>
+			<id>hugin-releases</id>
+			<name>Hugin ISI MRP repository RELEASES</name>
+			<url>http://hugin.isi.edu:8180/nexus/content/repositories/releases/</url>
+		</repository>
+
+		<repository>
+			<id>hugin-3rd-party</id>
+			<name>Hugin Third Party Nexus Repository</name>
+			<url>http://hugin.isi.edu:8180/nexus/content/repositories/thirdparty/</url>
+		</repository>
+
+		<repository>
+			<id>hugin-3rd-party-snapshot</id>
+			<name>Hugin Third Party Nexus Repository</name>
+			<url>http://hugin.isi.edu:8180/nexus/content/repositories/thirdpartysnapshots/</url>
+		</repository>
+
+		<repository>
+			<id>maven-central</id>
+			<name>maven</name>
+			<url>http://central.maven.org/maven2/</url>
+		</repository>
+
+	</repositories>
+
+	<pluginRepositories>
+
+		<pluginRepository>
+			<id>oss.sonatype.org</id>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<name>Sonatype plugin snaphots</name>
+			<url>http://oss.sonatype.org/content/repositories/snapshots/</url>
+		</pluginRepository>
+
+		<!-- <pluginRepository> <id>flexpmd.opensource.adobe</id> <releases> <enabled>true</enabled>
+			</releases> <snapshots> <enabled>false</enabled> </snapshots> <name>FlexPMD
+			repository on opensource.adobe.com</name> <url>http://opensource.adobe.com/svn/opensource/flexpmd/maven-repository/release/</url>
+			</pluginRepository> -->
+
+		<pluginRepository>
+			<id>Maven Central</id>
+			<url>http://central.maven.org/maven2/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+
+	</pluginRepositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-adapter-vinci</artifactId>
+			<version>2.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-cpe</artifactId>
+			<version>2.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-document-annotation</artifactId>
+			<version>2.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.uima</groupId>
 			<artifactId>uimaj-tools</artifactId>
+			<version>2.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
@@ -303,6 +398,7 @@
 		<dependency>
 			<groupId>org.uimafit</groupId>
 			<artifactId>uimafit</artifactId>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -312,6 +408,7 @@
 		<dependency>
 			<groupId>edu.isi.bmkeg</groupId>
 			<artifactId>bmkeg-utils</artifactId>
+			<version>1.1.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -337,6 +434,17 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcmail-jdk15</artifactId>
 			<version>1.44</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.trove4j</groupId>
+			<artifactId>trove4j</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

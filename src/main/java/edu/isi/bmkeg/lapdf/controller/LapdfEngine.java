@@ -14,15 +14,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-import org.jpedal.exception.PdfException;
-
 import edu.isi.bmkeg.lapdf.classification.ruleBased.RuleBasedChunkClassifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EncryptionException;
 import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
-import edu.isi.bmkeg.lapdf.model.Block;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
 import edu.isi.bmkeg.lapdf.model.PageBlock;
@@ -30,7 +26,6 @@ import edu.isi.bmkeg.lapdf.model.RTree.RTModelFactory;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.parser.RuleBasedParser;
-import edu.isi.bmkeg.lapdf.pmcXml.PmcXmlArticle;
 import edu.isi.bmkeg.lapdf.text.SectionsTextWriter;
 import edu.isi.bmkeg.lapdf.text.SpatialLayoutFeaturesReportGenerator;
 import edu.isi.bmkeg.lapdf.text.SpatiallyOrderedChunkTextWriter;
@@ -40,7 +35,8 @@ import edu.isi.bmkeg.lapdf.utils.PageImageOutlineRenderer;
 import edu.isi.bmkeg.lapdf.xml.OpenAccessXMLWriter;
 import edu.isi.bmkeg.lapdf.xml.SpatialXMLWriter;
 import edu.isi.bmkeg.utils.Converters;
-import edu.isi.bmkeg.utils.xml.XmlBindingTools;
+import org.apache.log4j.Logger;
+import org.jpedal.exception.PdfException;
 
 
 /**
@@ -290,7 +286,6 @@ public class LapdfEngine  {
 	
 	/**
 	 * Extracts the blocks within file to generate a LapdfDocument Object
-	 * @param file - input file
 	 * @return
 	 * @throws PdfException 
 	 * @throws AccessException
@@ -500,21 +495,7 @@ public class LapdfEngine  {
 	
 	}
 	
-	/** 
-	 * Write an LapdfDocument out to an OpenAccess-compatible XML format
-	 * @param doc
-	 * @param out
-	 * @throws Exception 
-	 */
-	public void writeSectionsToOpenAccessXmlFile(LapdfDocument doc, File out) throws Exception {
 
-		logger.info("Writing block-classified XML in OpenAccess format " + out.getPath() );
-		
-		PmcXmlArticle xmlDoc = doc.convertToPmcXmlFormat();
-		
-		XmlBindingTools.saveAsXml(xmlDoc, out);	
-
-	}
 
 	/** 
 	 * Write an LapdfDocument out to an OpenAccess-compatible XML format
@@ -548,7 +529,6 @@ public class LapdfEngine  {
 	 * @param doc
 	 * @param dir
 	 * @param stem
-	 * @param mode
 	 * @throws IOException
 	 */
 	public void dumpWordOrderImageOutlinesToFiles(LapdfDocument doc, File dir, String stem) 
@@ -568,7 +548,6 @@ public class LapdfEngine  {
 	 * @param doc
 	 * @param dir
 	 * @param stem
-	 * @param lapdfMode
 	 * @throws IOException
 	 */
 	public void dumpChunkTypeImageOutlinesToFiles(LapdfDocument doc, File dir, String stem) 
@@ -660,7 +639,6 @@ public class LapdfEngine  {
 	/**
 	 * 
 	 * @param doc
-	 * @param outputFile
 	 * @throws IOException
 	 */
 	public String dumpFeaturesToSpreadsheetString(LapdfDocument doc) 

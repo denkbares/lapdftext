@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,31 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Comment;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.select.Elements;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
 import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
 import edu.isi.bmkeg.lapdf.model.RTree.RTSpatialEntity;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
-import edu.isi.bmkeg.lapdf.pmcXml.ObjectFactory;
-import edu.isi.bmkeg.lapdf.pmcXml.PmcXmlArticle;
-import edu.isi.bmkeg.lapdf.pmcXml.PmcXmlBody;
-import edu.isi.bmkeg.lapdf.pmcXml.PmcXmlP;
-import edu.isi.bmkeg.lapdf.pmcXml.PmcXmlSec;
-import edu.isi.bmkeg.lapdf.pmcXml.PmcXmlTitle;
 import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLChunk;
 import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
 import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLFontStyle;
@@ -46,7 +23,6 @@ import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLRectangle;
 import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
-import edu.isi.bmkeg.utils.xml.XmlBindingTools;
 
 public class LapdfDocument implements Serializable {
 
@@ -468,8 +444,6 @@ public class LapdfDocument implements Serializable {
 	
 	/**
 	 * Convert the LapdfDocument to XML Objects
-	 * @param doc
-	 * @param out
 	 */
 	public LapdftextXMLDocument convertToLapdftextXmlFormat() throws Exception {
 		
@@ -576,291 +550,6 @@ public class LapdfDocument implements Serializable {
 		
 		return xmlDoc;
 	
-	}
-
-	/**
-	 * Converts to PMC Open Access Format. Note that to classify text for this format
-	 * requires, 'body', 'heading', 'subtitle', 'figure legend' and 'reference' section blocks
-	 * @return
-	 * @throws Exception
-	 */
-	
-	public PmcXmlArticle convertToPmcXmlFormat() throws Exception {
-		
-		ObjectFactory factory = new ObjectFactory();
-		PmcXmlArticle xmlDoc = factory.createPmcXmlArticle();
-		PmcXmlBody xmlBody = factory.createPmcXmlBody();
-		xmlDoc.setBody(xmlBody);
-		
-		List<PmcXmlSec> xmlSecList = xmlBody.getSecs();
-
-		//
-		// When converting to this format, we only attempt to screen out headers, 
-		// footers and figures and make sure the rest of the text is present 
-		//
-			
-		//
-		// If not sections are being named, then we pull them out here
-		//
-		// NOTE: WHAT ABOUT OAI SECTION NAMES FOR DOCUMENT SECTION TYPES?
-		//
-		if( xmlSecList == null ) {
-			throw new Exception("No xml sections built.");
-		}
-		
-		xmlSecList.addAll( this.buildPmxXmlSecListFromBodyHeading(false) );
-		
-		xmlSecList.addAll(buildPmxXmlSecListFromStem( ChunkBlock.TYPE_REFERENCES ));
-
-		xmlSecList.addAll(buildPmxXmlSecListFromStem( ChunkBlock.TYPE_FIGURE_LEGEND ));		
-			
-		return xmlDoc;
-	
-	}
-
-	/**
-	 * 
-	 * @param stem
-	 * @return
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 */
-	private List<PmcXmlSec> buildPmxXmlSecListFromStem( String stem ) throws IOException,
-			FileNotFoundException {
-
-		boolean goFlag = false;
-		
-		ObjectFactory factory = new ObjectFactory();
-		List<PmcXmlSec> xmlSecList = new ArrayList<PmcXmlSec>();
-		
-		PmcXmlSec xmlSec = factory.createPmcXmlSec();
-		xmlSec.setSecType(stem);
-		
-		List<Object> pList = xmlSec.getAddressesAndAlternativesAndArraies();
-		PmcXmlP xmlP = factory.createPmcXmlP();
-		pList.add(xmlP);
-		List<Object> content = xmlP.getContent();
-		
-		List<ChunkBlock> blocks = this.readStemmedChunkBlocks(stem);
-		for ( ChunkBlock b : blocks ) {
-			
-			if( b.getType().equals(stem) || 
-					b.getType().equals(stem + ".body")) {
-			
-				//
-				// As soon as we get some text, we add the first block 
-				//
-				if( !goFlag ) {
-					xmlSecList.add(xmlSec);
-					goFlag = true;
-				}
-				content.add( b.readChunkText() );
-			
-			} else if( b.getType().equals(stem + ".heading") ||
-					 b.getType().equals(stem + ".subtitle") ) {
-				
-				PmcXmlTitle xmlSecTitle = xmlSec.getTitle();
-				if(xmlSecTitle == null) {
-					xmlSecTitle = factory.createPmcXmlTitle();
-					xmlSec.setTitle(xmlSecTitle);
-				} else {
-					xmlSec = factory.createPmcXmlSec();
-					xmlSecList.add(xmlSec);
-					xmlSec.setSecType(stem);
-					xmlSecTitle = factory.createPmcXmlTitle();
-					xmlSec.setTitle(xmlSecTitle);
-				}					
-				List<Object> title = xmlSecTitle.getContent();
-				title.add( b.readChunkText() );
-								
-			}
-			
-		}
-		
-		return xmlSecList;
-		
-	}
-	
-	/**
-	 * What the hell is happening here?
-	 * 
-	 * @param stem
-	 * @return
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 */
-	private List<PmcXmlSec> buildPmxXmlSecListFromBodyHeading(boolean includeUnclassified) 
-			throws IOException, FileNotFoundException {
-
-		boolean goFlag = false;
-
-		ObjectFactory factory = new ObjectFactory();
-		List<PmcXmlSec> xmlSecList = new ArrayList<PmcXmlSec>();
-		
-		PmcXmlSec xmlSec = factory.createPmcXmlSec();
-		xmlSec.setSecType(ChunkBlock.TYPE_BODY);		
-		List<Object> pList = xmlSec.getAddressesAndAlternativesAndArraies();
-		xmlSecList.add(xmlSec);
-		
-		List<ChunkBlock> blocks = this.readAllChunkBlocks();
-		for ( ChunkBlock b : blocks ) {
-			
-			if( b.getType().equals(ChunkBlock.TYPE_BODY) || 
-					(b.getType().equals(ChunkBlock.TYPE_UNCLASSIFIED) && includeUnclassified ) 
-					) {
-			
-				if( !goFlag ) {
-					goFlag = true;
-				}
-				PmcXmlP xmlP = factory.createPmcXmlP();
-				pList.add(xmlP);
-				List<Object> content = xmlP.getContent();
-				content.add( b.readChunkText() );
-			
-			} else if( b.getType().equals(ChunkBlock.TYPE_HEADING) ||
-					 b.getType().equals(ChunkBlock.TYPE_SUBTITLE) ) {
-				
-				if( !goFlag ) {
-					goFlag = true;
-				}
-				
-				PmcXmlTitle xmlSecTitle = xmlSec.getTitle();
-				if(xmlSecTitle == null) {
-					xmlSecTitle = factory.createPmcXmlTitle();
-					xmlSec.setTitle(xmlSecTitle);
-				} else {
-					xmlSec = factory.createPmcXmlSec();
-					xmlSecList.add(xmlSec);
-					xmlSec.setSecType(ChunkBlock.TYPE_BODY);
-					xmlSecTitle = factory.createPmcXmlTitle();
-					xmlSec.setTitle(xmlSecTitle);
-					pList = xmlSec.getAddressesAndAlternativesAndArraies();
-				}					
-				List<Object> title = xmlSecTitle.getContent();
-				title.add( b.readChunkText() );
-								
-			} 
-			
-		}
-		
-		if( goFlag )
-			return xmlSecList;
-		
-		return null;
-		
-	}
-	
-	
-	private List<PmcXmlSec> buildPmxXmlSecList( Set<String> sectionsToInclude ) throws IOException,
-			FileNotFoundException {
-
-		ObjectFactory factory = new ObjectFactory();
-		List<PmcXmlSec> xmlSecList = new ArrayList<PmcXmlSec>();
-
-		PmcXmlSec xmlSec = factory.createPmcXmlSec();
-		xmlSec.setSecType(ChunkBlock.TYPE_INTRODUCTION);
-
-		List<Object> pList = xmlSec.getAddressesAndAlternativesAndArraies();
-		PmcXmlP xmlP = factory.createPmcXmlP();
-		pList.add(xmlP);
-		List<Object> content = xmlP.getContent();
-
-		List<ChunkBlock> blocks = this.readClassifiedChunkBlocks(sectionsToInclude);
-		
-		for (ChunkBlock b : blocks) {
-
-			if (b.getType().equals(ChunkBlock.TYPE_INTRODUCTION)
-					|| b.getType().equals(ChunkBlock.TYPE_INTRODUCTION_BODY)) {
-
-				content.add(b.readChunkText());
-
-			} else if (b.getType().equals(ChunkBlock.TYPE_INTRODUCTION_HEADING)
-					|| b.getType().equals(ChunkBlock.TYPE_INTRODUCTION_SUBTITLE)) {
-
-				PmcXmlTitle xmlSecTitle = xmlSec.getTitle();
-				if (xmlSecTitle == null) {
-					xmlSecTitle = factory.createPmcXmlTitle();
-					xmlSec.setTitle(xmlSecTitle);
-				} else {
-					xmlSec = factory.createPmcXmlSec();
-					xmlSecList.add(xmlSec);
-					xmlSec.setSecType(ChunkBlock.TYPE_INTRODUCTION);
-					xmlSecTitle = factory.createPmcXmlTitle();
-					xmlSec.setTitle(xmlSecTitle);
-				}
-				List<Object> title = xmlSecTitle.getContent();
-				title.add(b.readChunkText());
-
-			}
-
-		}
-
-		return xmlSecList;
-
-	}
-	
-	public String readPmcHtml() throws Exception {
-		
-		PmcXmlArticle pmcXml = this.convertToPmcXmlFormat(); 
-		StringWriter writer = new StringWriter();
-		XmlBindingTools.generateXML(pmcXml, writer);
-		String pmcXmlString = writer.toString();
-		
-		StringReader inputReader = new StringReader(pmcXmlString);
-		StringWriter outputWriter = new StringWriter();
-		
-		TransformerFactory tf = TransformerFactory.newInstance();
-		Resource xslResource = new ClassPathResource(
-				"jatsPreviewStyleSheets/xslt/main/jats-html.xsl"
-				);
-		StreamSource xslt = new StreamSource(xslResource.getInputStream());
-		Transformer transformer = tf.newTransformer(xslt);
-
-		StreamSource source = new StreamSource(inputReader);
-		StreamResult result = new StreamResult(outputWriter);
-		transformer.transform(source, result);
-		
-		//
-		// We simplify the HTML encoded from the PMC file to preserve simple formatting 
-		// but to strip away most other functional properties of the document. 
-		//
-		Document doc = Jsoup.parse(outputWriter.toString());
-
-		//
-		// pulling the text from the html, we preserve some of the formatting as simple html 
-		// tags with no additional ID values. We strip the 
-		//
-		doc.select("div").unwrap();
-		
-		// Ditch <span> and <img> elements completely, 
-		// TODO: may need to check this, what text might occur within spans?
-		doc.select("span").remove();
-		doc.select("img").remove();
-		
-		Elements bodyEls = doc.select("body");
-		for( Element bodyEl : bodyEls ) {
-			for( Element el : bodyEl.getAllElements() ) {
-				List<String> keys = new ArrayList<String>();
-				for( Attribute at : el.attributes() ) {
-					keys.add(at.getKey());
-				}
-				for( String key : keys ) {
-					el.removeAttr(key);
-				}
-			}
-			List<Node> comments = new ArrayList<Node>();
-			for(Node n: bodyEl.childNodes()){
-	            if(n instanceof Comment){
-	                comments.add(n);
-	            }
-	        }
-			for(Node n : comments){
-                n.remove();
-	        }
-		}		
-		
-		return doc.toString();
-		
 	}
 
 	
