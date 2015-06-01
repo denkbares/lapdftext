@@ -24,13 +24,14 @@ import java.util.List;
 
 import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
-import edu.isi.bmkeg.lapdf.model.Block;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 
 import de.d3web.core.io.PersistenceManager;
 import de.d3web.core.knowledge.KnowledgeBase;
 import de.d3web.core.knowledge.TerminologyManager;
-import de.d3web.core.knowledge.terminology.QuestionYN;
+import de.d3web.core.knowledge.terminology.Choice;
+import de.d3web.core.knowledge.terminology.QuestionNum;
+import de.d3web.core.knowledge.terminology.QuestionOC;
 import de.d3web.core.knowledge.terminology.Rating;
 import de.d3web.core.knowledge.terminology.Solution;
 import de.d3web.core.session.Session;
@@ -38,6 +39,7 @@ import de.d3web.core.session.SessionFactory;
 import de.d3web.core.session.blackboard.Fact;
 import de.d3web.core.session.blackboard.FactFactory;
 import de.d3web.core.session.values.ChoiceValue;
+import de.d3web.core.session.values.NumValue;
 import de.d3web.indication.inference.PSMethodUserSelected;
 import de.d3web.plugin.test.InitPluginManager;
 
@@ -89,20 +91,19 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 
 		// alignment
 		String alignment = block.readLeftRightMidLine();
-		Fact fact = null;
-		if (alignment.equals(Block.LEFT)) {
-			QuestionYN question = (QuestionYN) manager.searchQuestion(" Is Aligned Left?");
-			ChoiceValue choiceYes = new ChoiceValue(question.getAnswerChoiceYes());
-			fact = FactFactory.createFact(question, choiceYes, session, PSMethodUserSelected.getInstance());
+		QuestionOC question = (QuestionOC) manager.searchQuestion("Alignment");
+		for (Choice choice : question.getAllAlternatives()) {
+			if (choice.getName().equalsIgnoreCase(alignment)) {
+				ChoiceValue choiceValue = new ChoiceValue(choice);
+				Fact fact = FactFactory.createFact(question, choiceValue, session, PSMethodUserSelected.getInstance());
+				session.getBlackboard().addValueFact(fact);
+			}
 		}
-		else if (alignment.equals(Block.RIGHT)) {
-			QuestionYN alignedRight = (QuestionYN) manager.searchQuestion(" Is Aligned Right?");
-			// TODO...
-		}
-		else if (alignment.equals(Block.MIDLINE)) {
-			QuestionYN alignedMiddle = (QuestionYN) manager.searchQuestion(" Is Aligned Middle?");
-			// TODO...
-		}
+
+		double documentDensity = block.readDensity();
+		QuestionNum density = (QuestionNum) manager.searchQuestion("Density");
+		NumValue densityValue = new NumValue(documentDensity);
+		Fact fact = FactFactory.createFact(question, densityValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		// TODO: position
