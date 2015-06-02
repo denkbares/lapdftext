@@ -41,6 +41,7 @@ import de.d3web.core.session.blackboard.FactFactory;
 import de.d3web.core.session.values.ChoiceValue;
 import de.d3web.core.session.values.NumValue;
 import de.d3web.indication.inference.PSMethodUserSelected;
+import de.d3web.plugin.JPFPluginManager;
 import de.d3web.plugin.test.InitPluginManager;
 
 /**
@@ -56,7 +57,11 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 	}
 
 	private KnowledgeBase loadKnowledgeBase(File knowledgeBaseFile) throws IOException {
-		InitPluginManager.init();
+		if (new File("./lib/").exists()) {
+			JPFPluginManager.init("./lib/");
+		} else {
+			InitPluginManager.init();
+		}
 		PersistenceManager persistenceManager = PersistenceManager.getInstance();
 		return persistenceManager.load(knowledgeBaseFile);
 	}
