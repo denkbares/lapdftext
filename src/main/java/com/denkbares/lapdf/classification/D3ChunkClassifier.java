@@ -24,7 +24,9 @@ import java.util.List;
 
 import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
+import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 
 import de.d3web.core.io.PersistenceManager;
 import de.d3web.core.knowledge.KnowledgeBase;
@@ -51,9 +53,12 @@ import de.d3web.plugin.test.InitPluginManager;
 public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 
 	private final KnowledgeBase knowledgeBase;
+	private final AbstractModelFactory modelFactory;
 
-	public D3ChunkClassifier(File knowledgeBaseFile) throws IOException {
+
+	public D3ChunkClassifier(File knowledgeBaseFile, AbstractModelFactory modelFactory) throws IOException {
 		this.knowledgeBase = loadKnowledgeBase(knowledgeBaseFile);
+		this.modelFactory = modelFactory;
 	}
 
 	private KnowledgeBase loadKnowledgeBase(File knowledgeBaseFile) throws IOException {
@@ -93,6 +98,9 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 	}
 
 	private void setFacts(ChunkBlock block, TerminologyManager manager, Session session) {
+
+		// crate @Link{ChunkFeature} instance
+		ChunkFeatures chunkFeatures = new ChunkFeatures(block, modelFactory);
 
 		// alignment
 		String alignment = block.readLeftRightMidLine();

@@ -111,7 +111,7 @@ public class LapdfEngine  {
 				return new RuleBasedChunkClassifier(ruleFile.getPath(), new RTModelFactory());
 			}
 			else if (fileType.equalsIgnoreCase("d3web")) {
-				return new D3ChunkClassifier(ruleFile);
+				return new D3ChunkClassifier(ruleFile, new RTModelFactory());
 			}
 		}
 		return null;
