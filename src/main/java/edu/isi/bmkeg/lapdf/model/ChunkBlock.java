@@ -2,6 +2,7 @@ package edu.isi.bmkeg.lapdf.model;
 
 import java.util.List;
 
+import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 
 /**
@@ -117,6 +118,20 @@ public interface ChunkBlock extends Block, SpatialEntity {
 
 	public String getType();
 
-	List<WordBlock> getWordBlocks();
+	/**
+	 * Returns all word blocks ordered in {@link SpatialOrdering#MIXED_MODE}
+	 * @return word blocks ordered in mixed mode
+	 */
+	default List<WordBlock> getWordBlocks() {
+		return getWordBlocks(SpatialOrdering.MIXED_MODE);
+	}
+
+	/**
+	 * Returns all word blocks contained in this chunk block ordered according to
+	 * the specified {@link SpatialOrdering}.
+	 * @param ordering {@link} SpatialOrdering constant
+	 * @return ordered word blocks
+	 */
+	List<WordBlock> getWordBlocks(String ordering);
 
 }

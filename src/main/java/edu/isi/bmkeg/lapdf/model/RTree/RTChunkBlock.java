@@ -122,14 +122,14 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 	}
 
 	@Override
-	public List<WordBlock> getWordBlocks() {
+	public List<WordBlock> getWordBlocks(String ordering) {
 		if (!(container instanceof PageBlock)) {
 			Log.warning("Unable to determine word blocks for container of type " + container.getClass());
 			return Collections.emptyList();
 		}
 
 		PageBlock page = (PageBlock) container;
-		return page.containsByType(this, SpatialOrdering.MIXED_MODE, WordBlock.class)
+		return page.containsByType(this, ordering, WordBlock.class)
 					.stream()
 					.map(spatialEntity -> (WordBlock) spatialEntity)
 					.collect(Collectors.toList());
