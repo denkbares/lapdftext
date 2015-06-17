@@ -22,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import de.d3web.core.knowledge.terminology.*;
-import de.d3web.core.session.values.TextValue;
 import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
 import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
@@ -33,12 +31,20 @@ import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import de.d3web.core.io.PersistenceManager;
 import de.d3web.core.knowledge.KnowledgeBase;
 import de.d3web.core.knowledge.TerminologyManager;
+import de.d3web.core.knowledge.terminology.Choice;
+import de.d3web.core.knowledge.terminology.QuestionNum;
+import de.d3web.core.knowledge.terminology.QuestionOC;
+import de.d3web.core.knowledge.terminology.QuestionText;
+import de.d3web.core.knowledge.terminology.QuestionYN;
+import de.d3web.core.knowledge.terminology.Rating;
+import de.d3web.core.knowledge.terminology.Solution;
 import de.d3web.core.session.Session;
 import de.d3web.core.session.SessionFactory;
 import de.d3web.core.session.blackboard.Fact;
 import de.d3web.core.session.blackboard.FactFactory;
 import de.d3web.core.session.values.ChoiceValue;
 import de.d3web.core.session.values.NumValue;
+import de.d3web.core.session.values.TextValue;
 import de.d3web.indication.inference.PSMethodUserSelected;
 import de.d3web.plugin.JPFPluginManager;
 import de.d3web.plugin.test.InitPluginManager;
@@ -88,7 +94,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 	private void setChunkType(ChunkBlock block, TerminologyManager manager, Session session) {
 		for (Solution solution : manager.getSolutions()) {
 			Rating state = session.getBlackboard().getRating(solution);
-			if (!state.hasState(Rating.State.UNCLEAR)) {
+			if (state.hasState(Rating.State.ESTABLISHED)) {
 				block.setType(solution.getName());
 			}
 		}
@@ -98,7 +104,6 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 
 		// crate @Link{ChunkFeature} instance
 		ChunkFeatures chunkFeatures = new ChunkFeatures(block, modelFactory);
-
 
 //Alignment and Position
 
@@ -116,21 +121,21 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Is Aligned with Column Boundaries?
 		boolean alignedWithBoundaries = chunkFeatures.isAlignedWithColumnBoundaries();
 		QuestionYN aWB = (QuestionYN) manager.searchQuestion("Is Aligned with Column Boundaries?");
-		ChoiceValue alignBoundariesValue = new ChoiceValue(aWB.getAnswerChoiceYes());
+		ChoiceValue alignBoundariesValue = alignedWithBoundaries ? new ChoiceValue(aWB.getAnswerChoiceYes()) : new ChoiceValue(aWB.getAnswerChoiceNo());
 		Fact fact = FactFactory.createFact(aWB, alignBoundariesValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is Column Centered?
 		boolean columnCentered = chunkFeatures.isColumnCentered();
 		QuestionYN colCent = (QuestionYN) manager.searchQuestion("Is Column Centered?");
-		ChoiceValue columnCenteredValue = new ChoiceValue(colCent.getAnswerChoiceYes());
+		ChoiceValue columnCenteredValue = columnCentered ? new ChoiceValue(colCent.getAnswerChoiceYes()) : new ChoiceValue(colCent.getAnswerChoiceNo());
 		fact = FactFactory.createFact(colCent, columnCenteredValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is Outlier?
 		boolean outlier = chunkFeatures.isOutlier();
 		QuestionYN outl = (QuestionYN) manager.searchQuestion("Is Outlier?");
-		ChoiceValue isOutlierValue = new ChoiceValue(outl.getAnswerChoiceYes());
+		ChoiceValue isOutlierValue = outlier ? new ChoiceValue(outl.getAnswerChoiceYes()) : new ChoiceValue(outl.getAnswerChoiceNo());
 		fact = FactFactory.createFact(outl, isOutlierValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
@@ -144,16 +149,15 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Is Header or Footer
 		boolean hof = chunkFeatures.isOutlier();
 		QuestionYN headerOrFooter = (QuestionYN) manager.searchQuestion("Is Header or Footer");
-		ChoiceValue headerOrFooterValue = new ChoiceValue(headerOrFooter.getAnswerChoiceYes());
+		ChoiceValue headerOrFooterValue = hof ? new ChoiceValue(headerOrFooter.getAnswerChoiceYes()) : new ChoiceValue(headerOrFooter.getAnswerChoiceNo());
 		fact = FactFactory.createFact(headerOrFooter, headerOrFooterValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
-
 
 //Font
 
 		//Font-Name
 		String fName = block.getMostPopularWordFont();
-		QuestionText fontName = (QuestionText) manager.searchQuestion("Font-Name");
+		QuestionText fontName = (QuestionText) manager.searchQuestion("Font Name");
 		TextValue fontNameValue = new TextValue(fName);
 		fact = FactFactory.createFact(fontName, fontNameValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
@@ -168,21 +172,21 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Is all Capitals?
 		boolean allCapitals = chunkFeatures.isAllCapitals();
 		QuestionYN allCap = (QuestionYN) manager.searchQuestion("Is all Capitals?");
-		ChoiceValue isAllCapitalsValue = new ChoiceValue(allCap.getAnswerChoiceYes());
+		ChoiceValue isAllCapitalsValue = allCapitals ? new ChoiceValue(allCap.getAnswerChoiceYes()) : new ChoiceValue(allCap.getAnswerChoiceNo());
 		fact = FactFactory.createFact(allCap, isAllCapitalsValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is most popular font modifier bold?
 		boolean bold = chunkFeatures.isMostPopularFontModifierBold();
 		QuestionYN isBold = (QuestionYN) manager.searchQuestion("Is most popular font modifier bold?");
-		ChoiceValue isBoldValue = new ChoiceValue(isBold.getAnswerChoiceYes());
+		ChoiceValue isBoldValue = bold ? new ChoiceValue(isBold.getAnswerChoiceYes()) : new ChoiceValue(isBold.getAnswerChoiceNo());
 		fact = FactFactory.createFact(isBold, isBoldValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is most popular font modifier italic?
 		boolean italic = chunkFeatures.isMostPopularFontModifierBold();
 		QuestionYN isItalic = (QuestionYN) manager.searchQuestion("Is most popular font modifier italic?");
-		ChoiceValue isItalicValue = new ChoiceValue(isItalic.getAnswerChoiceYes());
+		ChoiceValue isItalicValue = italic ? new ChoiceValue(isItalic.getAnswerChoiceYes()) : new ChoiceValue(isItalic.getAnswerChoiceNo());
 		fact = FactFactory.createFact(isItalic, isItalicValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
@@ -191,14 +195,14 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Contains first Line of Page?
 		boolean flP = chunkFeatures.isContainingFirstLineOfPage();
 		QuestionYN containingFlP= (QuestionYN) manager.searchQuestion("Contains first Line of Page?");
-		ChoiceValue flpValue = new ChoiceValue(containingFlP.getAnswerChoiceYes());
+		ChoiceValue flpValue = flP ? new ChoiceValue(containingFlP.getAnswerChoiceYes()) : new ChoiceValue(containingFlP.getAnswerChoiceNo());
 		fact = FactFactory.createFact(containingFlP, flpValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Contains last Line of Page?
 		boolean llP = chunkFeatures.isContainingLastLineOfPage();
 		QuestionYN containingllP= (QuestionYN) manager.searchQuestion("Contains last Line of Page?");
-		ChoiceValue llpValue = new ChoiceValue(containingllP.getAnswerChoiceYes());
+		ChoiceValue llpValue = llP ? new ChoiceValue(containingllP.getAnswerChoiceYes()) : new ChoiceValue(containingllP.getAnswerChoiceNo());
 		fact = FactFactory.createFact(containingllP, llpValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
@@ -231,34 +235,13 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		session.getBlackboard().addValueFact(fact);
 
 //Document
+
 		//Page Number
 		double pNum = chunkFeatures.getHeightDifferenceBetweenChunkWordAndDocumentWord();
 		QuestionNum pageNumber = (QuestionNum) manager.searchQuestion("Page Number");
-		NumValue pageNumberValue = new NumValue(hdiff);
+		NumValue pageNumberValue = new NumValue(pNum);
 		fact = FactFactory.createFact(pageNumber, pageNumberValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
-		//Is under one Line flush with Neighbors of Type
-		String oLfN = block.getMostPopularWordFont();
-		QuestionText oneLineFlushNeighbors = (QuestionText) manager.searchQuestion("Is under one Line flush with Neighbors of Type");
-		TextValue oneLineFlushNeighborsValue = new TextValue(oLfN);
-		fact = FactFactory.createFact(oneLineFlushNeighbors, oneLineFlushNeighborsValue, session, PSMethodUserSelected.getInstance());
-		session.getBlackboard().addValueFact(fact);
-
-		//Has Neighbors Of Type
-		//---------------------
-			//Type
-			String type = block.getMostPopularWordFont();
-			QuestionText typeQuestion = (QuestionText) manager.searchQuestion("Type");
-			TextValue typeValue = new TextValue(type);
-			fact = FactFactory.createFact(typeQuestion, typeValue, session, PSMethodUserSelected.getInstance());
-			session.getBlackboard().addValueFact(fact);
-
-			//Distance
-			double dlist = chunkFeatures.getHeightDifferenceBetweenChunkWordAndDocumentWord();
-			QuestionNum distance = (QuestionNum) manager.searchQuestion("Distance");
-			NumValue distanceValue = new NumValue(dlist);
-			fact = FactFactory.createFact(distance, distanceValue, session, PSMethodUserSelected.getInstance());
-			session.getBlackboard().addValueFact(fact);
 	}
 }

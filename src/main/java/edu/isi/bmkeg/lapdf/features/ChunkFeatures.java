@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.uimafit.component.xwriter.XWriterFileNamer;
-
 import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
 import edu.isi.bmkeg.lapdf.model.Block;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
@@ -18,9 +16,9 @@ public class ChunkFeatures {
 
 	private ChunkBlock chunk;
 	private PageBlock parent;
-	//IDEE: Hier noch Umlaute hinzufuegen?
-	private static Pattern patternLowerCase = Pattern.compile("[a-z]");
-	private static Pattern patternUpperCase = Pattern.compile("[A-Z]");
+
+	private static Pattern patternLowerCase = Pattern.compile("[a-zäöüß]");
+	private static Pattern patternUpperCase = Pattern.compile("[A-ZÄÖÜß]");
 	
 	private static AbstractModelFactory modelFactory;
 
