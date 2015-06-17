@@ -117,4 +117,6 @@ public interface ChunkBlock extends Block, SpatialEntity {
 
 	public String getType();
 
+	List<WordBlock> getWordBlocks();
+
 }

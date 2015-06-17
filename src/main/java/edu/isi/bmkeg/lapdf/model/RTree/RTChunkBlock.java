@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import edu.isi.bmkeg.lapdf.model.Block;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
@@ -14,6 +15,8 @@ import edu.isi.bmkeg.lapdf.model.PageBlock;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
+
+import de.d3web.utils.Log;
 
 public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
@@ -30,8 +33,9 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 	private Boolean headerOrFooter=null;
 	
 	private double density = -1;
-	
-	private List<WordBlock> rotatedWords = new ArrayList<WordBlock>();
+
+	private List<WordBlock> rotatedWords = new ArrayList<>();
+
 
 	public RTChunkBlock() {
 		super();
@@ -99,7 +103,7 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 	
 	@Override
 	public void setContainer(Block block) {
-		this.container = (PageBlock) block;
+		this.container = block;
 	}
 	
 	@Override
@@ -115,6 +119,20 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 	@Override
 	public String getType() {
 		return type;
+	}
+
+	@Override
+	public List<WordBlock> getWordBlocks() {
+		if (!(container instanceof PageBlock)) {
+			Log.warning("Unable to determine word blocks for container of type " + container.getClass());
+			return Collections.emptyList();
+		}
+
+		PageBlock page = (PageBlock) container;
+		return page.containsByType(this, SpatialOrdering.MIXED_MODE, WordBlock.class)
+					.stream()
+					.map(spatialEntity -> (WordBlock) spatialEntity)
+					.collect(Collectors.toList());
 	}
 
 	@Override
