@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import de.d3web.core.knowledge.terminology.*;
+import de.d3web.core.session.values.TextValue;
 import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
 import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
@@ -31,11 +33,6 @@ import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import de.d3web.core.io.PersistenceManager;
 import de.d3web.core.knowledge.KnowledgeBase;
 import de.d3web.core.knowledge.TerminologyManager;
-import de.d3web.core.knowledge.terminology.Choice;
-import de.d3web.core.knowledge.terminology.QuestionNum;
-import de.d3web.core.knowledge.terminology.QuestionOC;
-import de.d3web.core.knowledge.terminology.Rating;
-import de.d3web.core.knowledge.terminology.Solution;
 import de.d3web.core.session.Session;
 import de.d3web.core.session.SessionFactory;
 import de.d3web.core.session.blackboard.Fact;
@@ -102,7 +99,10 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		// crate @Link{ChunkFeature} instance
 		ChunkFeatures chunkFeatures = new ChunkFeatures(block, modelFactory);
 
-		// alignment
+
+//Alignment and Position
+
+		//Alignment
 		String alignment = block.readLeftRightMidLine();
 		QuestionOC question = (QuestionOC) manager.searchQuestion("Alignment");
 		for (Choice choice : question.getAllAlternatives()) {
@@ -113,14 +113,152 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 			}
 		}
 
+		//Is Aligned with Column Boundaries?
+		boolean alignedWithBoundaries = chunkFeatures.isAlignedWithColumnBoundaries();
+		QuestionYN aWB = (QuestionYN) manager.searchQuestion("Is Aligned with Column Boundaries?");
+		ChoiceValue alignBoundariesValue = new ChoiceValue(aWB.getAnswerChoiceYes());
+		Fact fact = FactFactory.createFact(aWB, alignBoundariesValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is Column Centered?
+		boolean columnCentered = chunkFeatures.isColumnCentered();
+		QuestionYN colCent = (QuestionYN) manager.searchQuestion("Is Column Centered?");
+		ChoiceValue columnCenteredValue = new ChoiceValue(colCent.getAnswerChoiceYes());
+		fact = FactFactory.createFact(colCent, columnCenteredValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is Outlier?
+		boolean outlier = chunkFeatures.isOutlier();
+		QuestionYN outl = (QuestionYN) manager.searchQuestion("Is Outlier?");
+		ChoiceValue isOutlierValue = new ChoiceValue(outl.getAnswerChoiceYes());
+		fact = FactFactory.createFact(outl, isOutlierValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Number of Line
+		double nol = block.readNumberOfLine();
+		QuestionNum numOfLine = (QuestionNum) manager.searchQuestion("Number of Line");
+		NumValue numOfLineValue = new NumValue(nol);
+		fact = FactFactory.createFact(numOfLine, numOfLineValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is Header or Footer
+		boolean hof = chunkFeatures.isOutlier();
+		QuestionYN headerOrFooter = (QuestionYN) manager.searchQuestion("Is Header or Footer");
+		ChoiceValue headerOrFooterValue = new ChoiceValue(headerOrFooter.getAnswerChoiceYes());
+		fact = FactFactory.createFact(headerOrFooter, headerOrFooterValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+
+//Font
+
+		//Font-Name
+		String fName = block.getMostPopularWordFont();
+		QuestionText fontName = (QuestionText) manager.searchQuestion("Font-Name");
+		TextValue fontNameValue = new TextValue(fName);
+		fact = FactFactory.createFact(fontName, fontNameValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Most Popular Font Size
+		double fSize = chunkFeatures.getMostPopularFontSize();
+		QuestionNum fontSize = (QuestionNum) manager.searchQuestion("Most Popular Font Size");
+		NumValue fontSizeValue = new NumValue(fSize);
+		fact = FactFactory.createFact(fontSize, fontSizeValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is all Capitals?
+		boolean allCapitals = chunkFeatures.isAllCapitals();
+		QuestionYN allCap = (QuestionYN) manager.searchQuestion("Is all Capitals?");
+		ChoiceValue isAllCapitalsValue = new ChoiceValue(allCap.getAnswerChoiceYes());
+		fact = FactFactory.createFact(allCap, isAllCapitalsValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is most popular font modifier bold?
+		boolean bold = chunkFeatures.isMostPopularFontModifierBold();
+		QuestionYN isBold = (QuestionYN) manager.searchQuestion("Is most popular font modifier bold?");
+		ChoiceValue isBoldValue = new ChoiceValue(isBold.getAnswerChoiceYes());
+		fact = FactFactory.createFact(isBold, isBoldValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is most popular font modifier italic?
+		boolean italic = chunkFeatures.isMostPopularFontModifierBold();
+		QuestionYN isItalic = (QuestionYN) manager.searchQuestion("Is most popular font modifier italic?");
+		ChoiceValue isItalicValue = new ChoiceValue(isItalic.getAnswerChoiceYes());
+		fact = FactFactory.createFact(isItalic, isItalicValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+//Text in Chunk
+
+		//Contains first Line of Page?
+		boolean flP = chunkFeatures.isContainingFirstLineOfPage();
+		QuestionYN containingFlP= (QuestionYN) manager.searchQuestion("Contains first Line of Page?");
+		ChoiceValue flpValue = new ChoiceValue(containingFlP.getAnswerChoiceYes());
+		fact = FactFactory.createFact(containingFlP, flpValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Contains last Line of Page?
+		boolean llP = chunkFeatures.isContainingLastLineOfPage();
+		QuestionYN containingllP= (QuestionYN) manager.searchQuestion("Contains last Line of Page?");
+		ChoiceValue llpValue = new ChoiceValue(containingllP.getAnswerChoiceYes());
+		fact = FactFactory.createFact(containingllP, llpValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Density
 		double documentDensity = block.readDensity();
 		QuestionNum density = (QuestionNum) manager.searchQuestion("Density");
 		NumValue densityValue = new NumValue(documentDensity);
-		Fact fact = FactFactory.createFact(question, densityValue, session, PSMethodUserSelected.getInstance());
+		fact = FactFactory.createFact(density, densityValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
-		// TODO: position
+		//Chunk Text Length
+		double cTL = chunkFeatures.getChunkTextLength();
+		QuestionNum chunkTLth = (QuestionNum) manager.searchQuestion("Chunk Text Length");
+		NumValue chunkTLValue = new NumValue(cTL);
+		fact = FactFactory.createFact(chunkTLth, chunkTLValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
 
-		// TODO: ...
+		//Height Difference between Chunk Word and Document Word
+		double hdiff = chunkFeatures.getHeightDifferenceBetweenChunkWordAndDocumentWord();
+		QuestionNum heightDifference = (QuestionNum) manager.searchQuestion("Height Difference between Chunk Word and Document Word");
+		NumValue heightDifferenceValue = new NumValue(hdiff);
+		fact = FactFactory.createFact(heightDifference, heightDifferenceValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Chunk Text
+		String cText = block.readChunkText();
+		QuestionText chunkText = (QuestionText) manager.searchQuestion("Chunk Text");
+		TextValue chunkTextValue  = new TextValue(cText);
+		fact = FactFactory.createFact(chunkText, chunkTextValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+//Document
+		//Page Number
+		double pNum = chunkFeatures.getHeightDifferenceBetweenChunkWordAndDocumentWord();
+		QuestionNum pageNumber = (QuestionNum) manager.searchQuestion("Page Number");
+		NumValue pageNumberValue = new NumValue(hdiff);
+		fact = FactFactory.createFact(pageNumber, pageNumberValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is under one Line flush with Neighbors of Type
+		String oLfN = block.getMostPopularWordFont();
+		QuestionText oneLineFlushNeighbors = (QuestionText) manager.searchQuestion("Is under one Line flush with Neighbors of Type");
+		TextValue oneLineFlushNeighborsValue = new TextValue(oLfN);
+		fact = FactFactory.createFact(oneLineFlushNeighbors, oneLineFlushNeighborsValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Has Neighbors Of Type
+		//---------------------
+			//Type
+			String type = block.getMostPopularWordFont();
+			QuestionText typeQuestion = (QuestionText) manager.searchQuestion("Type");
+			TextValue typeValue = new TextValue(type);
+			fact = FactFactory.createFact(typeQuestion, typeValue, session, PSMethodUserSelected.getInstance());
+			session.getBlackboard().addValueFact(fact);
+
+			//Distance
+			double dlist = chunkFeatures.getHeightDifferenceBetweenChunkWordAndDocumentWord();
+			QuestionNum distance = (QuestionNum) manager.searchQuestion("Distance");
+			NumValue distanceValue = new NumValue(dlist);
+			fact = FactFactory.createFact(distance, distanceValue, session, PSMethodUserSelected.getInstance());
+			session.getBlackboard().addValueFact(fact);
 	}
 }

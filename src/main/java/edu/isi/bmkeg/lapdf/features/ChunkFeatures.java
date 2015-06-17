@@ -18,6 +18,7 @@ public class ChunkFeatures {
 
 	private ChunkBlock chunk;
 	private PageBlock parent;
+	//IDEE: Hier noch Umlaute hinzufuegen?
 	private static Pattern patternLowerCase = Pattern.compile("[a-z]");
 	private static Pattern patternUpperCase = Pattern.compile("[A-Z]");
 	
