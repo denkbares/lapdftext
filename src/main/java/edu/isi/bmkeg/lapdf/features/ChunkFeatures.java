@@ -477,4 +477,15 @@ public class ChunkFeatures {
 		
 	}
 
+	/**
+	 * Returns wheter Chunk is a List
+	 */
+	public boolean isList(){
+		String regex = "(•((\\n)*(\\w)*(\\d)*(\\s)*(\\.)*(!)*(\\?)*)*)+";
+
+		if(chunk.readChunkText().matches(regex))
+			return true;
+		else
+			return false;
+	}
 }
