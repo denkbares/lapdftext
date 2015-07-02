@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.adobe.blazeds:blazeds-remoting:4.0.0.14931">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/adobe/blazeds/blazeds-remoting/4.0.0.14931/blazeds-remoting-4.0.0.14931.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/adobe/blazeds/blazeds-remoting/4.0.0.14931/blazeds-remoting-4.0.0.14931-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/adobe/blazeds/blazeds-remoting/4.0.0.14931/blazeds-remoting-4.0.0.14931-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

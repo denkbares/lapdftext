@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.classification.ruleBased.RuleBasedChunkClassifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
@@ -35,8 +36,11 @@ import edu.isi.bmkeg.lapdf.utils.PageImageOutlineRenderer;
 import edu.isi.bmkeg.lapdf.xml.OpenAccessXMLWriter;
 import edu.isi.bmkeg.lapdf.xml.SpatialXMLWriter;
 import edu.isi.bmkeg.utils.Converters;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.jpedal.exception.PdfException;
+
+import com.denkbares.lapdf.classification.D3ChunkClassifier;
 
 
 /**
@@ -73,6 +77,8 @@ public class LapdfEngine  {
 		
 	}
 
+
+
 	public LapdfEngine(File ruleFile) 
 			throws Exception {
 
@@ -88,7 +94,6 @@ public class LapdfEngine  {
 		URL u = this.getClass().getClassLoader().getResource("rules/general.drl");
 		this.setRuleFile(new File(u.getPath()));
 		this.setImgFlag(imgFlag);
-
 	}
 	
 	public LapdfEngine(File ruleFile, boolean imgFlag) throws Exception {
@@ -97,7 +102,20 @@ public class LapdfEngine  {
 		this.setRuleFile(ruleFile);
 		this.setImgFlag(imgFlag);
 
-	}	
+	}
+
+	private Classifier initClassifier(File ruleFile) throws IOException, ClassificationException {
+		if (ruleFile != null) {
+			String fileType = FilenameUtils.getExtension(ruleFile.getAbsolutePath());
+			if (fileType.equalsIgnoreCase("drl")) {
+				return new RuleBasedChunkClassifier(ruleFile.getPath(), new RTModelFactory());
+			}
+			else if (fileType.equalsIgnoreCase("d3web")) {
+				return new D3ChunkClassifier(ruleFile, new RTModelFactory());
+			}
+		}
+		return null;
+	}
 	
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -325,8 +343,7 @@ public class LapdfEngine  {
 					throws ClassificationException, 
 					IOException, URISyntaxException {
 		
-		File f = Converters
-				.extractFileFromJarClasspath(".", "rules/general.drl");
+		File f = Converters.extractFileFromJarClasspath(".", "rules/general.drl");
 		
 		this.classifyDocument(document, f);
 		
@@ -342,22 +359,14 @@ public class LapdfEngine  {
 	 * @throws IOException 
 	 */
 	public void classifyDocument(LapdfDocument document,
-			File ruleFile) 
-					throws ClassificationException, 
-					IOException {
-		
-		RuleBasedChunkClassifier classfier = new RuleBasedChunkClassifier(
-				ruleFile.getPath(), new RTModelFactory());
-		
+			File ruleFile) throws ClassificationException, IOException {
+
+		Classifier classifier = initClassifier(ruleFile);
+
 		for (int i = 1; i <= document.getTotalNumberOfPages(); i++) {
-			
 			PageBlock page = document.getPage(i);
-			
-			List<ChunkBlock> chunkList = page.getAllChunkBlocks(
-					SpatialOrdering.MIXED_MODE);
-
-			classfier.classify(chunkList);
-
+			List<ChunkBlock> chunkList = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
+			classifier.classify(chunkList);
 		}
 
 	}
