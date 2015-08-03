@@ -147,10 +147,52 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		session.getBlackboard().addValueFact(fact);
 
 		//Is Header or Footer
-		boolean hof = chunkFeatures.isOutlier();
+		boolean hof = block.isHeaderOrFooter();
 		QuestionYN headerOrFooter = (QuestionYN) manager.searchQuestion("Is Header or Footer");
-		ChoiceValue headerOrFooterValue = hof ? new ChoiceValue(headerOrFooter.getAnswerChoiceYes()) : new ChoiceValue(headerOrFooter.getAnswerChoiceNo());
+		ChoiceValue headerOrFooterValue = hof != null && hof ? new ChoiceValue(headerOrFooter.getAnswerChoiceYes()) : new ChoiceValue(headerOrFooter.getAnswerChoiceNo());
 		fact = FactFactory.createFact(headerOrFooter, headerOrFooterValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//X-Left
+		int xl = chunkFeatures.getXCoordsLeft();
+		QuestionNum xLeft = (QuestionNum) manager.searchQuestion("X-Left");
+		NumValue xLeftValue = new NumValue(xl);
+		fact = FactFactory.createFact(xLeft, xLeftValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//X-Right
+		int xr = chunkFeatures.getXCoordsRight();
+		QuestionNum xRight = (QuestionNum) manager.searchQuestion("X-Right");
+		NumValue xRightValue = new NumValue(xr);
+		fact = FactFactory.createFact(xLeft, xLeftValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Y-Top
+		int yt = chunkFeatures.getYCoordsTop();
+		QuestionNum yTop = (QuestionNum) manager.searchQuestion("Y-Top");
+		NumValue yTopValue = new NumValue(yt);
+		fact = FactFactory.createFact(yTop, yTopValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Y-Bottom
+		int yb = chunkFeatures.getYCoordsBottom();
+		QuestionNum yBottom = (QuestionNum) manager.searchQuestion("Y-Bottom");
+		NumValue yBottomValue = new NumValue(yb);
+		fact = FactFactory.createFact(yBottom, yBottomValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Height
+		int h = chunkFeatures.getHeight();
+		QuestionNum height = (QuestionNum) manager.searchQuestion("Height");
+		NumValue heightValue = new NumValue(h);
+		fact = FactFactory.createFact(height, heightValue , session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Width
+		int w = chunkFeatures.getWidth();
+		QuestionNum width = (QuestionNum) manager.searchQuestion("Width");
+		NumValue widthValue = new NumValue(w);
+		fact = FactFactory.createFact(width, widthValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 //Font
@@ -184,7 +226,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		session.getBlackboard().addValueFact(fact);
 
 		//Is most popular font modifier italic?
-		boolean italic = chunkFeatures.isMostPopularFontModifierBold();
+		boolean italic = chunkFeatures.isMostPopularFontModifierItalic();
 		QuestionYN isItalic = (QuestionYN) manager.searchQuestion("Is most popular font modifier italic?");
 		ChoiceValue isItalicValue = italic ? new ChoiceValue(isItalic.getAnswerChoiceYes()) : new ChoiceValue(isItalic.getAnswerChoiceNo());
 		fact = FactFactory.createFact(isItalic, isItalicValue, session, PSMethodUserSelected.getInstance());
@@ -234,10 +276,11 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		fact = FactFactory.createFact(chunkText, chunkTextValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
+
 //Document
 
 		//Page Number
-		double pNum = chunkFeatures.getHeightDifferenceBetweenChunkWordAndDocumentWord();
+		double pNum = chunkFeatures.getPageNumber();
 		QuestionNum pageNumber = (QuestionNum) manager.searchQuestion("Page Number");
 		NumValue pageNumberValue = new NumValue(pNum);
 		fact = FactFactory.createFact(pageNumber, pageNumberValue, session, PSMethodUserSelected.getInstance());

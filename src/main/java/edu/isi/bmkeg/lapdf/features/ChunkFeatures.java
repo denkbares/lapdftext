@@ -476,15 +476,58 @@ public class ChunkFeatures {
 		
 	}
 
-	/**
-	 * Returns wheter Chunk is a List
-	 */
-	public boolean isList(){
-		String regex = "(•((\\n)*(\\w)*(\\d)*(\\s)*(\\.)*(!)*(\\?)*)*)+";
-
-		if(chunk.readChunkText().matches(regex))
-			return true;
-		else
-			return false;
+	//TODO: DEBUG NEXT 4 METHODS
+	//Returns x-coordinate of left boundary
+	public int getXCoordsLeft(){
+		int minx = parent.getPageBoxWidth();
+		for(WordBlock w : chunk.getWordBlocks()){
+			if(minx > w.getX1()){
+				minx = w.getX1();
+			}
+		}
+		return minx;
 	}
+
+	//Returns x-coordinate of right boundary
+	public int getXCoordsRight(){
+		int maxx = 0;
+		for(WordBlock w : chunk.getWordBlocks()){
+			if(maxx < w.getX2()){
+				maxx = w.getX2();
+			}
+		}
+		return maxx;
+	}
+
+	//Returns y-coordinate of top boundary
+	public int getYCoordsTop(){
+		int maxy = 0;
+		for(WordBlock w : chunk.getWordBlocks()){
+			if(maxy < w.getY1()){
+				maxy = w.getY1();
+			}
+		}
+		return maxy;
+	}
+
+	//Returns y-coordinate of bottom boundary
+	public int getYCoordsBottom(){
+		int miny = parent.getPageBoxHeight();
+		for(WordBlock w : chunk.getWordBlocks()){
+			if(miny > w.getY2()){
+				miny = w.getY2();
+			}
+		}
+		return miny;
+	}
+
+	//The coordinates are being counted from the lower left corner, therefore it is necessary to subtract top from bottom
+	public int getHeight(){
+		return getYCoordsBottom() - getYCoordsTop();
+	}
+
+	public int getWidth(){
+		return getXCoordsRight() - getXCoordsLeft();
+	}
+
 }
