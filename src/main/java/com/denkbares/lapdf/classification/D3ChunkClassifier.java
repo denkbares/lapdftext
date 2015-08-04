@@ -98,6 +98,11 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 				block.setType(solution.getName());
 			}
 		}
+
+		// fall back: docbook:Text
+		if (block.getType() == null) {
+			block.setType("docbook:Text");
+		}
 	}
 
 	private void setFacts(ChunkBlock block, TerminologyManager manager, Session session) {
@@ -149,7 +154,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Is Header or Footer
 		boolean hof = block.isHeaderOrFooter();
 		QuestionYN headerOrFooter = (QuestionYN) manager.searchQuestion("Is Header or Footer");
-		ChoiceValue headerOrFooterValue = hof != null && hof ? new ChoiceValue(headerOrFooter.getAnswerChoiceYes()) : new ChoiceValue(headerOrFooter.getAnswerChoiceNo());
+		ChoiceValue headerOrFooterValue = hof ? new ChoiceValue(headerOrFooter.getAnswerChoiceYes()) : new ChoiceValue(headerOrFooter.getAnswerChoiceNo());
 		fact = FactFactory.createFact(headerOrFooter, headerOrFooterValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
@@ -275,7 +280,6 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		TextValue chunkTextValue  = new TextValue(cText);
 		fact = FactFactory.createFact(chunkText, chunkTextValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
-
 
 //Document
 
