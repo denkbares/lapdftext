@@ -74,7 +74,6 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		return persistenceManager.load(knowledgeBaseFile);
 	}
 
-
 	@Override
 	public void classify(List<ChunkBlock> blockList) throws ClassificationException {
 
@@ -100,7 +99,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		}
 
 		// fall back: docbook:Text
-		if (block.getType() == null) {
+		if (block.getType().equals("unclassified")) {
 			block.setType("docbook:Text");
 		}
 	}
@@ -152,9 +151,9 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		session.getBlackboard().addValueFact(fact);
 
 		//Is Header or Footer
-		boolean hof = block.isHeaderOrFooter();
+		Boolean hof = block.isHeaderOrFooter();
 		QuestionYN headerOrFooter = (QuestionYN) manager.searchQuestion("Is Header or Footer");
-		ChoiceValue headerOrFooterValue = hof ? new ChoiceValue(headerOrFooter.getAnswerChoiceYes()) : new ChoiceValue(headerOrFooter.getAnswerChoiceNo());
+		ChoiceValue headerOrFooterValue = hof != null && hof ? new ChoiceValue(headerOrFooter.getAnswerChoiceYes()) : new ChoiceValue(headerOrFooter.getAnswerChoiceNo());
 		fact = FactFactory.createFact(headerOrFooter, headerOrFooterValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
