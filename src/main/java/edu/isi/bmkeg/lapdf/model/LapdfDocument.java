@@ -37,6 +37,8 @@ public class LapdfDocument implements Serializable {
 	private String mostPopularFontStyle = "";
 	private String nextMostPopularFontStyle = "";
 	private String mostPopularFontStyleOnLastPage = "";
+
+	private String xmlSpatialOrdering = SpatialOrdering.VERTICAL_MODE;
 	
 	// This the rectangle that holds the text of the main 'panel' 
 	// across the whole document (excluding footers and headers)
@@ -476,7 +478,7 @@ public class LapdfDocument implements Serializable {
 			xmlPage.setPageNumber( i+1 );
 			
 			Iterator<ChunkBlock> cIt = page.getAllChunkBlocks(
-					SpatialOrdering.COLUMN_AWARE_MIXED_MODE
+					xmlSpatialOrdering
 					).iterator();
 			
 			while( cIt.hasNext() ) {
@@ -552,6 +554,11 @@ public class LapdfDocument implements Serializable {
 	
 	}
 
-	
-	
+	public String getXmlSpatialOrdering() {
+		return xmlSpatialOrdering;
+	}
+
+	public void setXmlSpatialOrdering(String xmlSpatialOrdering) {
+		this.xmlSpatialOrdering = xmlSpatialOrdering;
+	}
 }

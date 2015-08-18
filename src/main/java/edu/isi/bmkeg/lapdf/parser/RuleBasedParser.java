@@ -14,10 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
-
 import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
-import edu.isi.bmkeg.lapdf.extraction.PDFBoxExtractor;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
 import edu.isi.bmkeg.lapdf.features.HorizontalSplitFeature;
 import edu.isi.bmkeg.lapdf.model.Block;
@@ -37,6 +34,7 @@ import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
+import org.apache.log4j.Logger;
 
 public class RuleBasedParser implements Parser {
 
@@ -59,7 +57,7 @@ public class RuleBasedParser implements Parser {
 	
 	private int eastWestSpacing;
 
-	private boolean quickly = false;
+	private boolean quickly = true;
 
 	protected AbstractModelFactory modelFactory;
 	
@@ -504,6 +502,7 @@ public class RuleBasedParser implements Parser {
 				// heuristic to correct missing blocking errors for large fonts
 				int eastWest = (int) Math.ceil(word.getHeight() * 0.75);
 				int northSouth = (int) Math.ceil(word.getHeight() * 0.85);
+
 				
 				// what other words on the page are close to this word 
 				// and are still in the block?				
