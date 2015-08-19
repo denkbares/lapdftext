@@ -69,14 +69,19 @@ public abstract class RTSpatialContainer implements SpatialContainer {
 	public int[] getMargin() {
 		if (margin == null) {
 			margin = new int[4];
+
 			Rectangle marginRect = tree.getBounds();
-
-			margin[0] = (int) marginRect.minX;
-			margin[1] = (int) marginRect.minY;
-			margin[2] = (int) marginRect.maxX;
-			margin[3] = (int) marginRect.maxY;
-
-			return margin;
+			if (marginRect != null) {
+				margin[0] = (int) marginRect.minX;
+				margin[1] = (int) marginRect.minY;
+				margin[2] = (int) marginRect.maxX;
+				margin[3] = (int) marginRect.maxY;
+			} else {
+				margin[0] = 0;
+				margin[1] = 0;
+				margin[2] = 0;
+				margin[3] = 0;
+			}
 		}
 
 		return margin;

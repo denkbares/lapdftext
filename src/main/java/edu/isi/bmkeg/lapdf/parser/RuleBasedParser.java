@@ -152,20 +152,23 @@ public class RuleBasedParser implements Parser {
 
 			idGenerator = pageBlock.initialize(pageWordBlockList, idGenerator);
 
-			this.eastWestSpacing = (pageBlock.getMostPopularWordHeightPage()) / 2
-					+ pageBlock.getMostPopularHorizontalSpaceBetweenWordsPage();
-						
-			this.northSouthSpacing = (pageBlock.getMostPopularWordHeightPage() ) / 2
-					+ pageBlock.getMostPopularVerticalSpaceBetweenWordsPage();
+			if (!pageWordBlockList.isEmpty()) {
+				this.eastWestSpacing = (pageBlock.getMostPopularWordHeightPage()) / 2
+						+ pageBlock.getMostPopularHorizontalSpaceBetweenWordsPage();
 
-			if( this.quickly ) {
-				buildChunkBlocksQuickly(pageWordBlockList, pageBlock);
-			} else {
-				buildChunkBlocksSlowly(pageWordBlockList, pageBlock);				
+				this.northSouthSpacing = (pageBlock.getMostPopularWordHeightPage() ) / 2
+						+ pageBlock.getMostPopularVerticalSpaceBetweenWordsPage();
+
+				if( this.quickly ) {
+					buildChunkBlocksQuickly(pageWordBlockList, pageBlock);
+				} else {
+					buildChunkBlocksSlowly(pageWordBlockList, pageBlock);
+				}
+
+				mergeHighlyOverlappedChunkBlocks(pageBlock);
+
 			}
 
-			mergeHighlyOverlappedChunkBlocks(pageBlock);
-			
 			if (isDebugImages()) {
 				PageImageOutlineRenderer.dumpChunkTypePageImageToFile(
 						pageBlock,
