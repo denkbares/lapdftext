@@ -28,6 +28,7 @@ import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 
+import com.denkbares.lapdf.classification.structures.ChunkStructures;
 import de.d3web.core.io.PersistenceManager;
 import de.d3web.core.knowledge.KnowledgeBase;
 import de.d3web.core.knowledge.TerminologyManager;
@@ -106,10 +107,36 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 
 	private void setFacts(ChunkBlock block, TerminologyManager manager, Session session) {
 
-		// crate @Link{ChunkFeature} instance
+		// create ChunkFeatures instance
 		ChunkFeatures chunkFeatures = new ChunkFeatures(block, modelFactory);
 
-//Alignment and Position
+		// create ChunkStructures instances, TODO: configure with better structure detectors...
+		ChunkStructures chunkStructures = new ChunkStructures.Builder(block, chunkFeatures).build();
+
+		// <-- Structures -->
+
+		// table
+		double tableConfidence = chunkStructures.isTable();
+		QuestionNum table = (QuestionNum) manager.searchQuestion("Is Table? (confidence)");
+		NumValue tableValue = new NumValue(tableConfidence);
+		Fact fact = FactFactory.createFact(table, tableValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		// ordered list
+		double orderedListConfidence = chunkStructures.isOrderedList();
+		QuestionNum orderedList = (QuestionNum) manager.searchQuestion("Is Ordered List? (confidence)");
+		NumValue orderedListValue = new NumValue(orderedListConfidence);
+		fact = FactFactory.createFact(orderedList, orderedListValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		// unordered list
+		double unorderedListConfidence = chunkStructures.isUnorderedList();
+		QuestionNum unorderedList = (QuestionNum) manager.searchQuestion("Is Unordered List? (confidence)");
+		NumValue unorderedListValue = new NumValue(unorderedListConfidence);
+		fact = FactFactory.createFact(unorderedList, unorderedListValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		// <-- Alignment and Position -->
 
 		//Alignment
 		String alignment = block.readLeftRightMidLine();
@@ -117,7 +144,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		for (Choice choice : question.getAllAlternatives()) {
 			if (choice.getName().equalsIgnoreCase(alignment)) {
 				ChoiceValue choiceValue = new ChoiceValue(choice);
-				Fact fact = FactFactory.createFact(question, choiceValue, session, PSMethodUserSelected.getInstance());
+				fact = FactFactory.createFact(question, choiceValue, session, PSMethodUserSelected.getInstance());
 				session.getBlackboard().addValueFact(fact);
 			}
 		}
@@ -126,7 +153,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		boolean alignedWithBoundaries = chunkFeatures.isAlignedWithColumnBoundaries();
 		QuestionYN aWB = (QuestionYN) manager.searchQuestion("Is Aligned with Column Boundaries?");
 		ChoiceValue alignBoundariesValue = alignedWithBoundaries ? new ChoiceValue(aWB.getAnswerChoiceYes()) : new ChoiceValue(aWB.getAnswerChoiceNo());
-		Fact fact = FactFactory.createFact(aWB, alignBoundariesValue, session, PSMethodUserSelected.getInstance());
+		fact = FactFactory.createFact(aWB, alignBoundariesValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is Column Centered?
@@ -141,6 +168,13 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		QuestionYN outl = (QuestionYN) manager.searchQuestion("Is Outlier?");
 		ChoiceValue isOutlierValue = outlier ? new ChoiceValue(outl.getAnswerChoiceYes()) : new ChoiceValue(outl.getAnswerChoiceNo());
 		fact = FactFactory.createFact(outl, isOutlierValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is in Top Half?
+		boolean topHalf = chunkFeatures.isInTopHalf();
+		QuestionYN topHalfQ = (QuestionYN) manager.searchQuestion("Is Outlier?");
+		ChoiceValue topHalfValue = topHalf ? new ChoiceValue(outl.getAnswerChoiceYes()) : new ChoiceValue(outl.getAnswerChoiceNo());
+		fact = FactFactory.createFact(topHalfQ, topHalfValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Number of Line
@@ -168,7 +202,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		int xr = chunkFeatures.getXCoordsRight();
 		QuestionNum xRight = (QuestionNum) manager.searchQuestion("X-Right");
 		NumValue xRightValue = new NumValue(xr);
-		fact = FactFactory.createFact(xLeft, xLeftValue, session, PSMethodUserSelected.getInstance());
+		fact = FactFactory.createFact(xRight, xRightValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Y-Top
@@ -199,7 +233,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		fact = FactFactory.createFact(width, widthValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
-//Font
+		// <-- Font -->
 
 		//Font-Name
 		String fName = block.getMostPopularWordFont();
@@ -236,7 +270,21 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		fact = FactFactory.createFact(isItalic, isItalicValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
-//Text in Chunk
+		//Is most popular font modifier italic?
+		boolean mostPopularFontInDocument = chunkFeatures.isMostPopularFontInDocument();
+		QuestionYN isMostPopularFontInDocument = (QuestionYN) manager.searchQuestion("Is most popular font in document?");
+		ChoiceValue mostPopularFontInDocumentValue = mostPopularFontInDocument ? new ChoiceValue(isItalic.getAnswerChoiceYes()) : new ChoiceValue(isItalic.getAnswerChoiceNo());
+		fact = FactFactory.createFact(isMostPopularFontInDocument, mostPopularFontInDocumentValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		//Is most popular font modifier italic?
+		boolean nextMostPopularFontInDocument = chunkFeatures.isNextMostPopularFontInDocument();
+		QuestionYN isNextMostPopularFontInDocument = (QuestionYN) manager.searchQuestion("Is next most popular font in document?");
+		ChoiceValue nextMostPopularFontInDocumentValue = nextMostPopularFontInDocument ? new ChoiceValue(isItalic.getAnswerChoiceYes()) : new ChoiceValue(isItalic.getAnswerChoiceNo());
+		fact = FactFactory.createFact(isNextMostPopularFontInDocument, nextMostPopularFontInDocumentValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		// <-- Text in Chunk -->
 
 		//Contains first Line of Page?
 		boolean flP = chunkFeatures.isContainingFirstLineOfPage();
@@ -280,13 +328,20 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		fact = FactFactory.createFact(chunkText, chunkTextValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
-//Document
+		// <-- Document -->
 
 		//Page Number
 		double pNum = chunkFeatures.getPageNumber();
 		QuestionNum pageNumber = (QuestionNum) manager.searchQuestion("Page Number");
 		NumValue pageNumberValue = new NumValue(pNum);
 		fact = FactFactory.createFact(pageNumber, pageNumberValue, session, PSMethodUserSelected.getInstance());
+		session.getBlackboard().addValueFact(fact);
+
+		// <-- Classification -->
+		String lastClassificationText = chunkFeatures.getlastClassification();
+		QuestionText lastClassification = (QuestionText) manager.searchQuestion("Last Classification");
+		TextValue lastClassificationValue  = new TextValue(lastClassificationText);
+		fact = FactFactory.createFact(lastClassification, lastClassificationValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 	}
