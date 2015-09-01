@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: edu.isi.bmkeg:bmkeg-utils:1.1.5-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/edu/isi/bmkeg/bmkeg-utils/1.1.5-SNAPSHOT/bmkeg-utils-1.1.5-SNAPSHOT.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/edu/isi/bmkeg/bmkeg-utils/1.1.5-SNAPSHOT/bmkeg-utils-1.1.5-20150804.205521-11.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/edu/isi/bmkeg/bmkeg-utils/1.1.5-SNAPSHOT/bmkeg-utils-1.1.5-SNAPSHOT-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/edu/isi/bmkeg/bmkeg-utils/1.1.5-SNAPSHOT/bmkeg-utils-1.1.5-20150804.205521-11-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/edu/isi/bmkeg/bmkeg-utils/1.1.5-SNAPSHOT/bmkeg-utils-1.1.5-SNAPSHOT-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/edu/isi/bmkeg/bmkeg-utils/1.1.5-SNAPSHOT/bmkeg-utils-1.1.5-20150804.205521-11-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

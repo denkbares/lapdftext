@@ -76,6 +76,8 @@ public interface ChunkBlock extends Block, SpatialEntity {
 	public static final String META_TYPE_HEADING = ".heading";
 	public static final String META_TYPE_SUBTITLE = ".subtitle";
 
+	public static final boolean wasClassified = false;
+
 	public int getMostPopularWordHeight();
 
 	public int getMostPopularWordSpaceWidth();
@@ -133,5 +135,12 @@ public interface ChunkBlock extends Block, SpatialEntity {
 	 * @return ordered word blocks
 	 */
 	List<WordBlock> getWordBlocks(String ordering);
+
+	/**
+	 * Sets wheter or not this Block has been Classified by an instance of D3ChunkClassifier
+	 */
+	public void setWasClassified(boolean b);
+
+	public boolean getWasClassified();
 
 }

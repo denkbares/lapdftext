@@ -30,6 +30,7 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 	
 	private String alignment = null;
 	private String type = ChunkBlock.TYPE_UNCLASSIFIED;
+	private boolean wasClassified = false;
 	private Boolean headerOrFooter=null;
 	
 	private double density = -1;
@@ -432,5 +433,15 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 		     throws IOException, ClassNotFoundException;
 		 private void readObjectNoData() 
 		     throws ObjectStreamException;*/
+
+	@Override
+	public void setWasClassified(boolean b){
+		wasClassified = b;
+	}
+
+	@Override
+	public boolean getWasClassified(){
+		return wasClassified;
+	}
 
 }

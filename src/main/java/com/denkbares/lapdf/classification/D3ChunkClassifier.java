@@ -96,12 +96,14 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 			Rating state = session.getBlackboard().getRating(solution);
 			if (state.hasState(Rating.State.ESTABLISHED)) {
 				block.setType(solution.getName());
+				block.setWasClassified(true);
 			}
 		}
 
 		// fall back: docbook:Text
 		if (block.getType().equals("unclassified")) {
 			block.setType("docbook:Text");
+			block.setWasClassified(false);
 		}
 	}
 
