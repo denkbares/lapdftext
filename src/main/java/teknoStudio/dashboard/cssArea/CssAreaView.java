@@ -1,4 +1,4 @@
-package teknoStudio.dashboard.pdfArea;
+package teknoStudio.dashboard.cssArea;
 
 /*
  * #%L
@@ -21,10 +21,12 @@ package teknoStudio.dashboard.pdfArea;
  */
 
 import com.airhacks.afterburner.views.FXMLView;
+import java.util.function.Function;
 
 /**
  *
- * @author adam-bien.com
+ * @author airhacks.com
  */
-public class PdfView extends FXMLView {
+public class CssAreaView extends FXMLView {
+
 }

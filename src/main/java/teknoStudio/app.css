@@ -1,5 +1,3 @@
-package teknoStudio.dashboard.pdfArea;
-
 /*
  * #%L
  * igniter
@@ -19,12 +17,10 @@ package teknoStudio.dashboard.pdfArea;
  * limitations under the License.
  * #L%
  */
+.boxSpacing{
+    -fx-padding: 10 10 10 10;
+}
 
-import com.airhacks.afterburner.views.FXMLView;
-
-/**
- *
- * @author adam-bien.com
- */
-public class PdfView extends FXMLView {
+.root {    
+    -fx-font: 14px "Helvetica";
 }

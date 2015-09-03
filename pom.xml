@@ -317,6 +317,14 @@
 
 	<repositories>
 
+		<!-- IDR Solutions Repository -->
+
+		<repository>
+			<id>IDRSolutions</id>
+			<name>IDRSolutions Maven Repository</name>
+			<url>https://github.com/IDRSolutions/maven_OpenViewerFX_repository/raw/master/</url>
+		</repository>
+
 		<!-- JBoss Repository -->
 
 		<repository>
@@ -424,6 +432,7 @@
 
 	<dependencies>
 
+
 		<!-- UIMA -->
 
 		<dependency>
@@ -481,6 +490,13 @@
 		</dependency>
 
 		<!-- PDF -->
+
+		<dependency>
+			<groupId>org.jpedal</groupId>
+			<artifactId>OpenViewerFX</artifactId>
+			<version>6.3.31</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.jpedal</groupId>

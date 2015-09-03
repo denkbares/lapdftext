@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="teknoStudio.dashboard.ruleItem.RuleItemPresenter">
+   <children>
+      <BorderPane layoutX="200.0" layoutY="80.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <bottom>
+            <ToolBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+              <items>
+                <Button fx:id="deleteRuleButton" mnemonicParsing="false" text="DELETE" />
+                  <TextField fx:id="ruleNameTextField" prefHeight="40.0" prefWidth="150.0" promptText="RuleName" />
+                  <Text fx:id="minSupportText" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="\@minSupport:" />
+              </items>
+            </ToolBar>
+         </bottom>
+         <center>
+            <TextArea fx:id="ruleTextArea" prefHeight="344.0" prefWidth="454.0" promptText="&lt;Rules go here&gt;" BorderPane.alignment="CENTER" />
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>

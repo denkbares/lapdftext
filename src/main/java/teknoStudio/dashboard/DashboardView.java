@@ -1,4 +1,4 @@
-package teknoStudio.dashboard.pdfArea;
+package teknoStudio.dashboard;
 
 /*
  * #%L
@@ -26,5 +26,5 @@ import com.airhacks.afterburner.views.FXMLView;
  *
  * @author adam-bien.com
  */
-public class PdfView extends FXMLView {
+public class DashboardView extends FXMLView {
 }

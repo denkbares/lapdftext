@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="teknoStudio.dashboard.DashboardPresenter">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#openFileMenuAction" text="Open..." />
+                  <MenuItem mnemonicParsing="false" onAction="#saveFileMenuAction" text="Save" />
+                  <MenuItem mnemonicParsing="false" onAction="#saveAsFileMenuAction" text="Save As..." />
+              <MenuItem mnemonicParsing="false" onAction="#exitFileMenuAction" text="Exit" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="PDF">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#openPdfMenuAction" text="Open..." />
+                  <MenuItem mnemonicParsing="false" onAction="#reclassifyPdfMenuAction" text="Reclassify" />
+                  <MenuItem mnemonicParsing="false" onAction="#exportPdfMenuAction" text="Export XML..." />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <SplitPane dividerPositions="0.65" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <BorderPane fx:id="pdfBorderPane" layoutX="105.0" layoutY="163.0" prefHeight="559.0" prefWidth="394.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <top>
+                        <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                          <items>
+                              <Button fx:id="toBeginningButton" mnemonicParsing="false" onAction="#beginningPage" text="&lt;&lt;" />
+                            <Button fx:id="backButton" mnemonicParsing="false" onAction="#backPage" text="&lt;" />
+                              <TextField fx:id="pageTextField" promptText="Enter Page No" />
+                              <Button fx:id="forwardButton" mnemonicParsing="false" onAction="#forwardPage" text="&gt;" />
+                              <Button fx:id="toEndButton" mnemonicParsing="false" onAction="#endPage" text="&gt;&gt;" />
+                          </items>
+                        </ToolBar>
+                     </top>
+                     <bottom>
+                        <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                           <items>
+                              <Text fx:id="pdfStatusText" strokeType="OUTSIDE" strokeWidth="0.0" text="No PDF loaded!" />
+                           </items>
+                        </ToolBar>
+                     </bottom>
+                  </BorderPane>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <BorderPane fx:id="cssBorderPane" layoutX="164.0" layoutY="104.0" prefHeight="559.0" prefWidth="394.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </center>
+</BorderPane>
