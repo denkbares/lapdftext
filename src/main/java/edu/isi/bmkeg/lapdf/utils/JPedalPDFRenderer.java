@@ -1,9 +1,6 @@
 package edu.isi.bmkeg.lapdf.utils;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +15,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
-import org.jpedal.PdfDecoder;
+import org.jpedal.PdfDecoderFX;
 import org.jpedal.exception.PdfException;
 import org.jpedal.objects.PdfFileInformation;
 
@@ -76,11 +73,14 @@ public class JPedalPDFRenderer {
 		String pdfName = pdf.getName();
 		String pdfStem = pdfName.substring(0, pdfName.lastIndexOf("."));
 
-		PdfDecoder decoder = new PdfDecoder(true);
+		PdfDecoderFX decoder = new PdfDecoderFX();
 	
 		// decoder.setExtractionMode(0, DPI, DPI/72);
-		decoder.setExtractionMode(PdfDecoder.TEXT + PdfDecoder.RAWIMAGES
-					+ PdfDecoder.FINALIMAGES, DPI, DPI / 72);
+		// TODO: check this
+		decoder.setExtractionMode(PdfDecoderFX.TEXT + PdfDecoderFX.RAWIMAGES
+				+ PdfDecoderFX.FINALIMAGES, DPI / 72);
+//		decoder.setExtractionMode(PdfDecoder.TEXT + PdfDecoder.RAWIMAGES
+//					+ PdfDecoder.FINALIMAGES, DPI, DPI / 72);
 		decoder.openPdfFile(pdf.getPath());
 
 		endPage = decoder.getPageCount();
@@ -99,7 +99,7 @@ public class JPedalPDFRenderer {
 				if (fields[i].equals("Creator")) {
 					for (int j = 0; j < ocr.length; j++) {
 						if (values[i].equals(ocr[j])) {
-							decoder.setRenderMode(PdfDecoder.RENDERIMAGES);
+							decoder.setRenderMode(PdfDecoderFX.RENDERIMAGES);
 							//decoder.setsetEnableLegacyJPEGConversion(true);
 						}
 					}

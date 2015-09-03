@@ -57,7 +57,7 @@ public class RuleBasedParser implements Parser {
 	
 	private int eastWestSpacing;
 
-	private boolean quickly = true;
+	private boolean quickly = false;
 
 	protected AbstractModelFactory modelFactory;
 	

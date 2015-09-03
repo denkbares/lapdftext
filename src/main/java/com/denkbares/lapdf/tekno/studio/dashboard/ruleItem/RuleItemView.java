@@ -1,4 +1,4 @@
-package teknoStudio.dashboard.pdfArea;
+package com.denkbares.lapdf.tekno.studio.dashboard.ruleItem;
 
 /*
  * #%L
@@ -22,9 +22,11 @@ package teknoStudio.dashboard.pdfArea;
 
 import com.airhacks.afterburner.views.FXMLView;
 
+import java.util.function.Function;
+
 /**
  *
- * @author adam-bien.com
+ * @author Maximilian Schirm
  */
-public class PdfView extends FXMLView {
+public class RuleItemView extends FXMLView {
 }

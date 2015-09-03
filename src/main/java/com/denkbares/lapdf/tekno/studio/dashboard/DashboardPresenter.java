@@ -1,4 +1,4 @@
-package teknoStudio.dashboard;
+package com.denkbares.lapdf.tekno.studio.dashboard;
 
 /*
  * #%L
@@ -22,7 +22,6 @@ package teknoStudio.dashboard;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -41,10 +40,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
-import teknoStudio.dashboard.cssArea.CssAreaPresenter;
-import teknoStudio.dashboard.cssArea.CssAreaView;
-import teknoStudio.dashboard.pdfArea.PdfPresenter;
-import teknoStudio.dashboard.pdfArea.PdfView;
+import com.denkbares.lapdf.tekno.studio.dashboard.cssArea.CssAreaPresenter;
+import com.denkbares.lapdf.tekno.studio.dashboard.cssArea.CssAreaView;
+import com.denkbares.lapdf.tekno.studio.dashboard.pdfArea.PdfPresenter;
+import com.denkbares.lapdf.tekno.studio.dashboard.pdfArea.PdfView;
 
 import javax.inject.Inject;
 

@@ -1,4 +1,4 @@
-package teknoStudio.dashboard.rules;
+package com.denkbares.lapdf.tekno.studio.dashboard.rules;
 
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 

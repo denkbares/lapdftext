@@ -1,4 +1,4 @@
-package teknoStudio.dashboard.cssArea;
+package com.denkbares.lapdf.tekno.studio.dashboard.cssArea;
 
 /*
  * #%L
@@ -30,9 +30,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
-import teknoStudio.dashboard.Rule;
-import teknoStudio.dashboard.ruleItem.RuleItemPresenter;
-import teknoStudio.dashboard.ruleItem.RuleItemView;
+import com.denkbares.lapdf.tekno.studio.dashboard.Rule;
+import com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemView;
+import com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemPresenter;
 
 /**
  *

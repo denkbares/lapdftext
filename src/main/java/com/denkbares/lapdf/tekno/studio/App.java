@@ -1,4 +1,4 @@
-package teknoStudio;
+package com.denkbares.lapdf.tekno.studio;
 
 /*
  * #%L
@@ -20,12 +20,12 @@ package teknoStudio;
  * #L%
  */
 
-import teknoStudio.dashboard.DashboardView;
+import com.denkbares.lapdf.tekno.studio.dashboard.DashboardView;
+
 import com.airhacks.afterburner.injection.Injector;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import teknoStudio.dashboard.pdfArea.PdfView;
 
 /**
  *

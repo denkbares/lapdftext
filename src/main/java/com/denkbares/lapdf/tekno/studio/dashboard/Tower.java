@@ -1,4 +1,4 @@
-package teknoStudio.dashboard;
+package com.denkbares.lapdf.tekno.studio.dashboard;
 
 /*
  * #%L
@@ -20,14 +20,19 @@ package teknoStudio.dashboard;
  * #L%
  */
 
-import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
-import edu.isi.bmkeg.lapdf.model.ChunkBlock;
-import edu.isi.bmkeg.lapdf.model.LapdfDocument;
-
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.annotation.PostConstruct;
+
+import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
+import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import edu.isi.bmkeg.lapdf.model.LapdfDocument;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
+import edu.isi.bmkeg.utils.xml.XmlBindingTools;
+
+import de.d3web.utils.Log;
 
 /**
  *
@@ -46,7 +51,7 @@ public class Tower {
     @PostConstruct
     public void init() {
         try {
-//            engine = new LapdfEngine();
+            engine = new LapdfEngine();
         }
         catch(Exception e){
             System.out.println("ERROR : Failed to initialize the Tower!");
@@ -81,7 +86,7 @@ public class Tower {
             doc = engine.blockifyFile(new File(pdfPath));
         }
         catch(Exception e){
-            throw new IOException("Failed to refresh the LaPDFDocument");
+            throw new IOException("Failed to refresh the LaPDFDocument", e);
         }
     }
 
@@ -91,11 +96,12 @@ public class Tower {
         }
         else{
             try{
-                engine.writeSpatialXmlToFile(doc, new File(dir));
+                LapdftextXMLDocument xmlDoc = doc.convertToLapdftextXmlFormat();
+                XmlBindingTools.saveAsXml(xmlDoc, new File(dir));
                 return true;
             }
             catch(Exception e){
-                System.out.println("--------ERROR--------\n Failed to save XML File!"+e.getMessage());
+                Log.severe("--------ERROR--------\n Failed to save XML File!", e);
                 return false;
             }
         }

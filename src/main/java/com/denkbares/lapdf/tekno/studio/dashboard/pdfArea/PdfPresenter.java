@@ -1,4 +1,4 @@
-package teknoStudio.dashboard.pdfArea;
+package com.denkbares.lapdf.tekno.studio.dashboard.pdfArea;
 
 /*
  * #%L
@@ -20,7 +20,7 @@ package teknoStudio.dashboard.pdfArea;
  * #L%
  */
 
-import java.io.File;
+import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -28,17 +28,11 @@ import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
-import java.awt.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import org.jpedal.PdfDecoderFX;
 import org.jpedal.examples.baseviewer.BaseViewerFX;
-import org.jpedal.examples.viewer.OpenViewerFX;
 import org.jpedal.exception.PdfException;
-
-import javax.inject.Inject;
 
 /**
  *

@@ -1,4 +1,4 @@
-package teknoStudio.dashboard;
+package com.denkbares.lapdf.tekno.studio.dashboard;
 
 /**
  * Created by Maximilian on 03.09.2015.

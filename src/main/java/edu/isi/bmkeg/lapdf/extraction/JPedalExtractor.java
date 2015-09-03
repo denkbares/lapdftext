@@ -15,14 +15,6 @@ import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.Logger;
-import org.jpedal.PdfDecoder;
-import org.jpedal.grouping.PdfGroupingAlgorithms;
-import org.jpedal.objects.PdfPageData;
-import org.jpedal.utils.Strip;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EmptyPDFException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EncryptionException;
@@ -31,13 +23,20 @@ import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
+import org.apache.log4j.Logger;
+import org.jpedal.PdfDecoderFX;
+import org.jpedal.grouping.PdfGroupingAlgorithms;
+import org.jpedal.objects.PdfPageData;
+import org.jpedal.utils.Strip;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class JPedalExtractor implements Extractor {
 
 	private static Logger logger = Logger.getLogger(JPedalExtractor.class);
 	
 	Set<WordBlock> wordListPerPage = null;
-	PdfDecoder PDFDecoder = null;
+	PdfDecoderFX PDFDecoder = null;
 	int currentPage = 1;
 	int pageCount;
 	private static Document xmlDocument;
@@ -59,13 +58,13 @@ public class JPedalExtractor implements Extractor {
 		docBuilder = dbfac.newDocumentBuilder();
 		
 		this.modelFactory = modelFactory;
-		this.PDFDecoder = new PdfDecoder(false);
+		this.PDFDecoder = new PdfDecoderFX();
 		
 		this.avgHeightFrequencyCounter = new IntegerFrequencyCounter(1);
 		this.spaceFrequencyCounterMap = new HashMap<Integer, IntegerFrequencyCounter>();
 
-		PDFDecoder.setExtractionMode(PdfDecoder.TEXT); 
-		PDFDecoder.init(true);
+		PDFDecoder.setExtractionMode(PdfDecoderFX.TEXT);
+//		PDFDecoder.init(true);
 		PdfGroupingAlgorithms.useUnrotatedCoords = true;
 		
 		// if you do not require XML content, 

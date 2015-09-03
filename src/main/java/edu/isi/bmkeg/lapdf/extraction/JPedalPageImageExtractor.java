@@ -4,28 +4,26 @@ import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jpedal.PdfDecoder;
-import org.jpedal.exception.PdfException;
-import org.jpedal.fonts.PdfFont;
-import org.jpedal.grouping.PdfGroupingAlgorithms;
-
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EncryptionException;
+import org.jpedal.PdfDecoderFX;
+import org.jpedal.exception.PdfException;
+import org.jpedal.grouping.PdfGroupingAlgorithms;
 
 public class JPedalPageImageExtractor implements Iterator<BufferedImage>
 {
-	private PdfDecoder decoder = null;
+	private PdfDecoderFX decoder = null;
 	int currentPage = 1;
 	int pageCount;
 	private List<BufferedImage> pageImages;
 
 	public JPedalPageImageExtractor()
 	{
-		this.decoder = new PdfDecoder(true);
+		this.decoder = new PdfDecoderFX();
 		//PdfDecoder.s
 		//PdfDecoder.setTextPrint(PdfDecoder.);
 		//decoder.setExtractionMode(PdfDecoder.TEXT); // extract just text
-		decoder.init(true);
+//		decoder.init(true);
 		PdfGroupingAlgorithms.useUnrotatedCoords = true;
 		// if you do not require XML content, pure text extraction is much
 		// faster.

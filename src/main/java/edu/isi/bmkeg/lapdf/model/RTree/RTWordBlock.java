@@ -217,7 +217,7 @@ public class RTWordBlock extends RTSpatialEntity implements WordBlock {
 		
 		// find all overlapping words
 		TreeSet<SpatialEntity> spatiallyDefinedNeighbors = new TreeSet<SpatialEntity>(
-				new SpatialOrdering(SpatialOrdering.MIXED_MODE)
+				new SpatialOrdering(SpatialOrdering.VERTICAL_MODE)
 				);
 		spatiallyDefinedNeighbors.addAll(page.intersects(expandedWord, null));
 
