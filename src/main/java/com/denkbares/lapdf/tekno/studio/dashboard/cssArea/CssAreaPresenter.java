@@ -22,23 +22,29 @@ package com.denkbares.lapdf.tekno.studio.dashboard.cssArea;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 import com.denkbares.lapdf.tekno.studio.dashboard.Rule;
 import com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemView;
 import com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemPresenter;
+import javafx.scene.layout.VBox;
 
 /**
  *
- * @author airhacks.com
+ * @author Maximilian Schirm
  */
 public class CssAreaPresenter implements Initializable {
+
+    @FXML
+    BorderPane cssAreaBorderPane;
 
     @FXML
     Button addRuleButton;
@@ -47,7 +53,7 @@ public class CssAreaPresenter implements Initializable {
     TextField ruleNameTextField;
 
     @FXML
-    GridPane rulesGridPane;
+    VBox rulesVBox;
 
     ArrayList<Integer> filledRows;
     ArrayList<Rule> rulesList;
@@ -60,10 +66,22 @@ public class CssAreaPresenter implements Initializable {
         filledRows = new ArrayList<Integer>();
     }
 
+    public Collection<Rule> getRules(){
+        return rulesList;
+    }
+
     public void addRuleButtonPressed(){
         //For debugging only
-        addRuleToGrid(new Rule("Gruetze", ruleNameTextField.getText()));
-
+        if(ruleNameTextField.getText() == ""){
+            Rule temp = new Rule("Gruetze", "Rule"+rulesList.size());
+            addRuleToGrid(temp);
+            rulesList.add(temp);
+        }
+        else {
+            Rule temp = new Rule("Gruetze", ruleNameTextField.getText());
+            addRuleToGrid(temp);
+            rulesList.add(temp);
+        }
     }
 
     public void addRuleToGrid(Rule r){
@@ -71,7 +89,14 @@ public class CssAreaPresenter implements Initializable {
         rulesViewList.add(tempRuleView);
         RuleItemPresenter tempRulePresenter = (RuleItemPresenter)tempRuleView.getPresenter();
         tempRulePresenter.setThisRule(r);
+        tempRulePresenter.setSuper(this);
 
+        rulesVBox.getChildren().add(tempRuleView.getView());
+
+
+
+        /*
+        Ye Olde Ways
         //Add to Grid
         if(rulesGridPane.getChildren() != null) {
             if (rulesGridPane.getChildren().size() <= filledRows.size()) {
@@ -86,6 +111,12 @@ public class CssAreaPresenter implements Initializable {
         else{
             rulesGridPane.add(tempRuleView.getView(), 0, 0);
         }
+        **/
+    }
+
+    public void deleteRule(RuleItemPresenter rule){
+        rulesList.remove(rule.getRule());
+
     }
 
     private int getLastEmptyRow(){

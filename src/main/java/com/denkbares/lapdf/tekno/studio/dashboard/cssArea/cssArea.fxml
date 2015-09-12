@@ -8,30 +8,22 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="347.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denkbares.lapdf.tekno.studio.dashboard.cssArea.CssAreaPresenter">
+<BorderPane fx:id="cssAreaBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="800.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denkbares.lapdf.tekno.studio.dashboard.cssArea.CssAreaPresenter">
    <top>
-      <ToolBar prefHeight="40.0" prefWidth="350.0" BorderPane.alignment="CENTER">
+      <ToolBar maxHeight="-Infinity" prefHeight="40.0" prefWidth="350.0" BorderPane.alignment="CENTER">
         <items>
           <Button fx:id="addRuleButton" mnemonicParsing="false" onAction="#addRuleButtonPressed" text="+" />
-            <TextField fx:id="ruleNameTextField" prefHeight="39.0" prefWidth="153.0" promptText="Rule Name" />
+            <TextField fx:id="ruleNameTextField" prefWidth="153.0" promptText="Rule Name" />
             <Button mnemonicParsing="false" text="OK" />
             <Button mnemonicParsing="false" text="Abort" />
         </items>
       </ToolBar>
    </top>
    <center>
-      <GridPane fx:id="rulesGridPane">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <BorderPane.margin>
-            <Insets top="40.0" />
-         </BorderPane.margin>
-      </GridPane>
+      <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <content>
+            <VBox fx:id="rulesVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" />
+         </content>
+      </ScrollPane>
    </center>
 </BorderPane>

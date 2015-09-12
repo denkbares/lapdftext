@@ -5,15 +5,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="teknoStudio.dashboard.ruleItem.ruleItemPresenter">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemPresenter">
    <children>
-      <BorderPane layoutX="200.0" layoutY="80.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <BorderPane layoutX="200.0" layoutY="80.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
          <bottom>
             <ToolBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <items>
                 <Button fx:id="deleteRuleButton" mnemonicParsing="false" text="DELETE" />
                   <TextField fx:id="ruleNameTextField" prefHeight="40.0" prefWidth="150.0" promptText="RuleName" />
                   <Text fx:id="minSupportText" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="\@minSupport:" />
+                  <TextField fx:id="minSupportTextField" maxWidth="40.0" minHeight="40.0" minWidth="40.0" />
               </items>
             </ToolBar>
          </bottom>

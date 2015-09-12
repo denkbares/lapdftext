@@ -54,12 +54,6 @@ import javax.inject.Inject;
 public class DashboardPresenter implements Initializable {
 
     @FXML
-    Text pdfStatusText;
-
-    @FXML
-    TextField pageTextField;
-
-    @FXML
     BorderPane pdfBorderPane;
 
     @FXML
@@ -83,6 +77,7 @@ public class DashboardPresenter implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         pdfViewr = new PdfView();
         pdfPresentr = (PdfPresenter) pdfViewr.getPresenter();
+        pdfPresentr.setDashboardPresenter(this);
         pdfBorderPane.setCenter(pdfViewr.getView());
 
         cssViewr = new CssAreaView();
@@ -90,92 +85,20 @@ public class DashboardPresenter implements Initializable {
         cssBorderPane.setCenter((cssViewr.getView()));
 
 
-        //Limit Text Field input to Digits
-        pageTextField.addEventFilter(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent inputevent) {
-                if (!inputevent.getCharacter().matches("\\d")) {
-                    inputevent.consume();
-                }
-            }
-        });
-        //Navigate on enter key
-        pageTextField.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                setPage(Integer.parseInt(pageTextField.getText()));
-            }
-        });
-    }
-
-    public void setPage(int pNo) {
-        //if(tower!=null && pNo < tower.getNumberOfPages() && pNo >= 1){
-            currentPageNo = pNo;
-            pdfPresentr.changePage(currentPageNo);
-
-            updateBoxes();
-            pageTextField.setText("" + currentPageNo);
-        //}
-    }
-
-    public void forwardPage() {
-        if(currentPageNo < 40){
-            currentPageNo++;
-            pdfPresentr.changePage(currentPageNo);
-
-            updateBoxes();
-            pageTextField.setText("" + currentPageNo);
-        }
-    }
-
-    public void backPage() {
-        if(currentPageNo > 1){
-            currentPageNo--;
-            pdfPresentr.changePage(currentPageNo);
-
-            updateBoxes();
-            pageTextField.setText("" + currentPageNo);
-        }
-    }
-
-    public void beginningPage() {
-            currentPageNo = 1;
-            pdfPresentr.changePage(currentPageNo);
-
-            updateBoxes();
-            pageTextField.setText("" + currentPageNo);
 
     }
 
-    public void endPage() {
-
-            currentPageNo = 40;
-            pdfPresentr.changePage(currentPageNo);
-
-            updateBoxes();
-            pageTextField.setText("" + currentPageNo);
-
-    }
-
-    /**
+     /**
      * Fetches the ChunkBlocks from the Model and tells the PDFView to draw them as boxes
      */
     public void updateBoxes(){
         try {
             final ArrayList<ChunkBlock> currentChunkBlockList = tower.getChunkBlocksOfPage(currentPageNo);
-            if (!chunkBlockList.equals(currentChunkBlockList)) {
                 //TODO Tell jPedal to draw boxes
                 for (ChunkBlock b : currentChunkBlockList) {
                     //Draw box. Red if unclassified, yellow if classified. If classified, add class as text or mouseover.
-                    if (b.getWasClassified() == false) {
-                        //TODO draw red border
-
-                    } else {
-                        //TODO draw yellow border and text
-
-                    }
+                    pdfPresentr.drawOnPage(b);
                 }
-            }
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -193,7 +116,7 @@ public class DashboardPresenter implements Initializable {
         }
         catch(Exception e){
             System.out.println("---------ERROR---------\nFailed to load File :"+openedRules.getAbsolutePath()+"\n"+e.getMessage());
-            pdfStatusText.setText("Error reading file " + openedRules.getAbsolutePath());
+            pdfPresentr.setStatus("Error reading file " + openedRules.getAbsolutePath());
         }
         if(correctlyFormatted(decode(newRules))) {
             currentRulePath = openedRules;
@@ -203,7 +126,7 @@ public class DashboardPresenter implements Initializable {
         }
         else{
             System.out.println("The file ;" + currentRulePath.getAbsolutePath() + " is not a valid rules file!");
-            pdfStatusText.setText("The file ;" + currentRulePath.getAbsolutePath() + " is not a valid rules file!");
+            pdfPresentr.setStatus("The file ;" + currentRulePath.getAbsolutePath() + " is not a valid rules file!");
         }
     }
 
@@ -277,32 +200,32 @@ public class DashboardPresenter implements Initializable {
     public void openPdfMenuAction(){
         //TODO: REMOVE COMMENTING #DEBUG
 
-        //try{
+        try{
             FileChooser opener = new FileChooser();
             opener.setTitle("Open PDF File");
             opener.setInitialDirectory(new File(System.getProperty("user.home")));
             opener.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF File", "*.pdf"));
             File openedPDF = opener.showOpenDialog(new Popup());
-            //tower.setPdfPath(openedPDF.getAbsolutePath());
-            //Tell jPedal to load PDF File
+
+            tower.setPdfPath(openedPDF.getAbsolutePath());
             pdfPresentr.loadPDFFile(openedPDF.getAbsolutePath());
-            pdfPresentr.changePage(1);
-            pdfStatusText.setText("Successfully loaded the File " + openedPDF.getName() + "!");
-        /*}
-        catch (IOException e){
+            pdfPresentr.setPage(1);
+            pdfPresentr.setStatus("Successfully loaded the File " + openedPDF.getName() + "!");
+        }
+        catch (Exception e){
             System.out.println("Failed to open PDF File!");
-            pdfStatusText.setText("Opening PDF File failed! Please try again!");
-            System.out.println("-------------ERROR------------\n" + e.getMessage());
-        }**/
+            pdfPresentr.setStatus("Opening PDF File failed! Please try again!");
+            System.out.println("-------------ERROR------------\n" + e.getStackTrace());
+        }
     }
 
     public void reclassifyPdfMenuAction(){
         try{
             tower.refreshLapdfDocument();
-            pdfStatusText.setText("Document successfully reclassified!");
+            pdfPresentr.setStatus("Document successfully reclassified!");
         } catch (IOException e) {
             e.printStackTrace();
-            pdfStatusText.setText("Failed to reclassify!");
+            pdfPresentr.setStatus("Failed to reclassify!");
         }
     }
 
@@ -314,11 +237,11 @@ public class DashboardPresenter implements Initializable {
         File file = saver.showSaveDialog(new Popup());
         if(tower.exportAsXML(file.getAbsolutePath())) {
             System.out.println("Successfully exported XML to " + file.getAbsolutePath());
-            pdfStatusText.setText("Successfully exported XML File!");
+            pdfPresentr.setStatus("Successfully exported XML File!");
         }
         else{
             System.out.println("Failed to export XML.");
-            pdfStatusText.setText("Failed to export XML.");
+            pdfPresentr.setStatus("Failed to export XML.");
         }
     }
 
@@ -335,6 +258,14 @@ public class DashboardPresenter implements Initializable {
     //TODO : Implement!
     public String encode(String s){
         return s;
+    }
+
+    public Tower getTower(){
+        return tower;
+    }
+
+    public void setPage(int x){
+        currentPageNo = x;
     }
 
 }

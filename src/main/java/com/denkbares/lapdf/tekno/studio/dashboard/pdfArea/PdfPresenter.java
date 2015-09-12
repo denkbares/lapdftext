@@ -20,34 +20,47 @@ package com.denkbares.lapdf.tekno.studio.dashboard.pdfArea;
  * #L%
  */
 
-import java.awt.*;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.denkbares.lapdf.tekno.studio.dashboard.DashboardPresenter;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.paint.Color;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.canvas.*;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import org.jpedal.PdfDecoderFX;
 import org.jpedal.examples.baseviewer.BaseViewerFX;
 import org.jpedal.exception.PdfException;
 
 /**
  *
- * @author airhacks.com
+ * @author Maximilian Schirm
  */
 public class PdfPresenter implements Initializable {
 
     @FXML
-    AnchorPane pdfPane;
+    BorderPane pdfPane;
 
     PdfDecoderFX pdfDecoder;
     BaseViewerFX viewerBase;
-    int currentPage = 1;
+    int currentPageNo = 1;
     float scale = 1.0f;
     float insetX, insetY = 10;
+    DashboardPresenter dbp;
+    Canvas boxesOverlay;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -55,17 +68,39 @@ public class PdfPresenter implements Initializable {
         //Load OpenViewer (jPedal)
         pdfDecoder = new org.jpedal.PdfDecoderFX();
         viewerBase = new BaseViewerFX();
-        Group temp = new Group();
-        temp.getChildren().add(pdfDecoder);
-        pdfPane.getChildren().add(temp);
+        StackPane stackingBox = new StackPane();
+        boxesOverlay = new Canvas();
+        stackingBox.getChildren().addAll(pdfDecoder, boxesOverlay);
+        pdfPane.setCenter(stackingBox);
+
+
+        //Limit Text Field input to Digits
+        pageTextField.addEventFilter(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent inputevent) {
+                if (!inputevent.getCharacter().matches("\\d")) {
+                    inputevent.consume();
+                }
+            }
+        });
+        //Navigate on enter key
+        pageTextField.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setPage(Integer.parseInt(pageTextField.getText()));
+            }
+        });
     }
 
     public boolean loadPDFFile(String dir) {
         try {
             pdfDecoder.clearScreen();
             pdfDecoder.openPdfFile(dir);
-            currentPage = 1;
+            currentPageNo = 1;
             fitToX(FitToPage.AUTO);
+
+            pdfPane.getCenter().toBack();
+
             return true;
         } catch (PdfException e) {
             System.out.println("---------ERROR---------\nIn module pdfArea\n" + e.getMessage());
@@ -74,43 +109,42 @@ public class PdfPresenter implements Initializable {
     }
 
     public void clearScreen() {
-        currentPage = 1;
+        currentPageNo = 1;
         pdfDecoder.closePdfFile();
     }
 
     public void changePage(int pageNew) {
         try {
-            pdfDecoder.decodePage(pageNew);
-            pdfDecoder.waitForDecodingToFinish();
-            currentPage = pageNew;
-            fitToX(FitToPage.AUTO);
+            if(setPage(pageNew)) {
+                boxesOverlay.getGraphicsContext2D().clearRect(0,0,boxesOverlay.getWidth(),boxesOverlay.getHeight());
+            }
+            else
+                System.out.println("Illegal Page number passed for changePage()");
         } catch (Exception e) {
             System.out.println("--------ERROR-------\nFailed to decode page!\n" + e.getMessage());
         }
     }
 
     public void drawOnPage(ChunkBlock what) {
-        int currentPageNumber = pdfDecoder.getPageNumber();
+
         int widthBox = Math.abs(what.getX2() - what.getX1());
         int heightBox = Math.abs(what.getY2() - what.getY1());
 
+        //TODO Move to higher level (Refresh with page refresh only, also clear prev drawing)
+        boxesOverlay.setHeight(pdfDecoder.getHeight());
+        boxesOverlay.setWidth(pdfDecoder.getWidth());
+
+        //Decide which color box gets
         Color boxColor = Color.YELLOW;
         if (what.getWasClassified()) {
             boxColor = Color.RED;
         }
 
-        Rectangle chunkBox = new Rectangle(what.getX1(), what.getY1(), widthBox, heightBox);
-        chunkBox.setStrokeWidth(2.0);
+        boxesOverlay.getGraphicsContext2D().setLineWidth(2.0);
+        boxesOverlay.getGraphicsContext2D().setStroke(boxColor);
+        boxesOverlay.getGraphicsContext2D().strokeRect(what.getX1(), what.getY1(), widthBox, heightBox);
 
-        int[] type = {0};
-        Color[] colors = {boxColor};
-        Object[] objects = {chunkBox};
-
-        try {
-            pdfDecoder.drawAdditionalObjectsOverPage(currentPageNumber, type, colors, objects);
-        } catch (Exception e) {
-            System.out.println("-----ERROR-----\nCould not draw onto PDF!\n" + e.getMessage());
-        }
+        System.out.println("Drawn box with x1:"+what.getX1()+", y1:"+what.getY1()+", h:"+what.getHeight()+" and w:"+what.getWidth()+" in Color "+boxColor.toString()+".");
     }
 
     //-------------------------------------------
@@ -123,9 +157,9 @@ public class PdfPresenter implements Initializable {
             return;
         }
 
-        final float pageW=pdfDecoder.getPdfPageData().getCropBoxWidth2D(currentPage);
-        final float pageH=pdfDecoder.getPdfPageData().getCropBoxHeight2D(currentPage);
-        final int rotation = pdfDecoder.getPdfPageData().getRotation(currentPage);
+        final float pageW=pdfDecoder.getPdfPageData().getCropBoxWidth2D(currentPageNo);
+        final float pageH=pdfDecoder.getPdfPageData().getCropBoxHeight2D(currentPageNo);
+        final int rotation = pdfDecoder.getPdfPageData().getRotation(currentPageNo);
 
         //Handle how we auto fit the content to the page
         if(fitToPage == FitToPage.AUTO && (pageW < pageH)){
@@ -155,7 +189,78 @@ public class PdfPresenter implements Initializable {
             }
         }
 
-        pdfDecoder.setPageParameters(scale, currentPage);
+        pdfDecoder.setPageParameters(scale, currentPageNo);
+    }
+
+    public void setDashboardPresenter(DashboardPresenter dbp){
+        this.dbp = dbp;
+    }
+
+    public void setStatus(String status){
+        pdfStatusText.setText(status);
+    }
+
+    //Merged Methods and Variables, formerly part of DashboardPresenter
+    //FXML
+    @FXML
+    Text pdfStatusText;
+
+    @FXML
+    javafx.scene.control.TextField pageTextField;
+
+    //Variables
+    private String rules;
+
+    public boolean setPage(int pNo) {
+        if(dbp.getTower()!=null && pNo < dbp.getTower().getNumberOfPages() && pNo >= 1){
+            currentPageNo = pNo;
+            dbp.updateBoxes();
+            pageTextField.setText("" + currentPageNo);
+            pdfDecoder.decodePage(currentPageNo);
+            pdfDecoder.waitForDecodingToFinish();
+            fitToX(FitToPage.AUTO);
+            return true;
+        }
+        return false;
+    }
+
+    public void forwardPage() {
+        if(currentPageNo < 40){
+            currentPageNo++;
+            changePage(currentPageNo);
+
+            dbp.updateBoxes();
+            pageTextField.setText("" + currentPageNo);
+        }
+    }
+
+    public void backPage() {
+        if(currentPageNo > 1){
+            currentPageNo--;
+            changePage(currentPageNo);
+
+            dbp.updateBoxes();
+            pageTextField.setText("" + currentPageNo);
+        }
+    }
+
+    public void beginningPage() {
+        currentPageNo = 1;
+        changePage(currentPageNo);
+
+        dbp.updateBoxes();
+        pageTextField.setText("" + currentPageNo);
+
+    }
+
+    public void endPage() {
+
+        currentPageNo = dbp.getTower().getNumberOfPages()-1;
+        changePage(currentPageNo);
+
+        dbp.updateBoxes();
+        pageTextField.setText("" + currentPageNo);
+
     }
 
 }
