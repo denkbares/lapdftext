@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.ResourceBundle;
+
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -64,6 +67,13 @@ public class CssAreaPresenter implements Initializable {
         rulesList = new ArrayList<Rule>();
         rulesViewList = new ArrayList<RuleItemView>();
         filledRows = new ArrayList<Integer>();
+
+        ruleNameTextField.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                addRuleButtonPressed();
+            }
+        });
     }
 
     public Collection<Rule> getRules(){
@@ -90,33 +100,17 @@ public class CssAreaPresenter implements Initializable {
         RuleItemPresenter tempRulePresenter = (RuleItemPresenter)tempRuleView.getPresenter();
         tempRulePresenter.setThisRule(r);
         tempRulePresenter.setSuper(this);
+        tempRulePresenter.setIndex(rulesVBox.getChildren().size());
 
         rulesVBox.getChildren().add(tempRuleView.getView());
-
-
-
-        /*
-        Ye Olde Ways
-        //Add to Grid
-        if(rulesGridPane.getChildren() != null) {
-            if (rulesGridPane.getChildren().size() <= filledRows.size()) {
-                //Add new Row
-                rulesGridPane.addRow(rulesGridPane.getChildren().size() + 1, tempRuleView.getView());
-                filledRows.add(rulesGridPane.getChildren().size()+1);
-            } else {
-                rulesGridPane.add(tempRuleView.getView(), 0, getLastEmptyRow());
-                filledRows.add(getLastEmptyRow());
-            }
-        }
-        else{
-            rulesGridPane.add(tempRuleView.getView(), 0, 0);
-        }
-        **/
     }
 
     public void deleteRule(RuleItemPresenter rule){
         rulesList.remove(rule.getRule());
-
+        if(rule.getIndex() == 0 && rulesVBox.getChildren().size() <= 1)
+            rulesVBox.getChildren().remove(1);
+        else
+            rulesVBox.getChildren().remove(rule.getIndex());
     }
 
     private int getLastEmptyRow(){

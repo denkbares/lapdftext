@@ -94,10 +94,11 @@ public class DashboardPresenter implements Initializable {
     public void updateBoxes(){
         try {
             final ArrayList<ChunkBlock> currentChunkBlockList = tower.getChunkBlocksOfPage(currentPageNo);
-                //TODO Tell jPedal to draw boxes
                 for (ChunkBlock b : currentChunkBlockList) {
                     //Draw box. Red if unclassified, yellow if classified. If classified, add class as text or mouseover.
                     pdfPresentr.drawOnPage(b);
+                    //Debug output, TODO remove
+                    System.out.println("Drew a block to page " + currentPageNo);
                 }
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -115,14 +116,24 @@ public class DashboardPresenter implements Initializable {
             newRules = readFile(openedRules.getPath(),Charset.forName("UTF-8"));
         }
         catch(Exception e){
-            System.out.println("---------ERROR---------\nFailed to load File :"+openedRules.getAbsolutePath()+"\n"+e.getMessage());
+            System.out.println("---------ERROR---------\nFailed to load File :"+openedRules.getAbsolutePath()+"\n");
+            e.printStackTrace();
             pdfPresentr.setStatus("Error reading file " + openedRules.getAbsolutePath());
         }
         if(correctlyFormatted(decode(newRules))) {
+            //TODO replace with load method. This assumes that the rules have been saved as UTF-8 encoded Text.
             currentRulePath = openedRules;
             rules = decode(newRules);
-            //TODO replace with load method
-            cssPresentr.addRuleToGrid(new Rule(rules,currentRulePath.getName()));
+            tower.setRulePath(currentRulePath.getAbsolutePath());
+
+            //Just for demo purposes TODO Replace after creating functional rule decoder
+            String[] tempString =rules.split("%%CoveringList \n");
+            for(String s : tempString){
+                if(!s.equalsIgnoreCase("")) {
+                    String[] name = s.split("\\{");
+                    cssPresentr.addRuleToGrid(new Rule(s, name[0]));
+                }
+            }
         }
         else{
             System.out.println("The file ;" + currentRulePath.getAbsolutePath() + " is not a valid rules file!");
@@ -151,7 +162,8 @@ public class DashboardPresenter implements Initializable {
                 System.out.println("Saved successfully!");
                 pdfStatusText.setText("Saved successfully!");
             } catch (Exception e) {
-                System.out.println("-------ERROR-------\nFailed to save rules to file!\n" + e.getMessage());
+                System.out.println("-------ERROR-------\nFailed to save rules to file!\n");
+                e.printStackTrace();
                 pdfStatusText.setText("Failed to save rules!");
             }
         }
@@ -179,7 +191,8 @@ public class DashboardPresenter implements Initializable {
                 System.out.println("Saved successfully!");
                 pdfStatusText.setText("Saved successfully!");
             } catch (Exception e) {
-                System.out.println("-------ERROR-------\nFailed to save rules to file!\n" + e.getMessage());
+                System.out.println("-------ERROR-------\nFailed to save rules to file!\n");
+                e.printStackTrace();
                 pdfStatusText.setText("Failed to save rules!");
             }
         }
@@ -198,8 +211,6 @@ public class DashboardPresenter implements Initializable {
 
     //TODO : Move opening and reclassifying to different thread!
     public void openPdfMenuAction(){
-        //TODO: REMOVE COMMENTING #DEBUG
-
         try{
             FileChooser opener = new FileChooser();
             opener.setTitle("Open PDF File");
@@ -207,15 +218,16 @@ public class DashboardPresenter implements Initializable {
             opener.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF File", "*.pdf"));
             File openedPDF = opener.showOpenDialog(new Popup());
 
-            tower.setPdfPath(openedPDF.getAbsolutePath());
             pdfPresentr.loadPDFFile(openedPDF.getAbsolutePath());
-            pdfPresentr.setPage(1);
+            tower.setPdfPath(openedPDF.getAbsolutePath());
+            pdfPresentr.beginningPage();
             pdfPresentr.setStatus("Successfully loaded the File " + openedPDF.getName() + "!");
         }
         catch (Exception e){
             System.out.println("Failed to open PDF File!");
             pdfPresentr.setStatus("Opening PDF File failed! Please try again!");
-            System.out.println("-------------ERROR------------\n" + e.getStackTrace());
+            System.out.println("-------------ERROR------------\n");
+            e.printStackTrace();
         }
     }
 

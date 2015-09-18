@@ -83,6 +83,7 @@ public class Tower {
 
     public void refreshLapdfDocument() throws IOException{
         try{
+            doc = null;
             doc = engine.blockifyFile(new File(pdfPath));
         }
         catch(Exception e){

@@ -11,7 +11,7 @@
          <bottom>
             <ToolBar nodeOrientation="LEFT_TO_RIGHT" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <items>
-                <Button fx:id="deleteRuleButton" mnemonicParsing="false" text="DELETE" />
+                <Button fx:id="deleteRuleButton" mnemonicParsing="false" onAction="#deleteRuleButtonPressed" text="DELETE" />
                   <TextField fx:id="ruleNameTextField" prefHeight="40.0" prefWidth="150.0" promptText="RuleName" />
                   <Text fx:id="minSupportText" fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="\@minSupport:" />
                   <TextField fx:id="minSupportTextField" maxWidth="40.0" minHeight="40.0" minWidth="40.0" />

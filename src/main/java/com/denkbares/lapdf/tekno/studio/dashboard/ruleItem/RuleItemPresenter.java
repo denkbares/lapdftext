@@ -31,6 +31,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 
 import com.denkbares.lapdf.tekno.studio.dashboard.Rule;
@@ -58,7 +59,7 @@ public class RuleItemPresenter implements Initializable {
     Text minSupportText;
 
     CssAreaPresenter controller;
-
+    int index;
     Rule thisRule;
 
     @Override
@@ -80,7 +81,13 @@ public class RuleItemPresenter implements Initializable {
                 System.out.println("Saved new Rule support : " + thisRule.getMinSupport());
             }
         });
-        //TODO : Add Filter for Accepting only valid values for Min Support, handle exceptions
+
+        minSupportTextField.addEventFilter(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent inputevent) {
+                //TODO : Add Filter for Accepting only valid values for Min Support, handle exceptions
+            }
+        });
     }
 
     public void setSuper(CssAreaPresenter boss){
@@ -105,4 +112,13 @@ public class RuleItemPresenter implements Initializable {
         ruleNameTextField.setText(thisRule.getName());
         ruleTextArea.setText(thisRule.getRule());
     }
+
+    public void setIndex(int index){
+        this.index = index;
+    }
+
+    public int getIndex(){
+        return index;
+    }
+
 }

@@ -87,7 +87,12 @@ public class PdfPresenter implements Initializable {
         pageTextField.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                setPage(Integer.parseInt(pageTextField.getText()));
+                if(Integer.parseInt(pageTextField.getText()) > dbp.getTower().getNumberOfPages()){
+                    pageTextField.setText(""+dbp.getTower().getNumberOfPages());
+                    changePage(dbp.getTower().getNumberOfPages());
+                }
+                else
+                    changePage(Integer.parseInt(pageTextField.getText()));
             }
         });
     }
@@ -116,7 +121,11 @@ public class PdfPresenter implements Initializable {
     public void changePage(int pageNew) {
         try {
             if(setPage(pageNew)) {
+                dbp.setPage(pageNew);
                 boxesOverlay.getGraphicsContext2D().clearRect(0,0,boxesOverlay.getWidth(),boxesOverlay.getHeight());
+                boxesOverlay.setHeight(pdfDecoder.getHeight());
+                boxesOverlay.setWidth(pdfDecoder.getWidth());
+                dbp.updateBoxes();
             }
             else
                 System.out.println("Illegal Page number passed for changePage()");
@@ -127,12 +136,8 @@ public class PdfPresenter implements Initializable {
 
     public void drawOnPage(ChunkBlock what) {
 
-        int widthBox = Math.abs(what.getX2() - what.getX1());
-        int heightBox = Math.abs(what.getY2() - what.getY1());
-
-        //TODO Move to higher level (Refresh with page refresh only, also clear prev drawing)
-        boxesOverlay.setHeight(pdfDecoder.getHeight());
-        boxesOverlay.setWidth(pdfDecoder.getWidth());
+        float widthBox = scale * Math.abs(what.getX2() - what.getX1());
+        float heightBox = scale * Math.abs(what.getY2() - what.getY1());
 
         //Decide which color box gets
         Color boxColor = Color.YELLOW;
@@ -142,9 +147,9 @@ public class PdfPresenter implements Initializable {
 
         boxesOverlay.getGraphicsContext2D().setLineWidth(2.0);
         boxesOverlay.getGraphicsContext2D().setStroke(boxColor);
-        boxesOverlay.getGraphicsContext2D().strokeRect(what.getX1(), what.getY1(), widthBox, heightBox);
+        boxesOverlay.getGraphicsContext2D().strokeRect(scale*what.getX1(), scale*what.getY1(), widthBox, heightBox);
 
-        System.out.println("Drawn box with x1:"+what.getX1()+", y1:"+what.getY1()+", h:"+what.getHeight()+" and w:"+what.getWidth()+" in Color "+boxColor.toString()+".");
+        System.out.println("Drawn box with x1:"+scale*what.getX1()+", y1:"+scale*what.getY1()+", h:"+scale*what.getHeight()+" and w:"+scale*what.getWidth()+" in Color "+boxColor.toString()+".");
     }
 
     //-------------------------------------------
@@ -212,9 +217,8 @@ public class PdfPresenter implements Initializable {
     private String rules;
 
     public boolean setPage(int pNo) {
-        if(dbp.getTower()!=null && pNo < dbp.getTower().getNumberOfPages() && pNo >= 1){
+        if(dbp.getTower()!=null && pNo <= dbp.getTower().getNumberOfPages() && pNo >= 1){
             currentPageNo = pNo;
-            dbp.updateBoxes();
             pageTextField.setText("" + currentPageNo);
             pdfDecoder.decodePage(currentPageNo);
             pdfDecoder.waitForDecodingToFinish();
@@ -225,7 +229,7 @@ public class PdfPresenter implements Initializable {
     }
 
     public void forwardPage() {
-        if(currentPageNo < 40){
+        if(currentPageNo < dbp.getTower().getNumberOfPages()){
             currentPageNo++;
             changePage(currentPageNo);
 
@@ -255,7 +259,7 @@ public class PdfPresenter implements Initializable {
 
     public void endPage() {
 
-        currentPageNo = dbp.getTower().getNumberOfPages()-1;
+        currentPageNo = dbp.getTower().getNumberOfPages();
         changePage(currentPageNo);
 
         dbp.updateBoxes();
