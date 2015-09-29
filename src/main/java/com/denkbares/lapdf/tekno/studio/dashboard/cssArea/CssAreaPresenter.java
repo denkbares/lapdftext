@@ -26,6 +26,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.ResourceBundle;
 
+import com.denkbares.lapdf.tekno.studio.dashboard.DashboardPresenter;
+import com.denkbares.lapdf.tekno.studio.dashboard.rules.RuleMaker;
+import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -53,6 +56,12 @@ public class CssAreaPresenter implements Initializable {
     Button addRuleButton;
 
     @FXML
+    Button confirmRuleButton;
+
+    @FXML
+    Button cancelRuleButton;
+
+    @FXML
     TextField ruleNameTextField;
 
     @FXML
@@ -61,9 +70,12 @@ public class CssAreaPresenter implements Initializable {
     ArrayList<Integer> filledRows;
     ArrayList<Rule> rulesList;
     ArrayList<RuleItemView> rulesViewList;
+    DashboardPresenter dbp;
+    RuleMaker ruleMaker;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        ruleMaker = new RuleMaker();
         rulesList = new ArrayList<Rule>();
         rulesViewList = new ArrayList<RuleItemView>();
         filledRows = new ArrayList<Integer>();
@@ -76,22 +88,42 @@ public class CssAreaPresenter implements Initializable {
         });
     }
 
+    public void confirmRuleButtonPressed(){
+        ArrayList<ChunkBlock> selection = dbp.getSelectedBlocks();
+        dbp.setSelectionMode(false);
+        Rule tempRule = ruleMaker.makeRule(selection);
+        if(tempRule == null){
+
+        }
+        else {
+            tempRule.setName(ruleNameTextField.getText());
+            rulesList.add(tempRule);
+            addRuleToGrid(tempRule);
+        }
+    }
+
+    public void cancelRuleButtonPressed(){
+        dbp.setSelectionMode(false);
+    }
+
+    public void setDbp(DashboardPresenter d){
+        dbp = d;
+    }
+
     public Collection<Rule> getRules(){
         return rulesList;
     }
 
+    public String getRulesAsText(){
+        String out = "";
+        for(Rule r : rulesList){
+            out += "%%CoveringList \n"+ r.getName() + "{" + r.getRule();
+        }
+        return out;
+    }
+
     public void addRuleButtonPressed(){
-        //For debugging only
-        if(ruleNameTextField.getText() == ""){
-            Rule temp = new Rule("Gruetze", "Rule"+rulesList.size());
-            addRuleToGrid(temp);
-            rulesList.add(temp);
-        }
-        else {
-            Rule temp = new Rule("Gruetze", ruleNameTextField.getText());
-            addRuleToGrid(temp);
-            rulesList.add(temp);
-        }
+        dbp.setSelectionMode(true);
     }
 
     public void addRuleToGrid(Rule r){
@@ -107,8 +139,8 @@ public class CssAreaPresenter implements Initializable {
 
     public void deleteRule(RuleItemPresenter rule){
         rulesList.remove(rule.getRule());
-        if(rule.getIndex() == 0 && rulesVBox.getChildren().size() <= 1)
-            rulesVBox.getChildren().remove(1);
+        if(rule.getIndex() == 0 && rulesVBox.getChildren().size() == 1)
+            rulesVBox.getChildren().remove(0);
         else
             rulesVBox.getChildren().remove(rule.getIndex());
     }

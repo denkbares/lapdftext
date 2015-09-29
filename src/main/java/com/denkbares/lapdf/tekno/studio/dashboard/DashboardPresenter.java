@@ -68,7 +68,7 @@ public class DashboardPresenter implements Initializable {
     private PdfView pdfViewr;
     private PdfPresenter pdfPresentr;
 
-    private ArrayList<ChunkBlock> chunkBlockList;
+    private ArrayList<ChunkBlock> currentChunkBlockList;
     private int currentPageNo = 1;
     private String rules;
     private File currentRulePath;
@@ -82,10 +82,8 @@ public class DashboardPresenter implements Initializable {
 
         cssViewr = new CssAreaView();
         cssPresentr = (CssAreaPresenter) cssViewr.getPresenter();
+        cssPresentr.setDbp(this);
         cssBorderPane.setCenter((cssViewr.getView()));
-
-
-
     }
 
      /**
@@ -93,7 +91,7 @@ public class DashboardPresenter implements Initializable {
      */
     public void updateBoxes(){
         try {
-            final ArrayList<ChunkBlock> currentChunkBlockList = tower.getChunkBlocksOfPage(currentPageNo);
+            currentChunkBlockList = tower.getChunkBlocksOfPage(currentPageNo);
                 for (ChunkBlock b : currentChunkBlockList) {
                     //Draw box. Red if unclassified, yellow if classified. If classified, add class as text or mouseover.
                     pdfPresentr.drawOnPage(b);
@@ -131,7 +129,7 @@ public class DashboardPresenter implements Initializable {
             for(String s : tempString){
                 if(!s.equalsIgnoreCase("")) {
                     String[] name = s.split("\\{");
-                    cssPresentr.addRuleToGrid(new Rule(s, name[0]));
+                    cssPresentr.addRuleToGrid(new Rule(name[1], name[0]));
                 }
             }
         }
@@ -149,10 +147,10 @@ public class DashboardPresenter implements Initializable {
     }
 
     public void saveFileMenuAction(){
-        /*if(correctlyFormatted(cssTextArea.getText())) {
+        if(correctlyFormatted(cssPresentr.getRulesAsText())) {
             File fileCopy = currentRulePath;
             try {
-                rules = cssTextArea.getText();
+                rules = cssPresentr.getRulesAsText();
                 currentRulePath.delete();
                 PrintWriter writer = new PrintWriter(fileCopy.getAbsoluteFile(), "UTF-8");
                 //TODO Encode!
@@ -160,17 +158,17 @@ public class DashboardPresenter implements Initializable {
                 writer.print(rules);
                 writer.close();
                 System.out.println("Saved successfully!");
-                pdfStatusText.setText("Saved successfully!");
+                pdfPresentr.setStatus("Saved successfully!");
             } catch (Exception e) {
                 System.out.println("-------ERROR-------\nFailed to save rules to file!\n");
                 e.printStackTrace();
-                pdfStatusText.setText("Failed to save rules!");
+                pdfPresentr.setStatus("Failed to save rules!");
             }
         }
         else{
             System.out.println("Rules are not correctly formatted - cannot save!");
-            pdfStatusText.setText("Rules are not correctly formatted - cannot save!");
-        }**/
+            pdfPresentr.setStatus("Rules are not correctly formatted - cannot save!");
+        }
     }
 
     public void saveAsFileMenuAction(){
@@ -179,28 +177,27 @@ public class DashboardPresenter implements Initializable {
         saver.setInitialDirectory(new File(System.getProperty("user.home")));
         saver.getExtensionFilters().add(new FileChooser.ExtensionFilter("d3web File", ".d3web"));
         File file = saver.showSaveDialog(new Popup());
-        /*if(correctlyFormatted(cssTextArea.getText())) {
+
+        if(correctlyFormatted(cssPresentr.getRulesAsText())) {
             //TODO Encode!
-            rules = encode(rules);
             currentRulePath = file;
             try {
-                rules = cssTextArea.getText();
+                rules = cssPresentr.getRulesAsText();
                 PrintWriter writer = new PrintWriter(file.getAbsoluteFile(), "UTF-8");
                 writer.print(rules);
                 writer.close();
                 System.out.println("Saved successfully!");
-                pdfStatusText.setText("Saved successfully!");
+                pdfPresentr.setStatus("Saved successfully!");
             } catch (Exception e) {
                 System.out.println("-------ERROR-------\nFailed to save rules to file!\n");
                 e.printStackTrace();
-                pdfStatusText.setText("Failed to save rules!");
+                pdfPresentr.setStatus("Failed to save rules!");
             }
         }
         else{
             System.out.println("Rules are not correctly formatted - cannot save!");
-            pdfStatusText.setText("Rules are not correctly formatted - cannot save!");
-        }**/
-
+            pdfPresentr.setStatus("Rules are not correctly formatted - cannot save!");
+        }
     }
 
     public void exitFileMenuAction(){
@@ -280,4 +277,22 @@ public class DashboardPresenter implements Initializable {
         currentPageNo = x;
     }
 
+    public boolean isPDFLoaded(){
+        if(tower == null || tower.pdfPath.equals(""))
+            return false;
+        else
+            return true;
+    }
+
+    public void setSelectionMode(boolean b){
+        pdfPresentr.setSelectionMode(b);
+    }
+
+    public ArrayList<ChunkBlock> getCurrentChunkBlockList(){
+        return currentChunkBlockList;
+    }
+
+    public ArrayList<ChunkBlock> getSelectedBlocks(){
+        return pdfPresentr.getSelectedBlocks();
+    }
 }

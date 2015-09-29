@@ -14,8 +14,8 @@
         <items>
           <Button fx:id="addRuleButton" mnemonicParsing="false" onAction="#addRuleButtonPressed" text="+" />
             <TextField fx:id="ruleNameTextField" prefWidth="153.0" promptText="Rule Name" />
-            <Button mnemonicParsing="false" text="OK" />
-            <Button mnemonicParsing="false" text="Abort" />
+            <Button fx:id="confirmRuleButton" mnemonicParsing="false" onAction="#confirmRuleButtonPressed" text="OK" />
+            <Button fx:id="cancelRuleButton" mnemonicParsing="false" onAction="#cancelRuleButtonPressed" text="Abort" />
         </items>
       </ToolBar>
    </top>
