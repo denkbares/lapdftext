@@ -22,48 +22,108 @@ package com.denkbares.lapdf.tekno.studio.dashboard.cssArea;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.ResourceBundle;
+
+import com.denkbares.lapdf.tekno.studio.dashboard.DashboardPresenter;
+import com.denkbares.lapdf.tekno.studio.dashboard.rules.RuleMaker;
+import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 import com.denkbares.lapdf.tekno.studio.dashboard.Rule;
 import com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemView;
 import com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemPresenter;
+import javafx.scene.layout.VBox;
 
 /**
  *
- * @author airhacks.com
+ * @author Maximilian Schirm
  */
 public class CssAreaPresenter implements Initializable {
+
+    @FXML
+    BorderPane cssAreaBorderPane;
 
     @FXML
     Button addRuleButton;
 
     @FXML
+    Button confirmRuleButton;
+
+    @FXML
+    Button cancelRuleButton;
+
+    @FXML
     TextField ruleNameTextField;
 
     @FXML
-    GridPane rulesGridPane;
+    VBox rulesVBox;
 
     ArrayList<Integer> filledRows;
     ArrayList<Rule> rulesList;
     ArrayList<RuleItemView> rulesViewList;
+    DashboardPresenter dbp;
+    RuleMaker ruleMaker;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        ruleMaker = new RuleMaker();
         rulesList = new ArrayList<Rule>();
         rulesViewList = new ArrayList<RuleItemView>();
         filledRows = new ArrayList<Integer>();
+
+        ruleNameTextField.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                addRuleButtonPressed();
+            }
+        });
+    }
+
+    public void confirmRuleButtonPressed(){
+        ArrayList<ChunkBlock> selection = dbp.getSelectedBlocks();
+        dbp.setSelectionMode(false);
+        Rule tempRule = ruleMaker.makeRule(selection);
+        if(tempRule == null){
+
+        }
+        else {
+            tempRule.setName(ruleNameTextField.getText());
+            rulesList.add(tempRule);
+            addRuleToGrid(tempRule);
+        }
+    }
+
+    public void cancelRuleButtonPressed(){
+        dbp.setSelectionMode(false);
+    }
+
+    public void setDbp(DashboardPresenter d){
+        dbp = d;
+    }
+
+    public Collection<Rule> getRules(){
+        return rulesList;
+    }
+
+    public String getRulesAsText(){
+        String out = "";
+        for(Rule r : rulesList){
+            out += "%%CoveringList \n"+ r.getName() + "{" + r.getRule();
+        }
+        return out;
     }
 
     public void addRuleButtonPressed(){
-        //For debugging only
-        addRuleToGrid(new Rule("Gruetze", ruleNameTextField.getText()));
-
+        dbp.setSelectionMode(true);
     }
 
     public void addRuleToGrid(Rule r){
@@ -71,21 +131,18 @@ public class CssAreaPresenter implements Initializable {
         rulesViewList.add(tempRuleView);
         RuleItemPresenter tempRulePresenter = (RuleItemPresenter)tempRuleView.getPresenter();
         tempRulePresenter.setThisRule(r);
+        tempRulePresenter.setSuper(this);
+        tempRulePresenter.setIndex(rulesVBox.getChildren().size());
 
-        //Add to Grid
-        if(rulesGridPane.getChildren() != null) {
-            if (rulesGridPane.getChildren().size() <= filledRows.size()) {
-                //Add new Row
-                rulesGridPane.addRow(rulesGridPane.getChildren().size() + 1, tempRuleView.getView());
-                filledRows.add(rulesGridPane.getChildren().size()+1);
-            } else {
-                rulesGridPane.add(tempRuleView.getView(), 0, getLastEmptyRow());
-                filledRows.add(getLastEmptyRow());
-            }
-        }
-        else{
-            rulesGridPane.add(tempRuleView.getView(), 0, 0);
-        }
+        rulesVBox.getChildren().add(tempRuleView.getView());
+    }
+
+    public void deleteRule(RuleItemPresenter rule){
+        rulesList.remove(rule.getRule());
+        if(rule.getIndex() == 0 && rulesVBox.getChildren().size() == 1)
+            rulesVBox.getChildren().remove(0);
+        else
+            rulesVBox.getChildren().remove(rule.getIndex());
     }
 
     private int getLastEmptyRow(){

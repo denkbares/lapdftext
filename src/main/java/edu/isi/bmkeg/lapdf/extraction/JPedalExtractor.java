@@ -266,7 +266,6 @@ public class JPedalExtractor implements Extractor {
 	public boolean hasNext() {
 
 		boolean haveNext = false;
-
 		while (currentPage <= pageCount && !haveNext) {
 
 			try {

@@ -144,4 +144,217 @@ public class FeatureVector {
 
 
 **/
+
+    //Domains are : density:double; headerOrFooter,wasClassified:boolean; wordSpace,line,wordHeight,width,height,page,x1,x2,y1,y2:int; # of rotated Words (int from List)
+    double density;
+    boolean headerOrFooter, wasClassified;
+    int wordSpace, line, wordHeight, width, height, page, x1, x2, y1, y2, noRotWord;
+    boolean[] state = {true, true, true, true, true, true, true, true, true, true, true, true, true, true};
+
+    public FeatureVector(ChunkBlock b){
+        try{
+            //Assign
+            density = b.readDensity();
+            //TODO DEBUG WTF IS THE PROBLEM HERE
+//            headerOrFooter = b.isHeaderOrFooter().booleanValue();
+            wasClassified = b.getWasClassified();
+            wordSpace = b.getMostPopularWordSpaceWidth();
+            line = b.readNumberOfLine();
+            wordHeight = b.getMostPopularWordHeight();
+            width = b.getWidth();
+            height = b.getHeight();
+            page = b.getPage().getPageNumber();
+            x1 = b.getX1(); x2 = b.getX2();
+            y1 = b.getY1(); y2 = b.getY2();
+            noRotWord = b.getRotatedWords().size();
+        }
+        catch(Exception e){
+            //Failed to init. b == null?!
+            throw e;
+        }
+    }
+
+    //Density
+    public double getDensity () {
+        return density;
+    }
+
+    public void setDensityState(boolean b){
+        state[0] = b;
+    }
+
+    public boolean matchesDensity (ChunkBlock b){
+        return density == b.readDensity();
+    }
+
+    //HeaderOrFooter
+    public boolean getHeaderOrFooter () {
+        return headerOrFooter;
+    }
+
+    public void setHeaderOrFooterState(boolean b){
+        state[1] = b;
+    }
+
+    public boolean matchesHeaderOrFooter (ChunkBlock b){
+        //TODO Debug this!
+        return true;
+        //return headerOrFooter == b.isHeaderOrFooter();
+    }
+
+    //WasClassified
+    public boolean getWasClassified () {
+        return wasClassified;
+    }
+
+    public void setWasClassifiedState(boolean b){
+        state[2] = b;
+    }
+
+    public boolean matchesWasClassified (ChunkBlock b){
+        return wasClassified = b.getWasClassified();
+    }
+
+    //WordSpace
+    public int getWordSpace () {
+        return wordSpace;
+    }
+
+    public void setWordSpaceState(boolean b){
+        state[3] = b;
+    }
+
+    public boolean matchesWordSpace (ChunkBlock b){
+        return wordSpace == b.getMostPopularWordSpaceWidth();
+    }
+
+    //Line
+    public int getLine () {
+        return line;
+    }
+
+    public void setLineState(boolean b){
+        state[4] = b;
+    }
+
+    public boolean matchesLine (ChunkBlock b){
+        return line == b.readNumberOfLine();
+    }
+
+    //WordHeight
+    public int getWordHeight () {
+        return wordHeight;
+    }
+
+    public void setWordHeightState(boolean b){
+        state[5] = b;
+    }
+
+    public boolean matchesWordHeight (ChunkBlock b){
+        return wordHeight == b.getMostPopularWordHeight();
+    }
+
+    //Width
+    public int getWidth () {
+        return width;
+    }
+
+    public void setWidthState(boolean b){
+        state[6] = b;
+    }
+
+    public boolean matchesWidth (ChunkBlock b){
+        return  width == b.getWidth();
+    }
+
+    //Height
+    public int getHeight () {
+        return height;
+    }
+
+    public void setHeightState(boolean b){
+        state[7] = b;
+    }
+
+    public boolean matchesHeight (ChunkBlock b){
+        return height == b.getHeight();
+    }
+
+    //Page
+    public int getPage () {
+        return page;
+    }
+
+    public void setPageState(boolean b){
+        state[8] = b;
+    }
+
+    public boolean matchesPage (ChunkBlock b){
+        return page == b.getPage().getPageNumber();
+    }
+
+    //X1
+    public int getX1 () {
+        return x1;
+    }
+
+    public void setX1State(boolean b){
+        state[9] = b;
+    }
+
+    public boolean matchesX1 (ChunkBlock b){
+        return x1 == b.getX1();
+    }
+
+    //X2
+    public int getX2 () {
+        return x2;
+    }
+
+    public void setX2State(boolean b){
+        state[10] = b;
+    }
+
+    public boolean matchesX2 (ChunkBlock b){
+        return x2 == b.getX2();
+    }
+
+    //Y1
+    public int getY1 () {
+        return y1;
+    }
+
+    public void setY1State(boolean b){
+        state[11] = b;
+    }
+
+    public boolean matchesY1 (ChunkBlock b){
+        return y1 == b.getY1();
+    }
+
+    //Y2
+    public int getY2 () {
+        return y2;
+    }
+
+    public void setY2State(boolean b){
+        state[12] = b;
+    }
+
+    public boolean matchesY2 (ChunkBlock b){
+        return y2 == b.getY2();
+    }
+
+    //NoRotWord
+    public int getNoRotWord () {
+        return noRotWord;
+    }
+
+    public void setNoRotWordState(boolean b){
+        state[13] = b;
+    }
+
+    public boolean matchesNoRotWord (ChunkBlock b){
+        return noRotWord == b.getRotatedWords().size();
+    }
 }

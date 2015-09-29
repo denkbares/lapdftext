@@ -33,15 +33,15 @@ public class Rule {
         return minSupport;
     }
 
-    protected void setRule(String s){
+    public void setRule(String s){
         rule = s;
     }
 
-    protected void setName(String s){
+    public void setName(String s){
         name = s;
     }
 
-    protected void setMinSupport(double d){
+    public void setMinSupport(double d){
         minSupport = d;
     }
 

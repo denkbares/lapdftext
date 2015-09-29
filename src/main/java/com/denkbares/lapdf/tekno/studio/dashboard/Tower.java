@@ -83,6 +83,7 @@ public class Tower {
 
     public void refreshLapdfDocument() throws IOException{
         try{
+            doc = null;
             doc = engine.blockifyFile(new File(pdfPath));
         }
         catch(Exception e){
@@ -110,8 +111,16 @@ public class Tower {
     public ArrayList<ChunkBlock> getChunkBlocksOfPage(int pageNo) throws IllegalStateException, IOException {
         if(doc == null)
             throw new IllegalStateException("A page needs to be loaded first in order to retrieve ChunkBlocks!");
-        else
-            return new ArrayList<ChunkBlock>(doc.readAllChunkBlocks());
+        else {
+            ArrayList<ChunkBlock> tempList = new ArrayList<ChunkBlock>();
+            for(ChunkBlock b : doc.readAllChunkBlocks()){
+                //TODO : Replace with more efficient method
+                if(b.getPage().getPageNumber() == pageNo){
+                    tempList.add(b);
+                }
+            }
+            return tempList;
+        }
     }
 
     public int getNumberOfPages(){
