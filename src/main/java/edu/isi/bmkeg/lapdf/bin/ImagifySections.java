@@ -1,20 +1,18 @@
 package edu.isi.bmkeg.lapdf.bin;
 
 import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
-import edu.isi.bmkeg.lapdf.controller.LapdfMode;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
-import edu.isi.bmkeg.lapdf.uima.cpe.CommandLineFitPipeline;
 import edu.isi.bmkeg.utils.Converters;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
-public class ImagifySections {
+public class ImagifySections extends Application {
 
 	private static String USAGE = "usage: <input-dir-or-file> [<output-dir>] [<rule-file>]\n\n"
 			+ "<input-dir-or-file> - the full path to the PDF file or directory to be extracted \n" 
@@ -25,66 +23,73 @@ public class ImagifySections {
 			+ "This is intended to provide a debugging tool.\n";
 
 	public static void main(String args[]) throws Exception	{
+		launch(args);
+	}
 
+	@Override
+	public void start(Stage primaryStage) throws Exception {
 		LapdfEngine engine = new LapdfEngine();
+
+		List<String> parameters = getParameters().getRaw();
+		String[] args = parameters.toArray(new String[parameters.size()]);
 
 		if (args.length < 1 ) {
 			System.err.println(USAGE);
 			System.exit(1);
 		}
-		
+
 		String inputFileOrDirPath = args[0];
 		String outputDirPath = "";
 		String ruleFilePath = "";
-							
-		File inputFileOrDir = new File( inputFileOrDirPath ); 
+
+		File inputFileOrDir = new File( inputFileOrDirPath );
 		if( !inputFileOrDir.exists() ) {
 			System.err.println(USAGE);
 			System.err.println("Input file / dir '" + inputFileOrDirPath + "' does not exist.");
 			System.err.println("Please include full path");
 			System.exit(1);
 		}
-		
+
 		// output folder is set.
-		if ( args.length > 1 ) {	
+		if ( args.length > 1 ) {
 			outputDirPath = args[1];
 		} else {
 			outputDirPath = "-";
 		}
-		
+
 		if( outputDirPath.equals( "-") ) {
 			if( inputFileOrDir.isDirectory() ) {
 				outputDirPath = inputFileOrDirPath;
 			} else {
-				outputDirPath = inputFileOrDir.getParent();				
+				outputDirPath = inputFileOrDir.getParent();
 			}
 		}
-		
-		File outDir = new File( outputDirPath ); 
+
+		File outDir = new File( outputDirPath );
 		if( !outDir.exists() ) {
 			outDir.mkdir();
-		}  
+		}
 
 		// output folder is set.
 		File ruleFile =  null;
-		if ( args.length > 2 ) {	
+		if ( args.length > 2 ) {
 			ruleFilePath = args[2];
 		} else {
 			ruleFilePath = "-";
 		}
-		
+
 		if( ruleFilePath.equals( "-" ) ) {
 			ruleFile = Converters.extractFileFromJarClasspath(".", "rules/general.drl");
 		} else {
 			ruleFile = new File( ruleFilePath );
 		}
-		
+
 		if( !ruleFile.exists() ) {
 			System.err.println(USAGE);
 			System.err.println(ruleFilePath + " does not exist.");
 			System.err.println("Please include full path");
-		}  
-		
+		}
+
 		if( inputFileOrDir.isDirectory() ){
 
 			Pattern patt = Pattern.compile("\\.pdf$");
@@ -95,44 +100,42 @@ public class ImagifySections {
 				File pdf = inputFiles.get(key);
 				String pdfStem = pdf.getName();
 				pdfStem = pdfStem.replaceAll("\\.pdf", "");
-	
+
 				String outImgPath = Converters.mimicDirectoryStructure(inputFileOrDir, outDir, pdf).getPath();
 				outImgPath = outImgPath.replaceAll("\\.pdf", "_secImgs");
 
 				File outImgDir = new File(outImgPath);
 				if(!outImgDir.exists())
 					outImgDir.mkdir();
-				
+
 				try {
-	
+
 					LapdfDocument lapdf = engine.blockifyFile(pdf);
 					engine.classifyDocument(lapdf, ruleFile);
 					engine.dumpChunkTypeImageOutlinesToFiles(lapdf, outImgDir, pdfStem);
-				
+
 				} catch (Exception e) {
-				
+
 					e.printStackTrace();
-				
+
 				}
-				
-			} 
-			
+
+			}
+
 		} else {
-			
+
 			String pdfStem = inputFileOrDir.getName();
 			pdfStem = pdfStem.replaceAll("\\.pdf$", "");
-			
+
 			String outImgPath = outDir.getPath() + "/" + pdfStem + "_secImgs";
 			File outImgDir = new File(outImgPath);
 			if(!outImgDir.exists())
 				outImgDir.mkdir();
-			
+
 			LapdfDocument lapdf = engine.blockifyFile(inputFileOrDir);
 			engine.classifyDocument(lapdf, ruleFile);
 			engine.dumpChunkTypeImageOutlinesToFiles(lapdf, outImgDir, pdfStem);
-			
+
 		}
-	
 	}
-	
 }
