@@ -25,23 +25,25 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import com.denkbares.lapdf.tekno.studio.dashboard.DashboardPresenter;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.paint.Color;
 import javafx.fxml.Initializable;
-import javafx.scene.canvas.*;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import org.jpedal.PdfDecoderFX;
 import org.jpedal.examples.baseviewer.BaseViewerFX;
 import org.jpedal.exception.PdfException;
+import org.jpedal.fonts.FontMappings;
+
+import com.denkbares.lapdf.tekno.studio.dashboard.DashboardPresenter;
 
 
 /**
@@ -68,6 +70,8 @@ public class PdfPresenter implements Initializable {
 
         //Load OpenViewer (jPedal)
         pdfDecoder = new org.jpedal.PdfDecoderFX();
+        FontMappings.initFonts();
+        FontMappings.setFontReplacements();
         viewerBase = new BaseViewerFX();
         StackPane stackingBox = new StackPane();
         boxesOverlay = new Canvas();

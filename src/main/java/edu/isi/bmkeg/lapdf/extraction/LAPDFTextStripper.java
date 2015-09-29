@@ -39,7 +39,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.exceptions.CryptographyException;
-import org.apache.pdfbox.exceptions.InvalidPasswordException;
 import org.apache.pdfbox.exceptions.WrappedIOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -325,9 +324,6 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 			}
 			catch (CryptographyException e) {
 				throw new WrappedIOException("Error decrypting document, details: ", e);
-			}
-			catch (InvalidPasswordException e) {
-				throw new WrappedIOException("Error: document is encrypted", e);
 			}
 		}
 		processPages(document.getDocumentCatalog().getAllPages());

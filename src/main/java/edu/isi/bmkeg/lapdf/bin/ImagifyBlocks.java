@@ -2,14 +2,17 @@ package edu.isi.bmkeg.lapdf.bin;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
 import edu.isi.bmkeg.utils.Converters;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
-public class ImagifyBlocks {
+public class ImagifyBlocks extends Application {
 
 	private static String USAGE = "usage: <input-dir-or-file> [<output-dir>] \n\n"
 			+ "<input-dir-or-file> - the full path to the PDF file or directory to be extracted \n"
@@ -20,8 +23,15 @@ public class ImagifyBlocks {
 			+ "rule files.\n";
 
 	public static void main(String args[]) throws Exception {
+		launch(args);
+	}
 
+	@Override
+	public void start(Stage primaryStage) throws Exception {
 		LapdfEngine engine = new LapdfEngine();
+
+		List<String> parameters = getParameters().getRaw();
+		String[] args = parameters.toArray(new String[parameters.size()]);
 
 		if (args.length < 1) {
 			System.err.println(USAGE);
@@ -110,6 +120,5 @@ public class ImagifyBlocks {
 			System.exit(0);
 
 		}
-
 	}
 }
