@@ -230,7 +230,7 @@ public class LapdfDocument implements Serializable {
 			while( wdIt.hasNext() ) {
 				WordBlock wd = wdIt.next();
 
-				if( wd.getFont() == null || wd.getFontStyle() == null) 
+				if( wd.getFont() == null || wd.getFontStyle() == null || mpArray.length < 2)
 					continue;
 				
 				if( wd.getFont().equals(mpArray[0]) && 
