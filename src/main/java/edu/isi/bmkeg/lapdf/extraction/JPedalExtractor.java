@@ -64,7 +64,7 @@ public class JPedalExtractor implements Extractor {
 		this.spaceFrequencyCounterMap = new HashMap<Integer, IntegerFrequencyCounter>();
 
 		PDFDecoder.setExtractionMode(PdfDecoderFX.TEXT);
-//		PDFDecoder.init(true);
+		//PDFDecoder.init(true);
 		PdfGroupingAlgorithms.useUnrotatedCoords = true;
 		
 		// if you do not require XML content, 

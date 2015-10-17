@@ -39,9 +39,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import org.apache.pdfbox.PDFDebugger;
 import org.jpedal.PdfDecoderFX;
 import org.jpedal.examples.baseviewer.BaseViewerFX;
 import org.jpedal.exception.PdfException;
+import org.jpedal.fonts.FontMappings;
 
 
 /**
@@ -61,6 +63,7 @@ public class PdfPresenter implements Initializable {
     DashboardPresenter dbp;
     Canvas boxesOverlay;
     boolean selectionMode = false;
+    boolean wasInit = false;
     ArrayList<ChunkBlock> currentSelection;
 
     @Override
@@ -68,6 +71,9 @@ public class PdfPresenter implements Initializable {
 
         //Load OpenViewer (jPedal)
         pdfDecoder = new org.jpedal.PdfDecoderFX();
+        FontMappings.setFontReplacements();
+        pdfDecoder.setExtractionMode(PdfDecoderFX.TEXT);
+
         viewerBase = new BaseViewerFX();
         StackPane stackingBox = new StackPane();
         boxesOverlay = new Canvas();
@@ -91,6 +97,17 @@ public class PdfPresenter implements Initializable {
                             }
                         }
                     }
+                    if(event.getButton().equals(MouseButton.SECONDARY)){
+                        //Obtain the ChunkBlock, Remove it from selection
+                        for(ChunkBlock b : dbp.getCurrentChunkBlockList()){
+                            if(wasClickedOn(b, event)){
+                                currentSelection.remove(b);
+                                undrawSelectOnPage(b);
+                                System.out.println("Removed the block " + b + "from current selection.");
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -104,7 +121,7 @@ public class PdfPresenter implements Initializable {
                 }
             }
         });
-        //Navigate on enter key
+        //Navigate to page on enter key
         pageTextField.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -122,6 +139,10 @@ public class PdfPresenter implements Initializable {
         clearSelectionOverlay();
         currentSelection = new ArrayList<ChunkBlock>();
         selectionMode = b;
+    }
+
+    public boolean getSelectionMode(){
+        return selectionMode;
     }
 
     protected boolean wasClickedOn(ChunkBlock b, MouseEvent e){
@@ -142,12 +163,15 @@ public class PdfPresenter implements Initializable {
 
     public boolean loadPDFFile(String dir) {
         try {
-            pdfDecoder.clearScreen();
             pdfDecoder.openPdfFile(dir);
             currentPageNo = 1;
             fitToX(FitToPage.AUTO);
 
-            pdfPane.getCenter().toBack();
+            //Necessary to control for overlap on first load
+            if(!wasInit) {
+                pdfPane.getCenter().toBack();
+                wasInit = true;
+            }
 
             return true;
         } catch (PdfException e) {
@@ -180,6 +204,14 @@ public class PdfPresenter implements Initializable {
         } catch (Exception e) {
             System.out.println("--------ERROR-------\nFailed to decode page!\n" + e.getMessage());
         }
+    }
+
+    public void undrawSelectOnPage(ChunkBlock what) {
+        float widthBox = scale * Math.abs(what.getX2()+8 - what.getX1());
+        float heightBox = scale * Math.abs(what.getY2()+8 - what.getY1());
+
+        boxesOverlay.getGraphicsContext2D().clearRect(scale*what.getX1()-3, scale*what.getY1()-3, widthBox, heightBox);
+        drawOnPage(what);
     }
 
     public void drawSelectOnPage(ChunkBlock what) {

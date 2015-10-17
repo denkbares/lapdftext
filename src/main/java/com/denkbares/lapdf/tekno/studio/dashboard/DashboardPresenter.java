@@ -216,6 +216,7 @@ public class DashboardPresenter implements Initializable {
             File openedPDF = opener.showOpenDialog(new Popup());
 
             pdfPresentr.loadPDFFile(openedPDF.getAbsolutePath());
+            pdfPresentr.setStatus("Beginning loading procedure, this may take some time...");
             tower.setPdfPath(openedPDF.getAbsolutePath());
             pdfPresentr.beginningPage();
             pdfPresentr.setStatus("Successfully loaded the File " + openedPDF.getName() + "!");
@@ -223,7 +224,6 @@ public class DashboardPresenter implements Initializable {
         catch (Exception e){
             System.out.println("Failed to open PDF File!");
             pdfPresentr.setStatus("Opening PDF File failed! Please try again!");
-            System.out.println("-------------ERROR------------\n");
             e.printStackTrace();
         }
     }
@@ -286,6 +286,10 @@ public class DashboardPresenter implements Initializable {
 
     public void setSelectionMode(boolean b){
         pdfPresentr.setSelectionMode(b);
+    }
+
+    public boolean getSelectionMode(){
+        return pdfPresentr.getSelectionMode();
     }
 
     public ArrayList<ChunkBlock> getCurrentChunkBlockList(){

@@ -21,6 +21,12 @@ public class Rule {
         minSupport = 0.5;
     }
 
+    public Rule(String name){
+        this.rule = "";
+        this.name = name;
+        minSupport = 0.5;
+    }
+
     public String getRule(){
         return rule;
     }

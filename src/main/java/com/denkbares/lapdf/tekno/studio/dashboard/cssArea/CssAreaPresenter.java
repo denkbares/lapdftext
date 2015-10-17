@@ -1,25 +1,5 @@
 package com.denkbares.lapdf.tekno.studio.dashboard.cssArea;
 
-/*
- * #%L
- * igniter
- * %%
- * Copyright (C) 2013 - 2014 Adam Bien
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,8 +13,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
@@ -42,6 +25,7 @@ import com.denkbares.lapdf.tekno.studio.dashboard.Rule;
 import com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemView;
 import com.denkbares.lapdf.tekno.studio.dashboard.ruleItem.RuleItemPresenter;
 import javafx.scene.layout.VBox;
+import org.apache.commons.logging.Log;
 
 /**
  *
@@ -80,23 +64,44 @@ public class CssAreaPresenter implements Initializable {
         rulesViewList = new ArrayList<RuleItemView>();
         filledRows = new ArrayList<Integer>();
 
+        ruleNameTextField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if(event.getCode() == KeyCode.ESCAPE)
+                    cancelRuleButtonPressed();
+            }
+        });
+
         ruleNameTextField.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                addRuleButtonPressed();
+                if(dbp.getSelectionMode()){
+                    confirmRuleButtonPressed();
+                }
+                else{
+                    addRuleButtonPressed();
+                }
             }
         });
     }
 
     public void confirmRuleButtonPressed(){
-        ArrayList<ChunkBlock> selection = dbp.getSelectedBlocks();
-        dbp.setSelectionMode(false);
-        Rule tempRule = ruleMaker.makeRule(selection);
-        if(tempRule == null){
+        try {
+            ArrayList<ChunkBlock> selection = dbp.getSelectedBlocks();
+            dbp.setSelectionMode(false);
+            Rule tempRule = ruleMaker.makeRule(selection);
+            if (tempRule == null) {
 
+            } else {
+                tempRule.setName(ruleNameTextField.getText());
+                rulesList.add(tempRule);
+                addRuleToGrid(tempRule);
+            }
         }
-        else {
-            tempRule.setName(ruleNameTextField.getText());
+        catch (Exception e){
+            //In case no PDF is loaded or no blocks are selected, enables debugging and creating rules without using PDF reference
+            e.printStackTrace();
+            Rule tempRule = new Rule(ruleNameTextField.getText());
             rulesList.add(tempRule);
             addRuleToGrid(tempRule);
         }
@@ -123,7 +128,10 @@ public class CssAreaPresenter implements Initializable {
     }
 
     public void addRuleButtonPressed(){
-        dbp.setSelectionMode(true);
+        if(dbp.isPDFLoaded())
+            dbp.setSelectionMode(true);
+        else
+            confirmRuleButtonPressed();
     }
 
     public void addRuleToGrid(Rule r){
@@ -139,12 +147,30 @@ public class CssAreaPresenter implements Initializable {
 
     public void deleteRule(RuleItemPresenter rule){
         rulesList.remove(rule.getRule());
-        if(rule.getIndex() == 0 && rulesVBox.getChildren().size() == 1)
+
+        if(rulesVBox.getChildren().size() == 1) {
+            rulesViewList.remove(0);
             rulesVBox.getChildren().remove(0);
-        else
+        }
+        else {
+            rulesViewList.remove(rule.getIndex());
             rulesVBox.getChildren().remove(rule.getIndex());
+            updateIndicies(rule.getIndex());
+        }
+
     }
 
+    public void updateIndicies(int deletedIndex){
+        //Update Indicies after deleting element at deleted index
+        for(RuleItemView r : rulesViewList){
+            RuleItemPresenter presenter = (RuleItemPresenter) r.getPresenter();
+            if(presenter.getIndex() > deletedIndex){
+                presenter.setIndex(presenter.getIndex()-1);
+            }
+        }
+    }
+
+    //TODO Delete
     private int getLastEmptyRow(){
         filledRows.sort(new Comparator<Integer>() {
             @Override
