@@ -25,6 +25,7 @@ import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import org.apache.log4j.Logger;
 import org.jpedal.PdfDecoderFX;
+import org.jpedal.fonts.FontMappings;
 import org.jpedal.grouping.PdfGroupingAlgorithms;
 import org.jpedal.objects.PdfPageData;
 import org.jpedal.utils.Strip;
@@ -59,7 +60,8 @@ public class JPedalExtractor implements Extractor {
 		
 		this.modelFactory = modelFactory;
 		this.PDFDecoder = new PdfDecoderFX();
-		
+		FontMappings.setFontReplacements();
+
 		this.avgHeightFrequencyCounter = new IntegerFrequencyCounter(1);
 		this.spaceFrequencyCounterMap = new HashMap<Integer, IntegerFrequencyCounter>();
 
@@ -154,6 +156,7 @@ public class JPedalExtractor implements Extractor {
 		String style = null;
 
 		PDFDecoder.decodePage(currentPage);
+		PDFDecoder.waitForDecodingToFinish();
 		
 		PdfGroupingAlgorithms currentGrouping = PDFDecoder.getGroupingObject();
 

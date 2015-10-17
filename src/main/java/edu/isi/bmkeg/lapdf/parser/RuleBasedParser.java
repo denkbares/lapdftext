@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.isi.bmkeg.lapdf.extraction.Extractor;
 import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
 import edu.isi.bmkeg.lapdf.features.HorizontalSplitFeature;
@@ -44,8 +45,9 @@ public class RuleBasedParser implements Parser {
 
 	private ArrayList<PageBlock> pageList;
 	
-	private JPedalExtractor pageExtractor;
+//	private JPedalExtractor pageExtractor;
 	//private PDFBoxExtractor pageExtractor;
+	private Extractor pageExtractor;
 	
 	private int idGenerator;
 	
@@ -87,6 +89,7 @@ public class RuleBasedParser implements Parser {
 			throws Exception {
 
 		pageList = new ArrayList<PageBlock>();
+//		pageExtractor = new PDFBoxExtractor(modelFactory);
 		pageExtractor = new JPedalExtractor(modelFactory);
 
 		idGenerator = 1;

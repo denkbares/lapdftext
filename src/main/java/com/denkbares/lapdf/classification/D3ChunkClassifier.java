@@ -341,10 +341,12 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 
 		// <-- Classification -->
 		String lastClassificationText = chunkFeatures.getlastClassification();
-		QuestionText lastClassification = (QuestionText) manager.searchQuestion("Last Classification");
-		TextValue lastClassificationValue  = new TextValue(lastClassificationText);
-		fact = FactFactory.createFact(lastClassification, lastClassificationValue, session, PSMethodUserSelected.getInstance());
-		session.getBlackboard().addValueFact(fact);
+		if (lastClassificationText != null) {
+			QuestionText lastClassification = (QuestionText) manager.searchQuestion("Last Classification");
+			TextValue lastClassificationValue  = new TextValue(lastClassificationText);
+			fact = FactFactory.createFact(lastClassification, lastClassificationValue, session, PSMethodUserSelected.getInstance());
+			session.getBlackboard().addValueFact(fact);
+		}
 
 	}
 }

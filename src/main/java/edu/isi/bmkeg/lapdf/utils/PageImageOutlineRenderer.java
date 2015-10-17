@@ -1,10 +1,6 @@
 package edu.isi.bmkeg.lapdf.utils;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -17,7 +13,6 @@ import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
-import edu.isi.bmkeg.lapdf.controller.LapdfMode;
 import edu.isi.bmkeg.lapdf.model.Block;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.PageBlock;
@@ -61,7 +56,6 @@ public class PageImageOutlineRenderer {
 	 * @param page
 	 * @param outputFile
 	 * @param label
-	 * @param mode
 	 * @throws IOException
 	 */
 	public static void dumpChunkTypePageImageToFile(PageBlock page, File outputFile, String label) 
@@ -190,7 +184,7 @@ public class PageImageOutlineRenderer {
 						w.getWidth(), w.getHeight(),
 						image, Color.black, block);
 
-				if( w.getFontStyle() != null) {
+				if( w.getFontStyle() != null && !w.getFontStyle().isEmpty()) {
 				
 					String text = w.getFontStyle();
 				

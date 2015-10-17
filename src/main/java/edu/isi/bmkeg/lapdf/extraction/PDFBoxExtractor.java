@@ -16,12 +16,6 @@ import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.Logger;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EmptyPDFException;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
@@ -31,6 +25,11 @@ import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
+import org.apache.log4j.Logger;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class PDFBoxExtractor implements Extractor {
 
@@ -256,6 +255,7 @@ public class PDFBoxExtractor implements Extractor {
 		}
 		
 		currentPage++;
+		document.close();
 		
 		return true;
 	
