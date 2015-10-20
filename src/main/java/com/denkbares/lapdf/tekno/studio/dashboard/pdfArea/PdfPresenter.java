@@ -1,30 +1,9 @@
 package com.denkbares.lapdf.tekno.studio.dashboard.pdfArea;
 
-/*
- * #%L
- * igniter
- * %%
- * Copyright (C) 2013 - 2014 Adam Bien
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-
+import com.denkbares.lapdf.tekno.studio.dashboard.Focus;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -35,15 +14,18 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Box;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import org.apache.pdfbox.PDFDebugger;
 import org.jpedal.PdfDecoderFX;
 import org.jpedal.examples.baseviewer.BaseViewerFX;
 import org.jpedal.exception.PdfException;
 import org.jpedal.fonts.FontMappings;
-
 import com.denkbares.lapdf.tekno.studio.dashboard.DashboardPresenter;
 
 
@@ -56,6 +38,12 @@ public class PdfPresenter implements Initializable {
     @FXML
     BorderPane pdfPane;
 
+    @FXML
+    Text pdfStatusText;
+
+    @FXML
+    javafx.scene.control.TextField pageTextField;
+
     PdfDecoderFX pdfDecoder;
     BaseViewerFX viewerBase;
     int currentPageNo = 1;
@@ -66,6 +54,7 @@ public class PdfPresenter implements Initializable {
     boolean selectionMode = false;
     boolean wasInit = false;
     ArrayList<ChunkBlock> currentSelection;
+    StackPane stackingBox;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -74,11 +63,17 @@ public class PdfPresenter implements Initializable {
         pdfDecoder = new org.jpedal.PdfDecoderFX();
         FontMappings.initFonts();
         FontMappings.setFontReplacements();
+        //Build PDF display and overlaying of boxes
+        stackingBox = new StackPane();
         viewerBase = new BaseViewerFX();
-        StackPane stackingBox = new StackPane();
         boxesOverlay = new Canvas();
         stackingBox.getChildren().addAll(pdfDecoder, boxesOverlay);
-        pdfPane.setCenter(stackingBox);
+
+        //Insert PDF Stacking Box into VBOX
+        HBox hbox = (HBox)pdfPane.getCenter();
+        VBox vbox = (VBox)hbox.getChildren().get(0);
+        vbox.getChildren().addAll(stackingBox);
+
         currentSelection = new ArrayList<ChunkBlock>();
 
         //Get Mouse clicks on canvas
@@ -190,10 +185,25 @@ public class PdfPresenter implements Initializable {
         pdfDecoder.closePdfFile();
     }
 
+   public boolean setPage(int pNo) {
+        if(dbp.isPDFLoaded() && pNo <= dbp.getTower().getNumberOfPages()+1 && pNo >= 1){
+            currentPageNo = pNo;
+            pageTextField.setText("" + currentPageNo);
+            pdfDecoder.decodePage(currentPageNo);
+            pdfDecoder.waitForDecodingToFinish();
+            //TODO : What does this do?
+            //pdfDecoder.resizeRelocate();
+            fitToX(FitToPage.AUTO);
+            pdfDecoder.setPageParameters(scale, currentPageNo);
+            return true;
+        }
+        return false;
+    }
+
     public void changePage(int pageNew) {
         try {
             if(setPage(pageNew)) {
-                dbp.setPage(pageNew);
+                dbp.setPage(currentPageNo);
                 clearSelectionOverlay();
                 boxesOverlay.setHeight(pdfDecoder.getHeight());
                 boxesOverlay.setWidth(pdfDecoder.getWidth());
@@ -224,7 +234,15 @@ public class PdfPresenter implements Initializable {
 
         boxesOverlay.getGraphicsContext2D().setLineWidth(2.0);
         boxesOverlay.getGraphicsContext2D().setStroke(boxColor);
-        boxesOverlay.getGraphicsContext2D().strokeRect(scale*what.getX1()-2, scale*what.getY1()-2, widthBox, heightBox);
+        boxesOverlay.getGraphicsContext2D().strokeRect(scale * what.getX1() - 2, scale * what.getY1() - 2, widthBox, heightBox);
+
+/*
+        Alternative drawing of Boxes without using Canvas Overlay?
+        Paint stroke;
+        Rectangle chunkBox = new Rectangle(widthBox, heightBox);
+        chunkBox.setStroke();
+        pdfDecoder.drawAdditionalObjectsOverPage(chunkBox);
+**/
 
         System.out.println("Drawn selection with x1:"+scale*what.getX1()+", y1:"+scale*what.getY1()+", h:"+scale*what.getHeight()+" and w:"+scale*what.getWidth()+" in Color "+boxColor.toString()+".");
     }
@@ -300,29 +318,6 @@ public class PdfPresenter implements Initializable {
         pdfStatusText.setText(status);
     }
 
-    //Merged Methods and Variables, formerly part of DashboardPresenter
-    //FXML
-    @FXML
-    Text pdfStatusText;
-
-    @FXML
-    javafx.scene.control.TextField pageTextField;
-
-    //Variables
-    private String rules;
-
-    public boolean setPage(int pNo) {
-        if(dbp.isPDFLoaded() && pNo <= dbp.getTower().getNumberOfPages()+1 && pNo >= 1){
-            currentPageNo = pNo;
-            pageTextField.setText("" + currentPageNo);
-            pdfDecoder.decodePage(currentPageNo);
-            pdfDecoder.waitForDecodingToFinish();
-            fitToX(FitToPage.AUTO);
-            return true;
-        }
-        return false;
-    }
-
     public void forwardPage() {
         if(dbp.isPDFLoaded() && currentPageNo <= dbp.getTower().getNumberOfPages()){
             currentPageNo++;
@@ -365,6 +360,12 @@ public class PdfPresenter implements Initializable {
 
     public ArrayList<ChunkBlock> getSelectedBlocks(){
         return currentSelection;
+    }
+
+    public void setFocus(Focus on){
+        if(on.equals(Focus.PAGE_NO_FIELD)){
+            pageTextField.requestFocus();
+        }
     }
 
 }

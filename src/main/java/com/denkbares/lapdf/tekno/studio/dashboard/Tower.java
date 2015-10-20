@@ -85,7 +85,8 @@ public class Tower {
         try{
             doc = null;
             doc = engine.blockifyFile(new File(pdfPath));
-            engine.dumpChunkTypeImageOutlinesToFiles(doc, new File("C:\\schrott"), "test");
+            //Debug only.
+            //engine.dumpChunkTypeImageOutlinesToFiles(doc, new File("C:\\schrott"), "test");
         }
         catch(Exception e){
             throw new IOException("Failed to refresh the LaPDFDocument", e);

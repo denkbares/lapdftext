@@ -20,11 +20,17 @@ package com.denkbares.lapdf.tekno.studio;
  * #L%
  */
 
+import com.denkbares.lapdf.tekno.studio.dashboard.DashboardPresenter;
 import com.denkbares.lapdf.tekno.studio.dashboard.DashboardView;
 
 import com.airhacks.afterburner.injection.Injector;
+import com.denkbares.lapdf.tekno.studio.dashboard.Focus;
+import com.denkbares.lapdf.tekno.studio.dashboard.NavCommand;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 /**
@@ -33,18 +39,49 @@ import javafx.stage.Stage;
  */
 public class App extends Application {
 
+
     @Override
     public void start(Stage stage) throws Exception {
 
-
         DashboardView appView = new DashboardView();
+        DashboardPresenter appPresenter = (DashboardPresenter) appView.getPresenter();
         Scene scene = new Scene(appView.getView());
+
+
         stage.setTitle("TEKNO Studio");
         final String uri = getClass().getResource("app.css").toExternalForm();
         scene.getStylesheets().add(uri);
         stage.setScene(scene);
         stage.show();
 
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                //Focus shortcuts
+                if(event.getText().equalsIgnoreCase("R") && event.isControlDown()){
+                    event.consume();
+                    appPresenter.setFocus(Focus.RULE_NAME_FIELD);
+                }
+                if(event.getText().equalsIgnoreCase("c") && event.isControlDown()){
+                    event.consume();
+                    appPresenter.setFocus(Focus.PAGE_NO_FIELD);
+                }
+
+                //Page Nav
+                if(event.getCode().equals(KeyCode.LEFT) && event.isControlDown()){
+                    appPresenter.navCommand(NavCommand.GOBACK);
+                }
+                if(event.getCode().equals(KeyCode.RIGHT) && event.isControlDown()){
+                    appPresenter.navCommand(NavCommand.GOFORWARD);
+                }
+                if(event.getCode().equals(KeyCode.LEFT) && event.isAltDown()){
+                    appPresenter.navCommand(NavCommand.BEGINNING);
+                }
+                if(event.getCode().equals(KeyCode.RIGHT) && event.isAltDown()){
+                    appPresenter.navCommand(NavCommand.END);
+                }
+            }
+        });
     }
 
     @Override

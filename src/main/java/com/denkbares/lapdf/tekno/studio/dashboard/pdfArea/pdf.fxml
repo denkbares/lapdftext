@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="pdfPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="679.0" prefWidth="826.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denkbares.lapdf.tekno.studio.dashboard.pdfArea.PdfPresenter">
+<BorderPane fx:id="pdfPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" onSwipeLeft="#backPage" onSwipeRight="#forwardPage" prefHeight="679.0" prefWidth="826.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denkbares.lapdf.tekno.studio.dashboard.pdfArea.PdfPresenter">
    <bottom>
       <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
@@ -17,13 +18,17 @@
          <items>
             <Button fx:id="toBeginningButton" mnemonicParsing="false" onAction="#beginningPage" text="&lt;&lt;" />
             <Button fx:id="backButton" mnemonicParsing="false" onAction="#backPage" text="&lt;" />
-            <TextField alignment="CENTER" fx:id="pageTextField" promptText="Enter Page No" />
+            <TextField fx:id="pageTextField" alignment="CENTER" promptText="Enter Page No" />
             <Button fx:id="forwardButton" mnemonicParsing="false" onAction="#forwardPage" text="&gt;" />
             <Button fx:id="toEndButton" mnemonicParsing="false" onAction="#endPage" text="&gt;&gt;" />
          </items>
       </ToolBar>
    </top>
    <center>
-      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="679.0" prefWidth="746.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="679.0" prefWidth="826.0" />
+         </children>
+      </HBox>
    </center>
 </BorderPane>

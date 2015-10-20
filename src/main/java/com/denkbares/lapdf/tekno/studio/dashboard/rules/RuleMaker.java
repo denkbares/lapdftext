@@ -1,6 +1,5 @@
 package com.denkbares.lapdf.tekno.studio.dashboard.rules;
 
-import com.denkbares.lapdf.tekno.studio.dashboard.Rule;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 
 import java.util.ArrayList;
@@ -80,7 +79,7 @@ public class RuleMaker {
                         ruleText += "Density = " + pivot.readDensity() +",\n";
                         break;
                     case 1:
-                        ruleText += "HeaderOrFooter = " + pivot.isHeaderOrFooter() +",\n";
+                        ruleText += "Is Header or Footer = " + pivot.isHeaderOrFooter() +",\n";
                         break;
                     case 2:
                         ruleText += "WasClassified = " + pivot.getWasClassified() +",\n";

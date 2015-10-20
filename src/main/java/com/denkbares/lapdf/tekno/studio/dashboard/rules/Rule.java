@@ -1,4 +1,4 @@
-package com.denkbares.lapdf.tekno.studio.dashboard;
+package com.denkbares.lapdf.tekno.studio.dashboard.rules;
 
 /**
  * Created by Maximilian on 03.09.2015.

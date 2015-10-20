@@ -20,12 +20,8 @@ package com.denkbares.lapdf.tekno.studio.dashboard;
  * #L%
  */
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
+import com.denkbares.lapdf.tekno.studio.dashboard.rules.Rule;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Text;
 
 import java.io.*;
 import java.net.URL;
@@ -86,6 +82,16 @@ public class DashboardPresenter implements Initializable {
         cssBorderPane.setCenter((cssViewr.getView()));
     }
 
+    //Handle focus events, usually triggered by KeyEvents in App class
+    public void setFocus(Focus on){
+        if(on.equals(Focus.PAGE_NO_FIELD)){
+            pdfPresentr.setFocus(Focus.PAGE_NO_FIELD);
+        }
+        else if(on.equals(Focus.RULE_NAME_FIELD)){
+            cssPresentr.setFocus(Focus.RULE_NAME_FIELD);
+        }
+    }
+
      /**
      * Fetches the ChunkBlocks from the Model and tells the PDFView to draw them as boxes
      */
@@ -95,7 +101,7 @@ public class DashboardPresenter implements Initializable {
                 for (ChunkBlock b : currentChunkBlockList) {
                     //Draw box. Red if unclassified, yellow if classified. If classified, add class as text or mouseover.
                     pdfPresentr.drawOnPage(b);
-                    //Debug output, TODO remove
+                    //Debug output, TODO move to log
                     System.out.println("Drew a block to page " + currentPageNo);
                 }
         } catch (Exception e){
@@ -111,7 +117,7 @@ public class DashboardPresenter implements Initializable {
         opener.getExtensionFilters().add(new FileChooser.ExtensionFilter("d3web File", "*.d3web"));
         File openedRules = opener.showOpenDialog(new Popup());
         try {
-            newRules = readFile(openedRules.getPath(),Charset.forName("UTF-8"));
+            newRules = readFile(openedRules.getPath(), Charset.forName("UTF-8"));
         }
         catch(Exception e){
             System.out.println("---------ERROR---------\nFailed to load File :"+openedRules.getAbsolutePath()+"\n");
@@ -153,7 +159,7 @@ public class DashboardPresenter implements Initializable {
                 rules = cssPresentr.getRulesAsText();
                 currentRulePath.delete();
                 PrintWriter writer = new PrintWriter(fileCopy.getAbsoluteFile(), "UTF-8");
-                //TODO Encode!
+                //TODO Write proper encode method!
                 rules = encode(rules);
                 writer.print(rules);
                 writer.close();
@@ -179,7 +185,6 @@ public class DashboardPresenter implements Initializable {
         File file = saver.showSaveDialog(new Popup());
 
         if(correctlyFormatted(cssPresentr.getRulesAsText())) {
-            //TODO Encode!
             currentRulePath = file;
             try {
                 rules = cssPresentr.getRulesAsText();
@@ -216,6 +221,7 @@ public class DashboardPresenter implements Initializable {
             File openedPDF = opener.showOpenDialog(new Popup());
 
             pdfPresentr.loadPDFFile(openedPDF.getAbsolutePath());
+            //TODO : Why the heck is this not showing?!
             pdfPresentr.setStatus("Beginning loading procedure, this may take some time...");
             tower.setPdfPath(openedPDF.getAbsolutePath());
             pdfPresentr.beginningPage();
@@ -282,6 +288,23 @@ public class DashboardPresenter implements Initializable {
             return false;
         else
             return true;
+    }
+
+    public void navCommand(NavCommand to){
+        switch (to){
+            case BEGINNING:
+                pdfPresentr.beginningPage();
+                break;
+            case GOBACK:
+                pdfPresentr.backPage();
+                break;
+            case GOFORWARD:
+                pdfPresentr.forwardPage();
+                break;
+            case END:
+                pdfPresentr.endPage();
+                break;
+        }
     }
 
     public void setSelectionMode(boolean b){
