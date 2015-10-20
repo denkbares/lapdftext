@@ -221,10 +221,13 @@ public class DashboardPresenter implements Initializable {
             File openedPDF = opener.showOpenDialog(new Popup());
 
             pdfPresentr.loadPDFFile(openedPDF.getAbsolutePath());
+
             //TODO : Why the heck is this not showing?!
             pdfPresentr.setStatus("Beginning loading procedure, this may take some time...");
             tower.setPdfPath(openedPDF.getAbsolutePath());
+
             pdfPresentr.beginningPage();
+            updateBoxes();
             pdfPresentr.setStatus("Successfully loaded the File " + openedPDF.getName() + "!");
         }
         catch (Exception e){

@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="pdfPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" onSwipeLeft="#backPage" onSwipeRight="#forwardPage" prefHeight="679.0" prefWidth="826.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denkbares.lapdf.tekno.studio.dashboard.pdfArea.PdfPresenter">
+<BorderPane fx:id="pdfPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" onSwipeLeft="#forwardPage" onSwipeRight="#backPage" prefHeight="679.0" prefWidth="826.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denkbares.lapdf.tekno.studio.dashboard.pdfArea.PdfPresenter">
    <bottom>
       <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>

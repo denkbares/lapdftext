@@ -180,11 +180,6 @@ public class PdfPresenter implements Initializable {
         dbp.updateBoxes();
     }
 
-    public void clearScreen() {
-        currentPageNo = 1;
-        pdfDecoder.closePdfFile();
-    }
-
    public boolean setPage(int pNo) {
         if(dbp.isPDFLoaded() && pNo <= dbp.getTower().getNumberOfPages()+1 && pNo >= 1){
             currentPageNo = pNo;
@@ -235,14 +230,6 @@ public class PdfPresenter implements Initializable {
         boxesOverlay.getGraphicsContext2D().setLineWidth(2.0);
         boxesOverlay.getGraphicsContext2D().setStroke(boxColor);
         boxesOverlay.getGraphicsContext2D().strokeRect(scale * what.getX1() - 2, scale * what.getY1() - 2, widthBox, heightBox);
-
-/*
-        Alternative drawing of Boxes without using Canvas Overlay?
-        Paint stroke;
-        Rectangle chunkBox = new Rectangle(widthBox, heightBox);
-        chunkBox.setStroke();
-        pdfDecoder.drawAdditionalObjectsOverPage(chunkBox);
-**/
 
         System.out.println("Drawn selection with x1:"+scale*what.getX1()+", y1:"+scale*what.getY1()+", h:"+scale*what.getHeight()+" and w:"+scale*what.getWidth()+" in Color "+boxColor.toString()+".");
     }

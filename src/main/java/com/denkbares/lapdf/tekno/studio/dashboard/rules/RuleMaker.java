@@ -88,7 +88,7 @@ public class RuleMaker {
                         ruleText += "WordSpace = " + pivot.getMostPopularWordSpaceWidth() +",\n";
                         break;
                     case 4:
-                        ruleText += "Line = " + pivot.readNumberOfLine() +",\n";
+                        ruleText += "Number of Line = " + pivot.readNumberOfLine() +",\n";
                         break;
                     case 5:
                         ruleText += "WordHeight = " + pivot.getMostPopularWordHeight() +",\n";
@@ -100,19 +100,19 @@ public class RuleMaker {
                         ruleText += "Height = " + pivot.getHeight() +",\n";
                         break;
                     case 8:
-                        ruleText += "Page = " + pivot.getPage().getPageNumber() +",\n";
+                        ruleText += "Page Number = " + pivot.getPage().getPageNumber() +",\n";
                         break;
                     case 9:
-                        ruleText += "X1 = " + pivot.getX1() +",\n";
+                        ruleText += "X-Left = " + pivot.getX1() +",\n";
                         break;
                     case 10:
-                        ruleText += "X2 = " + pivot.getX2() +",\n";
+                        ruleText += "X-Right = " + pivot.getX2() +",\n";
                         break;
                     case 11:
-                        ruleText += "Y1 = " + pivot.getY1() +",\n";
+                        ruleText += "Y-Top = " + pivot.getY1() +",\n";
                         break;
                     case 12:
-                        ruleText += "Y2 = " + pivot.getY2() +",\n";
+                        ruleText += "Y-Bottom = " + pivot.getY2() +",\n";
                         break;
                     case 13:
                         ruleText += "NoRotWord = " + pivot.getRotatedWords().size() +",\n";
