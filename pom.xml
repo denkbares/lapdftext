@@ -379,21 +379,19 @@
 		<!-- d3web repositories -->
 
 		<repository>
-			<id>infovi-artifactory</id>
-			<url>http://isci.informatik.uni-wuerzburg.de:8080/artifactory/repo/</url>
-		</repository>
-		<repository>
-			<id>knowwe-snapshots</id>
-			<url>http://isci.informatik.uni-wuerzburg.de:8080/artifactory/knowwe-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
 			<snapshots>
-				<updatePolicy>interval:120</updatePolicy>
+				<enabled>true</enabled>
+				<updatePolicy>interval:60</updatePolicy>
 				<checksumPolicy>ignore</checksumPolicy>
 			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>interval:60</updatePolicy>
+			</releases>
+			<id>des-repo-des</id>
+			<name>Denkbares Public Repository</name>
+			<url>https://repo.denkbares.com/repo-public/</url>
 		</repository>
-
 	</repositories>
 
 	<pluginRepositories>
@@ -427,8 +425,8 @@
 		</pluginRepository>
 
 		<pluginRepository>
-			<id>contrib</id>
-			<url>http://isci.informatik.uni-wuerzburg.de:8080/artifactory/infovi-contrib/</url>
+			<id>des-plugins-public</id>
+			<url>https://repo.denkbares.com/plugins-public/</url>
 		</pluginRepository>
 
 	</pluginRepositories>
