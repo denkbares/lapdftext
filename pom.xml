@@ -75,7 +75,7 @@
 			<!-- NOTE: We need to use Apache Felix's OSGi capabilities to avoid a
 				library versioning clash between MALLET - using gnu trove 2.0.2 JSI + LAPDFTEXT
 				- using gnu trove 3.0.3 -->
-			<plugin>
+			<!--<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<extensions>true</extensions>
@@ -99,7 +99,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin>-->
 			<!-- NOTE: We don't need a groupId specification because the group is
 				org.apache.maven.plugins ...which is assumed by default. -->
 			<plugin>
