@@ -21,6 +21,7 @@ package com.denkbares.lapdf.classification;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.ClassificationException;
@@ -59,8 +60,16 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 	private final KnowledgeBase knowledgeBase;
 	private final AbstractModelFactory modelFactory;
 
+	public D3ChunkClassifier(KnowledgeBase knowledgeBase, AbstractModelFactory modelFactory) {
+		Objects.requireNonNull(knowledgeBase);
+		Objects.requireNonNull(modelFactory);
+		this.knowledgeBase = knowledgeBase;
+		this.modelFactory = modelFactory;
+	}
 
 	public D3ChunkClassifier(File knowledgeBaseFile, AbstractModelFactory modelFactory) throws IOException {
+		Objects.requireNonNull(knowledgeBaseFile);
+		Objects.requireNonNull(modelFactory);
 		this.knowledgeBase = loadKnowledgeBase(knowledgeBaseFile);
 		this.modelFactory = modelFactory;
 	}
