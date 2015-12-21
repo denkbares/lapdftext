@@ -2,19 +2,20 @@ package edu.isi.bmkeg.lapdf.bin;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
 
 import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
 import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
 import edu.isi.bmkeg.utils.Converters;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 
-public class Blockify {
+public class Blockify extends Application {
 
 	private static Logger logger = Logger.getLogger(Blockify.class);
 	
@@ -24,9 +25,17 @@ public class Blockify {
 			+ "Running this command on a PDF file or directory will attempt to generate \n"
 			+ "one XML document per file with unnannotated text chunks .\n";
 
-	public static void main(String args[]) throws Exception {
+	public static void main(String args[]) throws Exception	{
+		launch(args);
+	}
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
 
 		LapdfEngine engine = new LapdfEngine();
+
+		List<String> parameters = getParameters().getRaw();
+		String[] args = parameters.toArray(new String[parameters.size()]);
 
 		if (args.length < 1) {
 			System.err.println(USAGE);
@@ -70,10 +79,10 @@ public class Blockify {
 			Pattern patt = Pattern.compile("\\.pdf$");
 			Map<String, File> inputFiles = Converters.recursivelyListFiles(
 					inputFileOrDir, patt);
-			
-			String[] fileNameArray = inputFiles.keySet().toArray(new String[inputFiles.size()]); 
+
+			String[] fileNameArray = inputFiles.keySet().toArray(new String[inputFiles.size()]);
 			Arrays.sort(fileNameArray);
-			
+
 			for( int i=0; i<fileNameArray.length; i++) {
 				File pdf = inputFiles.get(fileNameArray[i]);
 				logger.info("Processing " + pdf.getPath());
@@ -96,7 +105,7 @@ public class Blockify {
 				XmlBindingTools.saveAsXml(xmlDoc, outFile);
 
 				logger.info(outFile.getPath() + " generated.");
-				
+
 			}
 
 		} else {
