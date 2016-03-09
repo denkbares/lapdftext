@@ -1,18 +1,10 @@
 package edu.isi.bmkeg.lapdf.model.RTree;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import edu.isi.bmkeg.lapdf.model.Block;
-import edu.isi.bmkeg.lapdf.model.ChunkBlock;
-import edu.isi.bmkeg.lapdf.model.LapdfDocument;
-import edu.isi.bmkeg.lapdf.model.PageBlock;
-import edu.isi.bmkeg.lapdf.model.WordBlock;
+import edu.isi.bmkeg.lapdf.model.*;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
+
+import java.util.*;
 
 public class RTPageBlock extends RTSpatialContainer implements PageBlock {
 	
@@ -26,6 +18,8 @@ public class RTPageBlock extends RTSpatialContainer implements PageBlock {
 	private Map<Integer, ChunkBlock> indexToChunkBlockMap;
 
 	private LapdfDocument document;
+
+	private double avgLineDistance;
 
 	public RTPageBlock(int pageNumber,
 			int pageBoxWidth, int pageBoxHeight,
@@ -41,6 +35,53 @@ public class RTPageBlock extends RTSpatialContainer implements PageBlock {
 		this.boxWidth = pageBoxWidth;
 		this.document = document;
 
+	}
+
+	public double getAvgLineDistance(){
+		return avgLineDistance;
+	}
+
+	private double calculateAvgLineDistance(){
+		//Calculate the average distance of lines on this page
+		double sumOfDistances = 0, noOfLines = 0;
+		//Sum distances, then divide to get median
+		ArrayList<WordBlock> wordBlocksDesc = (ArrayList<WordBlock>)getAllWordBlocks(SpatialOrdering.ORIGINAL_MODE);
+		wordBlocksDesc.sort(new Comparator<WordBlock>() {
+			@Override
+			public int compare(WordBlock o1, WordBlock o2) {
+				if(o1.getY1() < o2.getY1())
+					return 1;
+				else if(o1.getY1() == o2.getY1())
+					return 0;
+				else
+					return -1;
+			}
+		});
+		//Check downwards only, as list is ordered desc.
+		ArrayList<Double> lineHeights = new ArrayList<>();
+		for(WordBlock w : wordBlocksDesc) {
+			double minDist = -1;
+
+			for (int i = 0; i < wordBlocksDesc.size(); i++) {
+				//look until closest y2-wb is found
+				WordBlock temp = wordBlocksDesc.get(i);
+				if (!w.equals(temp) && (minDist > w.getY1() - temp.getY2() || minDist == -1)) {
+					if(w.getY1() > temp.getY2())
+						minDist = w.getY1() - temp.getY2();
+				}
+			}
+
+			//minDist is now the closest margin between w and any block (i.e. the line height)
+			sumOfDistances += minDist;
+			noOfLines++;
+		}
+		return sumOfDistances/noOfLines;
+	}
+
+	public double getAvgSpacing(){
+		//Better Alternative : Space Frequency Counter from JPedalExtractor?
+		//-> Would be suitable for height-dependent space checking -> More Precise?
+		return getMostPopularHorizontalSpaceBetweenWordsPage();
 	}
 	
 	public int getHeight() {
@@ -122,7 +163,9 @@ public class RTPageBlock extends RTSpatialContainer implements PageBlock {
 			block.setPage(this);
 			this.add(block, startId++);
 		}
-		
+
+		this.avgLineDistance = calculateAvgLineDistance();
+
 		return startId;
 	
 	}
