@@ -361,14 +361,15 @@ public class LapdfEngine  {
 	public void classifyDocument(LapdfDocument document,
 			File ruleFile) throws ClassificationException, IOException {
 
-		Classifier classifier = initClassifier(ruleFile);
+		classifyDocument(document, initClassifier(ruleFile));
+	}
 
+	public void classifyDocument(LapdfDocument document, Classifier classifier) throws ClassificationException {
 		for (int i = 1; i <= document.getTotalNumberOfPages(); i++) {
 			PageBlock page = document.getPage(i);
 			List<ChunkBlock> chunkList = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
 			classifier.classify(chunkList);
 		}
-
 	}
 	
 	public String readBasicText(LapdfDocument document) 
