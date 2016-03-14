@@ -1,20 +1,5 @@
 package edu.isi.bmkeg.lapdf.extraction;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EmptyPDFException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EncryptionException;
@@ -31,6 +16,14 @@ import org.jpedal.objects.PdfPageData;
 import org.jpedal.utils.Strip;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 public class JPedalExtractor implements Extractor {
 
@@ -161,6 +154,8 @@ public class JPedalExtractor implements Extractor {
 		PdfGroupingAlgorithms currentGrouping = PDFDecoder.getGroupingObject();
 
 		PdfPageData currentPageData = PDFDecoder.getPdfPageData();
+
+		// 0:TLX, 1:TLY, 2:BRX, 3:BRY
 		int[] dimensions;
 
 		// pageHeight.add(currentPageData.getCropBoxHeight(page));
@@ -174,7 +169,7 @@ public class JPedalExtractor implements Extractor {
 		List words = currentGrouping.extractTextAsWordlist(
 				dimensions[0], dimensions[1], dimensions[2], dimensions[3], 
 				currentPage,
-				true, 
+				true,
 				"" 
 				// Used to be "&:=()!;\\/\"\"\'\'" 
 				// NOTE that this strips out these text elements 
@@ -204,7 +199,7 @@ public class JPedalExtractor implements Extractor {
 		while (wordIterator.hasNext()) {
 			
 			currentWord = wordIterator.next();
-
+			//Suspect there might be problem in here, nothing critical though TODO : Look into this
 			font = getFontData(currentWord, "face");
 			if( font != null )
 				style = getFontData(currentWord, "style");

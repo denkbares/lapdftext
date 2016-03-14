@@ -1,41 +1,28 @@
 package edu.isi.bmkeg.lapdf.parser;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import edu.isi.bmkeg.lapdf.extraction.Extractor;
 import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
 import edu.isi.bmkeg.lapdf.features.HorizontalSplitFeature;
-import edu.isi.bmkeg.lapdf.model.Block;
-import edu.isi.bmkeg.lapdf.model.ChunkBlock;
-import edu.isi.bmkeg.lapdf.model.LapdfDocument;
-import edu.isi.bmkeg.lapdf.model.PageBlock;
-import edu.isi.bmkeg.lapdf.model.WordBlock;
+import edu.isi.bmkeg.lapdf.model.*;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 import edu.isi.bmkeg.lapdf.utils.PageImageOutlineRenderer;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLChunk;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLFontStyle;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLPage;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
+import edu.isi.bmkeg.lapdf.xml.model.*;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
 import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RuleBasedParser implements Parser {
 
@@ -59,7 +46,10 @@ public class RuleBasedParser implements Parser {
 	
 	private int eastWestSpacing;
 
+	//MANUALLY SET THESE BOOLEAN VALUES FOR SWITCHING OPERATION MODE
+	//Default Value : false
 	private boolean quickly = false;
+	private boolean maxMode = true;
 
 	protected AbstractModelFactory modelFactory;
 	
@@ -162,12 +152,19 @@ public class RuleBasedParser implements Parser {
 				this.northSouthSpacing = (pageBlock.getMostPopularWordHeightPage() ) / 2
 						+ pageBlock.getMostPopularVerticalSpaceBetweenWordsPage();
 
-				if( this.quickly ) {
-					buildChunkBlocksQuickly(pageWordBlockList, pageBlock);
-				} else {
-					buildChunkBlocksSlowly(pageWordBlockList, pageBlock);
+				if(this.maxMode) {
+					idGenerator = pageBlock.addAll(
+							new ArrayList<SpatialEntity>(MaxPowerChunkingClass.buildChunkBlocks(pageBlock)),
+							idGenerator
+					);
 				}
-
+				else {
+					if (this.quickly) {
+						buildChunkBlocksQuickly(pageWordBlockList, pageBlock);
+					} else {
+						buildChunkBlocksSlowly(pageWordBlockList, pageBlock);
+					}
+				}
 				mergeHighlyOverlappedChunkBlocks(pageBlock);
 
 			}
@@ -375,8 +372,8 @@ public class RuleBasedParser implements Parser {
 	/**
 	 * Here we build the blocks based on speed, assuming the ordering of words on the page is 
 	 * in the correct reading order. Thus we start a new block when you move to a new line 
-	 * with a is if the next line 
-	 * starts with a different width and a different 
+	 * with a is if the next line
+	 * starts with a different width and a different
 	 * @param wordBlocksLeftInPage
 	 * @param page
 	 */
@@ -399,10 +396,9 @@ public class RuleBasedParser implements Parser {
 			
 			// Is this a new line or 
 			// a very widely separated block on the same line?
-			if( prev != null && 
-					(word.getY2() > maxY || 
-					word.getX1() - maxX > word.getHeight() * 1.5)
-					) {
+			if( prev != null
+				&& (word.getY2() > maxY
+				||	word.getX1() - maxX > word.getHeight() * 1.5)){
 				
 				// 1. Is this new line more than 
 				//    0.75 x word.getHeight() 
@@ -420,7 +416,8 @@ public class RuleBasedParser implements Parser {
 				boolean outsideX = word.getX1() < minX || word.getX2() > maxX;
 				
 				if(  lineSeparation || newFont || newStyle || outsideX ) {
-				
+
+					//If the current word violates one of the conditions 1-3 finish the current ChunkBlock, start new one
 					ChunkBlock cb1 = buildChunkBlock(chunkWords, page);
 					chunkBlockList1.add(cb1);
 					chunkWords = new ArrayList<WordBlock>();
@@ -434,7 +431,8 @@ public class RuleBasedParser implements Parser {
 				}
 				
 			}
-			
+
+			//If the current word DOES NOT violate any of the conditions 1-3, add to current ChunkBlock
 			chunkWords.add(word);
 			word.setOrderAddedToChunk(chunkWords.size());
 			
@@ -445,7 +443,8 @@ public class RuleBasedParser implements Parser {
 			if( word.getY2() > maxY) maxY = word.getY2();
 						
 		}
-		
+
+		//Upon reaching last word finish building current ChunkBlock
 		ChunkBlock cb1 = buildChunkBlock(chunkWords, page);
 		chunkBlockList1.add(cb1);
 
@@ -810,7 +809,8 @@ public class RuleBasedParser implements Parser {
 		chunkBlock.setMostPopularWordHeight(
 				lineHeightFrequencyCounter.getMostPopular()
 				);
-		
+
+		//NOTE: Completely redundant! SpaceWidths are never initialized!
 		chunkBlock.setMostPopularWordSpaceWidth(
 				spaceFrequencyCounter.getMostPopular()
 				);

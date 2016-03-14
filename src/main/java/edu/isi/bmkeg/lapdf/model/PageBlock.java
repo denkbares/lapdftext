@@ -1,8 +1,8 @@
 package edu.isi.bmkeg.lapdf.model;
 
-import java.util.List;
-
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialContainer;
+
+import java.util.List;
 
 public interface PageBlock extends Block, SpatialContainer {
 
@@ -16,4 +16,7 @@ public interface PageBlock extends Block, SpatialContainer {
 
 	public LapdfDocument getDocument();
 
+	public double getAvgLineDistance();
+
+	public double getAvgSpacing();
 }
