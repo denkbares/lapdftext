@@ -1,9 +1,9 @@
 package edu.isi.bmkeg.lapdf.model;
 
-import java.util.List;
-
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
+
+import java.util.List;
 
 /**
  * A contiguous block of text that sits within a PageBlock object and contains
@@ -137,7 +137,7 @@ public interface ChunkBlock extends Block, SpatialEntity {
 	List<WordBlock> getWordBlocks(String ordering);
 
 	/**
-	 * Sets wheter or not this Block has been Classified by an instance of D3ChunkClassifier
+	 * Sets whether or not this Block has been Classified by an instance of D3ChunkClassifier
 	 */
 	public void setWasClassified(boolean b);
 

@@ -46,8 +46,10 @@ public class RuleBasedParser implements Parser {
 	
 	private int eastWestSpacing;
 
+	//MANUALLY SET THESE BOOLEAN VALUES FOR SWITCHING OPERATION MODE
 	//Default Value : false
 	private boolean quickly = false;
+	private boolean maxMode = true;
 
 	protected AbstractModelFactory modelFactory;
 	
@@ -150,12 +152,19 @@ public class RuleBasedParser implements Parser {
 				this.northSouthSpacing = (pageBlock.getMostPopularWordHeightPage() ) / 2
 						+ pageBlock.getMostPopularVerticalSpaceBetweenWordsPage();
 
-				if( this.quickly ) {
-					buildChunkBlocksQuickly(pageWordBlockList, pageBlock);
-				} else {
-					buildChunkBlocksSlowly(pageWordBlockList, pageBlock);
+				if(this.maxMode) {
+					idGenerator = pageBlock.addAll(
+							new ArrayList<SpatialEntity>(MaxPowerChunkingClass.buildChunkBlocks(pageBlock)),
+							idGenerator
+					);
 				}
-
+				else {
+					if (this.quickly) {
+						buildChunkBlocksQuickly(pageWordBlockList, pageBlock);
+					} else {
+						buildChunkBlocksSlowly(pageWordBlockList, pageBlock);
+					}
+				}
 				mergeHighlyOverlappedChunkBlocks(pageBlock);
 
 			}
@@ -800,7 +809,8 @@ public class RuleBasedParser implements Parser {
 		chunkBlock.setMostPopularWordHeight(
 				lineHeightFrequencyCounter.getMostPopular()
 				);
-		
+
+		//NOTE: Completely redundant! SpaceWidths are never initialized!
 		chunkBlock.setMostPopularWordSpaceWidth(
 				spaceFrequencyCounter.getMostPopular()
 				);

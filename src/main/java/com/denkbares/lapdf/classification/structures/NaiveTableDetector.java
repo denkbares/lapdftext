@@ -20,12 +20,16 @@ package com.denkbares.lapdf.classification.structures;
 
 import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import edu.isi.bmkeg.lapdf.model.Gap;
+import edu.isi.bmkeg.lapdf.model.Line;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
+import edu.isi.bmkeg.lapdf.utils.PageOperations;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Sebastian Furth (denkbares GmbH), Maximilian Schirm
@@ -48,163 +52,6 @@ public class NaiveTableDetector implements StructureDetector {
 				return method1(block, features);
 		}
 
-	}
-
-	//Class for easier management of collisions and other line specific operations.
-	class Line{
-		int ytop, ybottom, xleft, xright;
-		ArrayList<WordBlock> wordBlocks;
-		ArrayList<Gap> gaps = new ArrayList<>();
-		double partOfTable = 0;
-
-		String UP="UP", DOWN="DOWN", LEFT="LEFT", RIGHT="RIGHT";
-
-		public Line(int ytop,int ybottom,int xleft,int xright){
-			this.ytop = ytop;
-			this.ybottom = ybottom;
-			this.xleft = xleft;
-			this.xright = xright;
-		}
-
-		public Line(ArrayList<WordBlock> words){
-			int maxY = -1, minY = -1, minX = -1, maxX = -1;
-			for(WordBlock w : words){
-				if(maxY == -1 || maxY < w.getY2())
-					maxY = w.getY2();
-				if(minY == -1 || minY > w.getY1())
-					minY = w.getY1();
-				if(maxX == -1 || maxX < w.getX2())
-					maxX = w.getX2();
-				if(minX == -1 || minX > w.getX1())
-					minX = w.getX1();
-			}
-			ytop = minY;
-			ybottom = maxY;
-			xleft = minX;
-			xright = maxX;
-			wordBlocks = words;
-		}
-
-		protected void setPartOfTable(double d){
-			partOfTable = d;
-		}
-
-		public double getPartOfTable(){
-			return partOfTable;
-		}
-
-		protected void addGap(Gap gap){
-			if(!gaps.contains(gap))
-				gaps.add(gap);
-		}
-
-		public ArrayList<Gap> getGaps(){
-			return gaps;
-		}
-
-		protected void setWordBlocks(ArrayList<WordBlock> wordBlocks){
-			this.wordBlocks = wordBlocks;
-		}
-
-		public ArrayList<WordBlock> getWordBlocks(){
-			return wordBlocks;
-		}
-
-		public boolean collidesWith(Line l){
-			//TODO Correct?!
-			if(ytop >= l.ybottom && l.ytop >= ybottom)
-				if(xleft < l.xright)
-					return true;
-			return false;
-		}
-
-		public double distanceTo(Line line){
-			return distanceTo(line, "");
-		}
-
-		public double distanceTo(Line line, String direction){
-			if(line == null)
-				return -1;
-			switch (direction){
-				case "UP":
-					return ytop - line.ybottom;
-				case "DOWN":
-					return line.ytop - ybottom;
-				case "LEFT":
-					return xleft - line.xright;
-				case "RIGHT":
-					return line.xleft - xright;
-				default:
-					double centerX = (xright-xleft)/2, centerY = (ybottom-ytop)/2;
-					double centerLineX = (line.xright-line.xleft)/2, centerLineY = (line.ytop-ybottom)/2;
-					return Math.sqrt(Math.pow(centerX - centerLineX, 2) + Math.pow(centerY - centerLineY, 2));
-			}
-		}
-
-		int getX1(){
-			return xleft;
-		}
-
-		int getX2(){
-			return xright;
-		}
-
-		int getY1(){
-			return ytop;
-		}
-
-		int getY2(){
-			return ybottom;
-		}
-
-		public String toString(){
-			String returner = "";
-			for(WordBlock b : wordBlocks)
-				returner += b.getWord();
-			return returner;
-		}
-	}
-
-	//Gaps in a line or word
-	class Gap{
-		int beginning, end;
-
-		public Gap(int beginning, int end){
-			this.beginning = beginning;
-			this.end = end;
-		}
-
-		boolean doesOverlap(Gap g){
-			boolean a = beginning < g.beginning && end > g.beginning;
-			boolean b = beginning > g.beginning && beginning < g.end;
-			boolean c = beginning == g.beginning;
-			boolean d = end == g.end;
-			boolean e = end < g.end && end > g.beginning;
-			if(a || b || c || d || e)
-				return true;
-			return false;
-		}
-
-		public int getBeginning(){
-			return beginning;
-		}
-
-		public int getEnd(){
-			return end;
-		}
-
-		@Override
-		public boolean equals(Object o){
-			if(o == null)
-				return false;
-			if(o.getClass() != Gap.class)
-				return false;
-			Gap temp = ((Gap)o);
-			if((temp.getBeginning() == getBeginning()) && (temp.getEnd() == getEnd())) {
-				return true;
-			}
-			return false;
-		}
 	}
 
 	public void setMethod(int i){
@@ -314,19 +161,19 @@ public class NaiveTableDetector implements StructureDetector {
 		}
 	}
 
-	//TODO tweak
+	//TODO tweak and adjust to work for all documents
 	protected double method2(ChunkBlock block, ChunkFeatures features){
 		//STEP 1 : Create Lines from WordBlocks of Page
 		ArrayList<Line> lines = createLinesOfDocument(block);
-		//STEP 2 : Select adjacent Lines that are further apart than the page's average line distance (w/o outliers)
-		//TODO!
+		//STEP 2 : Select adjacent Lines that are further apart than the page's average line distance (w/o outliers) (TODO)
+		Map<Line, Double> lineTableEvidenceMap = new HashMap<Line, Double>();
 		ArrayList<ArrayList<Line>> potentialTables=  new ArrayList<ArrayList<Line>>();
 		for(Line line : lines){
 				//Two checks :
 				// 1. Does this line have a line above it, with the distance to that line being greater than avg?
 				// 2. Does this line have a line below it, with the distance to that line being greater than avg?
-				Line lineAbove = getLineInDirOf("UP", line, lines);
-				Line lineBelow = getLineInDirOf("DOWN", line, lines);
+				Line lineAbove = PageOperations.getLineInDirOf("UP", line, lines);
+				Line lineBelow = PageOperations.getLineInDirOf("DOWN", line, lines);
 				//TODO Create better avgLineDistance method - exclude outliers
 				double avgLineDist = block.getPage().getAvgLineDistance();
 				double distAbove, distBelow = 0, originalDist = 0;
@@ -341,7 +188,7 @@ public class NaiveTableDetector implements StructureDetector {
 						//Proceed checking upwards whether there are more lines with that exact distance.
 						while (lineAbove != null && distAbove == originalDist){
 							topmostLine = lineAbove;
-							lineAbove = getLineInDirOf("UP", lineAbove, lines);
+							lineAbove = PageOperations.getLineInDirOf("UP", lineAbove, lines);
 							distAbove = topmostLine.distanceTo(lineAbove, "UP");
 						}
 						//topmostLine is now the highest line of the potential table.
@@ -363,15 +210,16 @@ public class NaiveTableDetector implements StructureDetector {
 				if(topmostLineFound) {
 					ArrayList<Line> tableCandidate = new ArrayList<>();
 					tableCandidate.add(topmostLine);
-					lineBelow = getLineInDirOf("DOWN", topmostLine, lines);
+					lineBelow = PageOperations.getLineInDirOf("DOWN", topmostLine, lines);
 					distBelow = topmostLine.distanceTo(lineBelow, "DOWN");
 					while(lineBelow != null && distBelow == originalDist){
 						tableCandidate.add(lineBelow);
 						Line oldLineBelow = lineBelow;
-						lineBelow = getLineInDirOf("DOWN", lineBelow, lines);
+						lineBelow = PageOperations.getLineInDirOf("DOWN", lineBelow, lines);
 						distBelow = oldLineBelow.distanceTo(lineBelow, "DOWN");
 					}
 					//tableCandidate now contains all our suspected table lines downwards. TODO Doesn't add next one that was originally referenced!
+					//TODO (2) : Does above TODO still hold?
 					potentialTables.add(tableCandidate);
 				}
 		}
@@ -391,14 +239,15 @@ public class NaiveTableDetector implements StructureDetector {
 
 			for(ArrayList<Line> table : potentialTables){
 				for(Line line : table){
-					line.setPartOfTable(tableEvidence);
+					lineTableEvidenceMap.put(line, new Double(tableEvidence));
 				}
 			}
 			//Now we check for unusual horizontal margins. This includes spacing between WordBlocks as well as space characters.
 			for(ArrayList<Line> tableCandidate : potentialTables){
 				double gradeOfSeparation = getGradeOfSeparation(tableCandidate);
 				for(Line line : tableCandidate){
-					line.setPartOfTable(line.getPartOfTable() + gradeOfSeparation);
+					double oldValue = lineTableEvidenceMap.get(line).doubleValue();
+					lineTableEvidenceMap.put(line,oldValue+gradeOfSeparation);
 				}
 			}
 
@@ -406,7 +255,7 @@ public class NaiveTableDetector implements StructureDetector {
 			double returner = 0;
 			for(ArrayList<Line> table : potentialTables){
 				for(Line line : table){
-					returner += getOverlap(line,block) * line.getPartOfTable();
+					returner += getOverlap(line,block) * lineTableEvidenceMap.get(line).doubleValue();
 				}
 			}
 
@@ -419,10 +268,14 @@ public class NaiveTableDetector implements StructureDetector {
 		}
 	}
 
-	//Creates a boolean array with a cell for every pixel of the TableCandidate
-	//The first index indicates the line of the TC, the second index indicates the pixel
-	//True means that this position is empty (i.e. space char / space between WordBlocks)
-	//False means that this position is filled with a char
+	/**
+	 * Creates a boolean array with a cell for every pixel of the TableCandidate
+	 * The first index indicates the line of the TC, the second index indicates the pixel
+	 * True means that this position is empty (i.e. space char / space between WordBlocks)
+	 * False means that this position is filled with a char
+	 * @param tableCandidate The (possible) table for which we want to create a map of spaces
+	 * @return A 2D boolean array ("map of spaces") where empty coordinates in the input table are "
+	 */
 	protected boolean[][] createMapOfSpaces(ArrayList<Line> tableCandidate){
 		int height = -1, width = -1;
 		int topY = -1,bottomY = -1,leftX = -1,rightX = -1;
@@ -466,6 +319,7 @@ public class NaiveTableDetector implements StructureDetector {
 			}
 		}
 
+
 		return map;
 	}
 
@@ -502,7 +356,7 @@ public class NaiveTableDetector implements StructureDetector {
 			//Find Gaps in the Words of the line and add them to the line
 			//We translate the approximate position of chars to coordinates on the page using our scaling factor from before
 			double currentCoord = line.getX1();
-
+			//TODO : Adjust Gap creation for Line offset
 			for (int i = 0; i < lineSpaces.size(); i++) {
 				currentCoord += scaleFactor.get(i).doubleValue();
 				if (lineSpaces.get(i).booleanValue()) {
@@ -547,6 +401,11 @@ public class NaiveTableDetector implements StructureDetector {
 			returner = returner + (1 /(double) overlapCounter.size()) * count;
 		}
 
+		//
+		//TODO CONTINUE
+		//
+
+
 		return (returner > 1) ? 1 : returner;
 	}
 
@@ -561,6 +420,7 @@ public class NaiveTableDetector implements StructureDetector {
 		return overlap;
 	}
 
+	//TODO check for feasibility of removal - added method to MaxPowerChunkingClass
 	//This method generates Lines from the document. Lines are used for all the further processing steps.
 	private ArrayList<Line> createLinesOfDocument(ChunkBlock block) {
 		ArrayList<WordBlock> mixedWords = (ArrayList<WordBlock>) block.getPage().getAllWordBlocks(SpatialOrdering.ORIGINAL_MODE);
@@ -570,16 +430,16 @@ public class NaiveTableDetector implements StructureDetector {
 			if(mixedWords.contains(w)){
 				//Find leftmost WordBlock in line
 				WordBlock lineStart = w;
-				while(getWordBlockInDirOf("LEFT", lineStart, mixedWords) != null){
-					lineStart = getWordBlockInDirOf("LEFT", lineStart, mixedWords);
+				while(PageOperations.getWordBlockInDirOf("LEFT", lineStart, mixedWords) != null){
+					lineStart = PageOperations.getWordBlockInDirOf("LEFT", lineStart, mixedWords);
 				}
 				//lineStart is now the leftmost WordBlock in line
 				//Go through all blocks to the right now and add them progressively to a new line
 				//Remove blocks that are in a line from mixedWords, so that any WordBlock is always on just one line
 				ArrayList<WordBlock> tempLineWordBlocks = new ArrayList<>();
 				tempLineWordBlocks.add(lineStart);
-				while(getWordBlockInDirOf("RIGHT", lineStart, mixedWords) != null){
-					lineStart = getWordBlockInDirOf("RIGHT", lineStart, mixedWords);
+				while(PageOperations.getWordBlockInDirOf("RIGHT", lineStart, mixedWords) != null){
+					lineStart = PageOperations.getWordBlockInDirOf("RIGHT", lineStart, mixedWords);
 					tempLineWordBlocks.add(lineStart);
 					mixedWords.remove(lineStart);
 				}
@@ -591,116 +451,4 @@ public class NaiveTableDetector implements StructureDetector {
 		return lines;
 	}
 
-	//This method returns the next WordBlock in the given direction from the WordBlock passed in the argument
-	WordBlock getWordBlockInDirOf(String direction, WordBlock from){
-		return getWordBlockInDirOf(direction, from, (ArrayList<WordBlock>)from.getPage().getAllWordBlocks(SpatialOrdering.ORIGINAL_MODE));
-	}
-
-	//This method returns the next WordBlock in the given direction from the WordBlock passed in the argument,
-	//looking only in the passed List of blocks
-	WordBlock getWordBlockInDirOf(String direction, WordBlock from, ArrayList<WordBlock> blocks){
-		double minDistance = -1;
-		WordBlock returner = null;
-		double centerX = from.getX1() + ((from.getX2() - from.getX1()) / 2), centerY = from.getY1() + ((from.getY2() - from.getY1()) / 2);
-
-		for(WordBlock wb : blocks){
-			if(!wb.equals(from)) {
-				//Ensure that they are on the same line before proceeding
-				if(centerY < wb.getY2() && centerY > wb.getY1()) {
-					double tempResult;
-					switch (direction) {
-						case "UP":
-							tempResult = from.getY2() - wb.getY1();
-							if ((minDistance == -1 || tempResult < minDistance) && tempResult >= 0) {
-								minDistance = tempResult;
-								returner = wb;
-							}
-							break;
-						case "DOWN":
-							tempResult = wb.getY2() - from.getY1();
-							if ((minDistance == -1 || tempResult < minDistance) && tempResult >= 0) {
-								minDistance = tempResult;
-								returner = wb;
-							}
-							break;
-						case "LEFT":
-							tempResult = from.getX1() - wb.getX2();
-							if ((minDistance == -1 || tempResult < minDistance) && tempResult >= 0) {
-								minDistance = tempResult;
-								returner = wb;
-							}
-							break;
-						case "RIGHT":
-							tempResult = wb.getX1() - from.getX2();
-							if ((minDistance == -1 || tempResult < minDistance) && tempResult >= 0) {
-								minDistance = tempResult;
-								returner = wb;
-							}
-							break;
-						default:
-							double centerLineX = wb.getX1() + ((wb.getX2() - wb.getX1()) / 2), centerLineY = wb.getY1() + ((wb.getY2() - wb.getY1()) / 2);
-							double distance = Math.sqrt(Math.pow(centerX - centerLineX, 2) + Math.pow(centerY - centerLineY, 2));
-							if ((minDistance == -1 || distance < minDistance) && distance >= 0) {
-								minDistance = distance;
-								returner = wb;
-							}
-							break;
-					}
-				}
-			}
-		}
-		return returner;
-	}
-
-	//This method returns the next Line in the given direction, coming from the current line
-	Line getLineInDirOf(String direction, Line from, ArrayList<Line> pageLines){
-		double minDistance = -1;
-		Line returner = null;
-		double centerX = from.getX1() + ((from.getX2() - from.getX1()) / 2), centerY = from.getY1() + ((from.getY2() - from.getY1()) / 2);
-
-		for(Line line : pageLines){
-			if(!line.equals(from)) {
-				double tempResult;
-				switch (direction) {
-					case "UP":
-						tempResult = from.getY1() - line.getY2();
-						if ((minDistance == -1 || tempResult < minDistance) && tempResult >= 0) {
-							minDistance = tempResult;
-							returner = line;
-						}
-						break;
-					case "DOWN":
-						tempResult = line.getY1() - from.getY2();
-						if ((minDistance == -1 || tempResult < minDistance) && tempResult >= 0) {
-							minDistance = tempResult;
-							returner = line;
-						}
-						break;
-					case "LEFT":
-						tempResult = from.getX1() - line.getX2();
-						if ((minDistance == -1 || tempResult < minDistance) && tempResult >= 0) {
-							minDistance = tempResult;
-							returner = line;
-						}
-						break;
-					case "RIGHT":
-						tempResult = line.getX1() - from.getX2();
-						if ((minDistance == -1 || tempResult < minDistance) && tempResult >= 0) {
-							minDistance = tempResult;
-							returner = line;
-						}
-						break;
-					default:
-						double centerLineX = line.getX1() + ((line.getX2() - line.getX1()) / 2), centerLineY = line.getY1() + ((line.getY2() - line.getY1()) / 2);
-						double distance = Math.sqrt(Math.pow(centerX - centerLineX, 2) + Math.pow(centerY - centerLineY, 2));
-						if ((minDistance == -1 || distance < minDistance) && distance >= 0) {
-							minDistance = distance;
-							returner = line;
-						}
-						break;
-				}
-			}
-		}
-		return returner;
-	}
 }
