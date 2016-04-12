@@ -473,9 +473,9 @@
 		</dependency>
 
 		<!--<dependency>-->
-			<!--<groupId>org.jpedal</groupId>-->
-			<!--<artifactId>jpedal</artifactId>-->
-			<!--<version>lgpl-1.0.1</version>-->
+		<!--<groupId>org.jpedal</groupId>-->
+		<!--<artifactId>jpedal</artifactId>-->
+		<!--<version>lgpl-1.0.1</version>-->
 		<!--</dependency>-->
 
 		<dependency>
@@ -601,9 +601,6 @@
 			<version>1.6.0</version>
 			<scope>compile</scope>
 		</dependency>
-
-
-
 
 
 	</dependencies>
