@@ -605,7 +605,6 @@
 			<groupId>com.airhacks</groupId>
 			<artifactId>afterburner.fx</artifactId>
 			<version>1.6.0</version>
-			<scope>compile</scope>
 		</dependency>
 
 
