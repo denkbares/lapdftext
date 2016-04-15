@@ -282,9 +282,14 @@ public class ChunkFeatures {
 		int columnRight = 0;
 //		double threshold = chunk.getMostPopularWordHeight() * 1.5;
 		double threshold = chunk.getMostPopularWordHeight() * 3;
-		
-		int l = parent.getDocument().getBodyTextFrame().getX1();
-		int r = parent.getDocument().getBodyTextFrame().getX2();
+
+		SpatialEntity bodyTextFrame = parent.getDocument().getBodyTextFrame();
+		if (bodyTextFrame == null) {
+			return false;
+		}
+
+		int l = bodyTextFrame.getX1();
+		int r = bodyTextFrame.getX2();
 		int m = (int) Math.round( (l+r)/2.0);
 		
 		if (Block.MIDLINE.equalsIgnoreCase(lrm)) {
