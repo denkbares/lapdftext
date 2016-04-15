@@ -1,12 +1,16 @@
 package edu.isi.bmkeg.lapdf.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.isi.bmkeg.lapdf.model.RTree.RTSpatialEntity;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by Maximilian on 11.03.2016.
@@ -21,7 +25,7 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
     int x1,x2,y1,y2;
     ArrayList<Line> lines;
-    ArrayList<WordBlock> wordBlocks;
+    ArrayList<WordBlock> wordBlocks = new ArrayList<>();
 
 
     public LineBasedChunkBlock(ArrayList<Line> lines){
