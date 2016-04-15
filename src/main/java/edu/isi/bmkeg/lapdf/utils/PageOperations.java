@@ -1,12 +1,13 @@
 package edu.isi.bmkeg.lapdf.utils;
 
-import edu.isi.bmkeg.lapdf.model.Line;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
+import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author Maximilian Schirm (denkbares GmbH), 12.3.2016
@@ -178,5 +179,38 @@ public abstract class PageOperations {
         return sumOfDistances/lines.size();
     }
 
+    /**
+     * This method generates Lines from the page. Lines are used for all the further processing steps.
+     * @param wordBlocksOfPage The WordBlocks of which to create lines. Usually all Blocks of a page
+     * @return The lines which have been created by this method.
+     */
+    public static ArrayList<Line> createLinesOfPage(List<WordBlock> wordBlocksOfPage) {
+        ArrayList<WordBlock> mixedWords = new ArrayList<>(wordBlocksOfPage);
+        final ArrayList<WordBlock> originalWords = new ArrayList<>(wordBlocksOfPage);
+        ArrayList<Line> lines = new ArrayList<>();
+        for(WordBlock w : originalWords){
+            if(mixedWords.contains(w)){
+                //Find leftmost WordBlock in line
+                WordBlock lineStart = w;
+                while(PageOperations.getWordBlockInDirOf("LEFT", lineStart, mixedWords) != null){
+                    lineStart = PageOperations.getWordBlockInDirOf("LEFT", lineStart, mixedWords);
+                }
+                //lineStart is now the leftmost WordBlock in line
+                //Go through all blocks to the right now and add them progressively to a new line
+                //Remove blocks that are in a line from mixedWords, so that any WordBlock is always on just one line
+                ArrayList<WordBlock> tempLineWordBlocks = new ArrayList<>();
+                tempLineWordBlocks.add(lineStart);
+                while(PageOperations.getWordBlockInDirOf("RIGHT", lineStart, mixedWords) != null){
+                    lineStart = PageOperations.getWordBlockInDirOf("RIGHT", lineStart, mixedWords);
+                    tempLineWordBlocks.add(lineStart);
+                    mixedWords.remove(lineStart);
+                }
+
+                //Build a new line and save it
+                lines.add(new Line(tempLineWordBlocks));
+            }
+        }
+        return lines;
+    }
 
 }

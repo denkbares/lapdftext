@@ -125,6 +125,18 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 		return type;
 	}
 
+
+	double tableProbability = 0.0;
+	@Override
+	public void setTableProbability(double d) {
+		tableProbability = d;
+	}
+
+	@Override
+	public double getTableProbability() {
+		return tableProbability;
+	}
+
 	@Override
 	public List<WordBlock> getWordBlocks(String ordering) {
 		if (!(container instanceof PageBlock)) {

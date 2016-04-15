@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.lapdf.model;
+package edu.isi.bmkeg.lapdf.model.lineBasedModel;
 
 /**
  * @author Maximilian Schirm (denkbares GmbH), 9.3.2016
@@ -16,7 +16,7 @@ public class Gap{
     //multiple lines as well as in a single line.
     public boolean doesOverlap(Gap g){
         boolean a = beginning < g.beginning && end > g.beginning;
-        boolean b = beginning > g.beginning && beginning < g.end;
+        boolean b = end > g.beginning && beginning < g.end;
         boolean c = beginning == g.beginning;
         boolean d = end == g.end;
         boolean e = end < g.end && end > g.beginning;
