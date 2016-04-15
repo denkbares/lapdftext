@@ -20,25 +20,23 @@ package com.denkbares.lapdf.classification.structures;
 
 import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
-import edu.isi.bmkeg.lapdf.model.Gap;
-import edu.isi.bmkeg.lapdf.model.Line;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
+import edu.isi.bmkeg.lapdf.model.lineBasedModel.Gap;
+import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
-import edu.isi.bmkeg.lapdf.utils.PageOperations;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Sebastian Furth (denkbares GmbH), Maximilian Schirm
  * @created 19.08.15
  */
-public class NaiveTableDetector implements StructureDetector {
+public class LineBasedTableDetector implements StructureDetector {
 
 	//set int method to preferred detection algorithm
-	int method = 0;
+	int method = 3;
 
 	@Override
 	public double classify(ChunkBlock block, ChunkFeatures features) {
@@ -49,7 +47,7 @@ public class NaiveTableDetector implements StructureDetector {
 			case 1:
 				return method2(block, features);
 			default:
-				return method1(block, features);
+				return method3(block, features);
 		}
 
 	}
@@ -163,109 +161,20 @@ public class NaiveTableDetector implements StructureDetector {
 
 	//TODO tweak and adjust to work for all documents
 	protected double method2(ChunkBlock block, ChunkFeatures features){
-		//STEP 1 : Create Lines from WordBlocks of Page
-		ArrayList<Line> lines = createLinesOfDocument(block);
-		//STEP 2 : Select adjacent Lines that are further apart than the page's average line distance (w/o outliers) (TODO)
-		Map<Line, Double> lineTableEvidenceMap = new HashMap<Line, Double>();
-		ArrayList<ArrayList<Line>> potentialTables=  new ArrayList<ArrayList<Line>>();
-		for(Line line : lines){
-				//Two checks :
-				// 1. Does this line have a line above it, with the distance to that line being greater than avg?
-				// 2. Does this line have a line below it, with the distance to that line being greater than avg?
-				Line lineAbove = PageOperations.getLineInDirOf("UP", line, lines);
-				Line lineBelow = PageOperations.getLineInDirOf("DOWN", line, lines);
-				//TODO Create better avgLineDistance method - exclude outliers
-				double avgLineDist = block.getPage().getAvgLineDistance();
-				double distAbove, distBelow = 0, originalDist = 0;
-				Line topmostLine = lineAbove;
-				boolean topmostLineFound = false;
+		//Method contents were deprecated.
+		return 0.0;
+	}
 
-				if(lineAbove != null){
-					distAbove = line.distanceTo(lineAbove, "UP");
-					originalDist = distAbove;
-					if(distAbove < avgLineDist){
-						//We might have a table candidate here.
-						//Proceed checking upwards whether there are more lines with that exact distance.
-						while (lineAbove != null && distAbove == originalDist){
-							topmostLine = lineAbove;
-							lineAbove = PageOperations.getLineInDirOf("UP", lineAbove, lines);
-							distAbove = topmostLine.distanceTo(lineAbove, "UP");
-						}
-						//topmostLine is now the highest line of the potential table.
-						topmostLineFound = true;
-					}
-				}
-				if(lineBelow != null && !topmostLineFound){
-					distBelow = line.distanceTo(lineBelow, "DOWN");
-					originalDist = distBelow;
-					if(distBelow < avgLineDist){
-						//We might have a table candidate here.
-						//Since we had no line above this one, assume this is the topmost line in the table.
-						topmostLine = line;
-						topmostLineFound = true;
-					}
-				}
-
-				//If we found the topmost line of our possible table, collect lines with our original distance downwards.
-				if(topmostLineFound) {
-					ArrayList<Line> tableCandidate = new ArrayList<>();
-					tableCandidate.add(topmostLine);
-					lineBelow = PageOperations.getLineInDirOf("DOWN", topmostLine, lines);
-					distBelow = topmostLine.distanceTo(lineBelow, "DOWN");
-					while(lineBelow != null && distBelow == originalDist){
-						tableCandidate.add(lineBelow);
-						Line oldLineBelow = lineBelow;
-						lineBelow = PageOperations.getLineInDirOf("DOWN", lineBelow, lines);
-						distBelow = oldLineBelow.distanceTo(lineBelow, "DOWN");
-					}
-					//tableCandidate now contains all our suspected table lines downwards. TODO Doesn't add next one that was originally referenced!
-					//TODO (2) : Does above TODO still hold?
-					potentialTables.add(tableCandidate);
-				}
-		}
-		//Remove any duplicates
-		ArrayList<ArrayList<Line>> duplicateFree = new ArrayList<>();
-		for(ArrayList<Line> candidate : potentialTables){
-			if(!duplicateFree.contains(candidate)){
-				duplicateFree.add(candidate);
-			}
-		}
-		potentialTables = new ArrayList<>(duplicateFree);
-
-		//Did we find any possible tables?
-		if(potentialTables.size() > 1){
-			//Check whether the found tables contain elements of the ChunkBlock
-			double tableEvidence = 0.1;
-
-			for(ArrayList<Line> table : potentialTables){
-				for(Line line : table){
-					lineTableEvidenceMap.put(line, new Double(tableEvidence));
-				}
-			}
-			//Now we check for unusual horizontal margins. This includes spacing between WordBlocks as well as space characters.
-			for(ArrayList<Line> tableCandidate : potentialTables){
-				double gradeOfSeparation = getGradeOfSeparation(tableCandidate);
-				for(Line line : tableCandidate){
-					double oldValue = lineTableEvidenceMap.get(line).doubleValue();
-					lineTableEvidenceMap.put(line,oldValue+gradeOfSeparation);
-				}
-			}
-
-			//Finally, we add up the possibilities and get the Overlapping value for our ChunkBlock
-			double returner = 0;
-			for(ArrayList<Line> table : potentialTables){
-				for(Line line : table){
-					returner += getOverlap(line,block) * lineTableEvidenceMap.get(line).doubleValue();
-				}
-			}
-
-			//The probability that block is part of a table
-			return (returner > 1) ? 1.0 : returner;
-		}
-		else {
-			//Did not find any tables.
-			return 0;
-		}
+	/**
+	 * This approach uses the preprocessing done in MaxPowerChunking class to recognize Tables. Further processing will greatly improve results,
+	 * but right now this should be the best (and most functional) of all three methods until method 2 is finished - don't forget to remove
+	 * the table detection from MPCC once method 2 is finished!
+	 * @param block
+	 * @param features
+	 * @return
+	 */
+	protected double method3(ChunkBlock block, ChunkFeatures features){
+		return block.getTableProbability();
 	}
 
 	/**
@@ -292,7 +201,7 @@ public class NaiveTableDetector implements StructureDetector {
 				rightX = l.getX2();
 		}
 
-		//Set height and width to initialize the array
+		//Set height and width and initialize the array
 		//Each element in the array represents a pixel in our table candidate rectangle
 		height = bottomY-topY;
 		width = rightX-leftX;
@@ -324,7 +233,8 @@ public class NaiveTableDetector implements StructureDetector {
 	}
 
 	//Returns a value (0.0-1.0) of how sure we are that the lines are clearly separated.
-	//1.0 means we are absolutely sure, 0 means we think that the lines are not separated
+	//1.0 means maximum seperation, 0 means that the lines are not separated at all
+	@Deprecated
 	private double getGradeOfSeparation(ArrayList<Line> tableCandidate) {
 
 		for(Line line : tableCandidate) {
@@ -343,7 +253,7 @@ public class NaiveTableDetector implements StructureDetector {
 
 				String word = b.getWord();
 				for (int i = 0; i < word.length(); i++) {
-					if (word.charAt(i) == ' ') {
+					if (Character.isSpaceChar(word.charAt(i))) {
 						lineSpaces.add(new Boolean(true));
 						scaleFactor.add(new Double(b.getWidth()/word.length()));
 					} else {
@@ -374,6 +284,7 @@ public class NaiveTableDetector implements StructureDetector {
 		}
 
 		//Let's now see whether the lines happen to have any Gaps in common
+		//And yeah, the runtime is horrible
 		HashMap<Gap, Integer> overlapCounter = new HashMap<>();
 		for(Line line : tableCandidate){
 			for(Gap gap : line.getGaps()){
@@ -396,7 +307,7 @@ public class NaiveTableDetector implements StructureDetector {
 
 		double returner = 0;
 		for(Gap g : overlapCounter.keySet()){
-			//Count how often a Gap occurred. TODO Invent wicked smart formula for balancing
+			//Count how often a Gap occurred.
 			int count = overlapCounter.get(g).intValue();
 			returner = returner + (1 /(double) overlapCounter.size()) * count;
 		}
@@ -407,48 +318,6 @@ public class NaiveTableDetector implements StructureDetector {
 
 
 		return (returner > 1) ? 1 : returner;
-	}
-
-	//Returns a value (0.0 - 1.0) representing the percentage of overlapping between the ChunkBlock and the line
-	private double getOverlap(Line line, ChunkBlock block) {
-		ArrayList<WordBlock> lineblocks = line.getWordBlocks();
-		double overlap = 0;
-		for(WordBlock w : block.getWordBlocks()) {
-			if(lineblocks.contains(w))
-				overlap += 1/block.getWordBlocks().size();
-		}
-		return overlap;
-	}
-
-	//TODO check for feasibility of removal - added method to MaxPowerChunkingClass
-	//This method generates Lines from the document. Lines are used for all the further processing steps.
-	private ArrayList<Line> createLinesOfDocument(ChunkBlock block) {
-		ArrayList<WordBlock> mixedWords = (ArrayList<WordBlock>) block.getPage().getAllWordBlocks(SpatialOrdering.ORIGINAL_MODE);
-		final ArrayList<WordBlock> originalWords = (ArrayList<WordBlock>) block.getPage().getAllWordBlocks(SpatialOrdering.ORIGINAL_MODE);
-		ArrayList<Line> lines = new ArrayList<>();
-		for(WordBlock w : originalWords){
-			if(mixedWords.contains(w)){
-				//Find leftmost WordBlock in line
-				WordBlock lineStart = w;
-				while(PageOperations.getWordBlockInDirOf("LEFT", lineStart, mixedWords) != null){
-					lineStart = PageOperations.getWordBlockInDirOf("LEFT", lineStart, mixedWords);
-				}
-				//lineStart is now the leftmost WordBlock in line
-				//Go through all blocks to the right now and add them progressively to a new line
-				//Remove blocks that are in a line from mixedWords, so that any WordBlock is always on just one line
-				ArrayList<WordBlock> tempLineWordBlocks = new ArrayList<>();
-				tempLineWordBlocks.add(lineStart);
-				while(PageOperations.getWordBlockInDirOf("RIGHT", lineStart, mixedWords) != null){
-					lineStart = PageOperations.getWordBlockInDirOf("RIGHT", lineStart, mixedWords);
-					tempLineWordBlocks.add(lineStart);
-					mixedWords.remove(lineStart);
-				}
-
-				//Build a new line and save it
-				lines.add(new Line(tempLineWordBlocks));
-			}
-		}
-		return lines;
 	}
 
 }

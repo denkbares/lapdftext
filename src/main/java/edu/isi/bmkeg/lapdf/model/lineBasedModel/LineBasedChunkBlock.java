@@ -1,5 +1,6 @@
-package edu.isi.bmkeg.lapdf.model;
+package edu.isi.bmkeg.lapdf.model.lineBasedModel;
 
+import edu.isi.bmkeg.lapdf.model.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,7 +16,7 @@ import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 /**
  * Created by Maximilian on 11.03.2016.
  *
- * TODO Needs to implement the methods from RTSpatialEntity and ChunkBlock
+ * TODO Check the methods from RTSpatialEntity and ChunkBlock and rewrite if necessary
  */
 public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
@@ -151,6 +152,17 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
     @Override
     public String getType() {
         return type;
+    }
+
+    double tableProb = 0.0;
+    @Override
+    public void setTableProbability(double d) {
+        tableProb = d;
+    }
+
+    @Override
+    public double getTableProbability() {
+        return tableProb;
     }
 
     @Override

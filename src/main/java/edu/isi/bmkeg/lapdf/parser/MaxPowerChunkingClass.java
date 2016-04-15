@@ -1,7 +1,12 @@
 package edu.isi.bmkeg.lapdf.parser;
 
-import edu.isi.bmkeg.lapdf.model.*;
+import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import edu.isi.bmkeg.lapdf.model.PageBlock;
+import edu.isi.bmkeg.lapdf.model.WordBlock;
+import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
+import edu.isi.bmkeg.lapdf.model.lineBasedModel.LineBasedChunkBlock;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
+import edu.isi.bmkeg.lapdf.utils.LineBasedOperations;
 import edu.isi.bmkeg.lapdf.utils.PageOperations;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
@@ -38,64 +43,102 @@ public class MaxPowerChunkingClass {
     }
 
     public static ArrayList<ChunkBlock> buildChunkBlocks(ArrayList<WordBlock> wordBlocks){
-        ArrayList<ArrayList<Line>> chunkCandidates = createChunkCandidates(createLinesOfPage(wordBlocks));
+        ArrayList<ArrayList<Line>> chunkCandidates = createChunkCandidates(PageOperations.createLinesOfPage(wordBlocks));
         ArrayList<ChunkBlock> returner = new ArrayList<>();
+        ArrayList<ArrayList<Line>> splitResults = new ArrayList<>();
         //Further process chunkCandidates by :
-        // - in-line features (Gaps between WordBlocks, Font Style)
+        // - in-line features (Font Style)
         // - over-line features (How homogeneous WordBlocks in a ChCan are, possible vertical separators)
-        //Do not forget to properly create ChunkBlocks by setting features like in RuleBasedParser!
 
         for(ArrayList<Line> currentCandidate : chunkCandidates) {
-            //TODO : Implement above "Further Processing" steps!
-            //This is a proof-of-concept implementation, closely built like the original buildChunkBlocks() method.
-            PageBlock page = null;
-            IntegerFrequencyCounter lineHeightFrequencyCounter = new IntegerFrequencyCounter(1);
-            IntegerFrequencyCounter spaceFrequencyCounter = new IntegerFrequencyCounter(0);
-            FrequencyCounter fontFrequencyCounter = new FrequencyCounter();
-            FrequencyCounter styleFrequencyCounter = new FrequencyCounter();
+            ArrayList<Line> leftHalf = new ArrayList<>(currentCandidate);
 
-            for(Line l : currentCandidate){
-                lineHeightFrequencyCounter.add(l.getHeight());
+            //Look for horizontal separation and split if possible
+            double separation = LineBasedOperations.getHorizontalSeparation(currentCandidate);
 
-                for(WordBlock b : l.getWordBlocks()){
-                    if( b.getFont() != null ) {
-                        fontFrequencyCounter.add(b.getFont());
-                    } else {
-                        fontFrequencyCounter.add("");
-                    }
-                    if( b.getFont() != null ) {
-                        styleFrequencyCounter.add(b.getFontStyle());
-                    } else {
-                        styleFrequencyCounter.add("");
-                    }
-                    page = b.getPage();
+            //Play with this value to increase splitting sensitivity
+            if(separation > 0.9){
+                //TODO set table probability prior to splitting!
+                int splitCoord = LineBasedOperations.getSplitCoord(currentCandidate);
+                ArrayList<Line> rightHalf = new ArrayList<>();
+                for(Line line : currentCandidate){
+                    line.setTableProbability(separation);
+                    rightHalf.add(line.split(splitCoord)[1]);
+                    leftHalf.set(currentCandidate.indexOf(line), line.split(splitCoord)[0]);
                 }
             }
+            //Finally, add block to returner
+            returner.add(createChunkFromLines(leftHalf));
+        }
 
-            ChunkBlock newBlock = new LineBasedChunkBlock(currentCandidate);
-
-            newBlock.setMostPopularWordFont(
-                    (String) fontFrequencyCounter.getMostPopular()
-            );
-
-            newBlock.setMostPopularWordStyle(
-                    (String) styleFrequencyCounter.getMostPopular()
-            );
-
-            newBlock.setMostPopularWordHeight(
-                    lineHeightFrequencyCounter.getMostPopular()
-            );
-
-            //NOTE: Completely redundant! SpaceWidths are never initialized!
-            newBlock.setMostPopularWordSpaceWidth(
-                    spaceFrequencyCounter.getMostPopular()
-            );
-
-            newBlock.setContainer(page);
-
+        //Process split halves
+        for(ArrayList<Line> currentCandidate : splitResults){
+            //Add block to returner
+            ChunkBlock newBlock =createChunkFromLines(currentCandidate);
+            //Might be improved by using mean table prob, but at the moment get(0).get.. suffices.
+            newBlock.setTableProbability(currentCandidate.get(0).getTableProbability());
             returner.add(newBlock);
         }
+
         return returner;
+    }
+
+    /**
+     * Creates a ChunkBlock from the list of lines.
+     * @param lines A list of lines.
+     * @return A new ChunkBlock
+     */
+    private static ChunkBlock createChunkFromLines(ArrayList<Line> lines){
+        // vv Create Block vv
+        //This is a proof-of-concept implementation, closely built like the original buildChunkBlocks() method.
+        PageBlock page = null;
+        IntegerFrequencyCounter lineHeightFrequencyCounter = new IntegerFrequencyCounter(1);
+        IntegerFrequencyCounter spaceFrequencyCounter = new IntegerFrequencyCounter(0);
+        FrequencyCounter fontFrequencyCounter = new FrequencyCounter();
+        FrequencyCounter styleFrequencyCounter = new FrequencyCounter();
+
+
+
+        for(Line l : lines){
+            lineHeightFrequencyCounter.add(l.getHeight());
+
+            for(WordBlock b : l.getWordBlocks()){
+                if( b.getFont() != null ) {
+                    fontFrequencyCounter.add(b.getFont());
+                } else {
+                    fontFrequencyCounter.add("");
+                }
+                if( b.getFont() != null ) {
+                    styleFrequencyCounter.add(b.getFontStyle());
+                } else {
+                    styleFrequencyCounter.add("");
+                }
+                page = b.getPage();
+            }
+        }
+
+        ChunkBlock newBlock = new LineBasedChunkBlock(lines);
+
+        newBlock.setMostPopularWordFont(
+                (String) fontFrequencyCounter.getMostPopular()
+        );
+
+        newBlock.setMostPopularWordStyle(
+                (String) styleFrequencyCounter.getMostPopular()
+        );
+
+        newBlock.setMostPopularWordHeight(
+                lineHeightFrequencyCounter.getMostPopular()
+        );
+
+        //NOTE: SpaceWidths are never initialized!
+        newBlock.setMostPopularWordSpaceWidth(
+                spaceFrequencyCounter.getMostPopular()
+        );
+
+        newBlock.setContainer(page);
+
+        return newBlock;
     }
 
     /**
@@ -104,6 +147,7 @@ public class MaxPowerChunkingClass {
      * @return Groups of likely Chunk - Line clusters
      */
     private static ArrayList<ArrayList<Line>> createChunkCandidates(ArrayList<Line> lines){
+
         ArrayList<ArrayList<Line>> potentialChunks=  new ArrayList<ArrayList<Line>>();
         double avgLineDist = PageOperations.getAverageVerticalDistanceOfLines(lines);
 
@@ -121,15 +165,16 @@ public class MaxPowerChunkingClass {
             if(lineAbove != null){
                 distAbove = line.distanceTo(lineAbove, "UP");
                 originalDist = distAbove;
-                if(distAbove < avgLineDist){
-                    //We might have a table candidate here.
+                //TODO : Change avgLineDist formula  to improve coverage if necessary
+                if(distAbove < avgLineDist/2){
+                    //We might have a chunk candidate here.
                     //Proceed checking upwards whether there are more lines with that exact distance.
                     while (lineAbove != null && distAbove == originalDist){
                         topmostLine = lineAbove;
                         lineAbove = PageOperations.getLineInDirOf("UP", lineAbove, lines);
                         distAbove = topmostLine.distanceTo(lineAbove, "UP");
                     }
-                    //topmostLine is now the highest line of the potential table.
+                    //topmostLine is now the highest line of the potential chunk.
                     topmostLineFound = true;
                 }
             }
@@ -137,14 +182,14 @@ public class MaxPowerChunkingClass {
                 distBelow = line.distanceTo(lineBelow, "DOWN");
                 originalDist = distBelow;
                 if(distBelow < avgLineDist){
-                    //We might have a table candidate here.
-                    //Since we had no line above this one, assume this is the topmost line in the table.
+                    //We might have a chunk candidate here.
+                    //Since we had no line above this one, assume this is the topmost line in the chunk.
                     topmostLine = line;
                     topmostLineFound = true;
                 }
             }
 
-            //If we found the topmost line of our possible table, collect lines with our original distance downwards.
+            //If we have found the topmost line of our chunk, collect lines with our original distance downwards.
             if(topmostLineFound) {
                 ArrayList<Line> tableCandidate = new ArrayList<>();
                 tableCandidate.add(topmostLine);
@@ -156,8 +201,7 @@ public class MaxPowerChunkingClass {
                     lineBelow = PageOperations.getLineInDirOf("DOWN", lineBelow, lines);
                     distBelow = oldLineBelow.distanceTo(lineBelow, "DOWN");
                 }
-                //tableCandidate now contains all our suspected table lines downwards. TODO Doesn't add next one that was originally referenced!
-                //TODO (2) : Check whether above TODO statement still holds!-
+                //chunkCandidate now contains all our suspected table lines downwards. TODO Doesn't add next one that was originally referenced?
                 potentialChunks.add(tableCandidate);
             }
         }
@@ -168,41 +212,6 @@ public class MaxPowerChunkingClass {
                 duplicateFree.add(candidate);
             }
         }
-        potentialChunks = new ArrayList<>(duplicateFree);
-        return potentialChunks;
-    }
-
-    /**
-     * This method generates Lines from the page. Lines are used for all the further processing steps.
-     * @param wordBlocksOfPage The WordBlocks of which to create lines. Usually all Blocks of a page
-     * @return The lines which have been created by this method.
-     */
-    private static ArrayList<Line> createLinesOfPage(ArrayList<WordBlock> wordBlocksOfPage) {
-        ArrayList<WordBlock> mixedWords = new ArrayList<>(wordBlocksOfPage);
-        final ArrayList<WordBlock> originalWords = new ArrayList<>(wordBlocksOfPage);
-        ArrayList<Line> lines = new ArrayList<>();
-        for(WordBlock w : originalWords){
-            if(mixedWords.contains(w)){
-                //Find leftmost WordBlock in line
-                WordBlock lineStart = w;
-                while(PageOperations.getWordBlockInDirOf("LEFT", lineStart, mixedWords) != null){
-                    lineStart = PageOperations.getWordBlockInDirOf("LEFT", lineStart, mixedWords);
-                }
-                //lineStart is now the leftmost WordBlock in line
-                //Go through all blocks to the right now and add them progressively to a new line
-                //Remove blocks that are in a line from mixedWords, so that any WordBlock is always on just one line
-                ArrayList<WordBlock> tempLineWordBlocks = new ArrayList<>();
-                tempLineWordBlocks.add(lineStart);
-                while(PageOperations.getWordBlockInDirOf("RIGHT", lineStart, mixedWords) != null){
-                    lineStart = PageOperations.getWordBlockInDirOf("RIGHT", lineStart, mixedWords);
-                    tempLineWordBlocks.add(lineStart);
-                    mixedWords.remove(lineStart);
-                }
-
-                //Build a new line and save it
-                lines.add(new Line(tempLineWordBlocks));
-            }
-        }
-        return lines;
+        return duplicateFree;
     }
 }

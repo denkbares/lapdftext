@@ -1,28 +1,18 @@
 package edu.isi.bmkeg.lapdf.model;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
 import edu.isi.bmkeg.lapdf.model.RTree.RTSpatialEntity;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLChunk;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLFontStyle;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLPage;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLRectangle;
-import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
+import edu.isi.bmkeg.lapdf.xml.model.*;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
 
 public class LapdfDocument implements Serializable {
 
@@ -544,7 +534,9 @@ public class LapdfDocument implements Serializable {
 			}
 			
 		}
-		
+
+
+		//LOOK AT THIS FOR FONT STYLE EXTRACTION
 		for( String fsStr : fontStyles.keySet() ) {
 			LapdftextXMLFontStyle fsXml = new LapdftextXMLFontStyle();
 			fsXml.setFontStyle(fsStr);

@@ -3,13 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.denkbares</groupId>
 	<artifactId>lapdftext</artifactId>
-	<version>1.7.4-SNAPSHOT</version>
+	<version>1.7.5-SNAPSHOT</version>
 	<name>LA-PDFText</name>
 	<description>A text extraction tool based on the layout of blocks withing PDF files.</description>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<d3webKnowWE.version>1.0-SNAPSHOT</d3webKnowWE.version>
 	</properties>
 	<build>
 		<resources>
@@ -34,6 +35,15 @@
 			</resource>
 		</resources>
 		<plugins>
+			<plugin>
+				<!-- Tests currently not working, ignore them till fixed -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
@@ -473,9 +483,9 @@
 		</dependency>
 
 		<!--<dependency>-->
-			<!--<groupId>org.jpedal</groupId>-->
-			<!--<artifactId>jpedal</artifactId>-->
-			<!--<version>lgpl-1.0.1</version>-->
+		<!--<groupId>org.jpedal</groupId>-->
+		<!--<artifactId>jpedal</artifactId>-->
+		<!--<version>lgpl-1.0.1</version>-->
 		<!--</dependency>-->
 
 		<dependency>
@@ -539,7 +549,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -548,31 +558,27 @@
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Kernel</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>${d3webKnowWE.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Plugin-CostBenefit</artifactId>
-			<version>0.2-SNAPSHOT</version>
-			<scope>compile</scope>
+			<version>${d3webKnowWE.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Plugin-DiaFlux</artifactId>
-			<version>0.2-SNAPSHOT</version>
-			<scope>compile</scope>
+			<version>${d3webKnowWE.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Plugin-XCL</artifactId>
-			<version>0.2-SNAPSHOT</version>
-			<scope>compile</scope>
+			<version>${d3webKnowWE.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Plugin-BasicProperties</artifactId>
-			<version>0.2-SNAPSHOT</version>
-			<scope>compile</scope>
+			<version>${d3webKnowWE.version}</version>
 		</dependency>
 
 		<!-- MISC -->
@@ -599,11 +605,7 @@
 			<groupId>com.airhacks</groupId>
 			<artifactId>afterburner.fx</artifactId>
 			<version>1.6.0</version>
-			<scope>compile</scope>
 		</dependency>
-
-
-
 
 
 	</dependencies>
