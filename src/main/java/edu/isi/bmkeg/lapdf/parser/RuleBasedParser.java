@@ -1,28 +1,41 @@
 package edu.isi.bmkeg.lapdf.parser;
 
-import edu.isi.bmkeg.lapdf.extraction.Extractor;
-import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
-import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
-import edu.isi.bmkeg.lapdf.features.HorizontalSplitFeature;
-import edu.isi.bmkeg.lapdf.model.*;
-import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
-import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
-import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
-import edu.isi.bmkeg.lapdf.utils.PageImageOutlineRenderer;
-import edu.isi.bmkeg.lapdf.xml.model.*;
-import edu.isi.bmkeg.utils.FrequencyCounter;
-import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
-import edu.isi.bmkeg.utils.xml.XmlBindingTools;
-import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import edu.isi.bmkeg.lapdf.extraction.Extractor;
+import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
+import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
+import edu.isi.bmkeg.lapdf.features.HorizontalSplitFeature;
+import edu.isi.bmkeg.lapdf.model.Block;
+import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import edu.isi.bmkeg.lapdf.model.LapdfDocument;
+import edu.isi.bmkeg.lapdf.model.PageBlock;
+import edu.isi.bmkeg.lapdf.model.WordBlock;
+import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
+import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
+import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
+import edu.isi.bmkeg.lapdf.utils.PageImageOutlineRenderer;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLChunk;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLFontStyle;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLPage;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
+import edu.isi.bmkeg.utils.FrequencyCounter;
+import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
+import edu.isi.bmkeg.utils.xml.XmlBindingTools;
+import org.apache.log4j.Logger;
 
 public class RuleBasedParser implements Parser {
 
@@ -49,7 +62,7 @@ public class RuleBasedParser implements Parser {
 	//MANUALLY SET THESE BOOLEAN VALUES FOR SWITCHING OPERATION MODE
 	//Default Value : false
 	private boolean quickly = false;
-	private boolean maxMode = true;
+	private boolean maxMode = false;
 
 	protected AbstractModelFactory modelFactory;
 	
