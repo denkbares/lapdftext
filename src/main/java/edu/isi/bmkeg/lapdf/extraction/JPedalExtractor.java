@@ -1,5 +1,20 @@
 package edu.isi.bmkeg.lapdf.extraction;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EmptyPDFException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EncryptionException;
@@ -16,14 +31,6 @@ import org.jpedal.objects.PdfPageData;
 import org.jpedal.utils.Strip;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
 
 public class JPedalExtractor implements Extractor {
 
@@ -250,7 +257,7 @@ public class JPedalExtractor implements Extractor {
 
 		}
 		
-		currentPage++;
+
 		PDFDecoder.flushObjectValues(false);
 
 		return true;
@@ -294,6 +301,7 @@ public class JPedalExtractor implements Extractor {
 
 	@Override
 	public List<WordBlock> next() {
+		currentPage++;
 		return new ArrayList<WordBlock>(wordListPerPage);
 	}
 
