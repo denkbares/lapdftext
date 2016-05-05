@@ -181,6 +181,7 @@ public abstract class PageOperations {
 
     /**
      * This method generates Lines from the page. Lines are used for all the further processing steps.
+     * NOTE: This method does not divide the lines into columns. This happens in the MaxPowerChunkingClass on.
      * @param wordBlocksOfPage The WordBlocks of which to create lines. Usually all Blocks of a page
      * @return The lines which have been created by this method.
      */

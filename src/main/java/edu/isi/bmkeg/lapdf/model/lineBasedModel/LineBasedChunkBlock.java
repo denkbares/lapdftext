@@ -56,6 +56,7 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
     }
 
     private void refreshWordBlocks(){
+        wordBlocks = new ArrayList<WordBlock>();
         Collections.sort(lines, new Comparator<Line>() {
             @Override
             public int compare(Line o1, Line o2) {

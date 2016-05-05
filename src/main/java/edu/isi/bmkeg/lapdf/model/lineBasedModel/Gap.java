@@ -5,7 +5,8 @@ package edu.isi.bmkeg.lapdf.model.lineBasedModel;
  * Gaps in a line or word
  */
 public class Gap{
-    int beginning, end;
+    private int beginning, end;
+    private int globalCorrectionFactor;
 
     public Gap(int beginning, int end){
         this.beginning = beginning;
@@ -15,11 +16,17 @@ public class Gap{
     //Gaps are solely 2D, as 2 dimensional checking suffices for checking the Gap-Overlap on
     //multiple lines as well as in a single line.
     public boolean doesOverlap(Gap g){
-        boolean a = beginning < g.beginning && end > g.beginning;
-        boolean b = end > g.beginning && beginning < g.end;
-        boolean c = beginning == g.beginning;
-        boolean d = end == g.end;
-        boolean e = end < g.end && end > g.beginning;
+        int gBeg, gEnd;
+
+        gBeg = g.getGlobalBeginning();
+        gEnd = g.getGlobalEnd();
+
+        boolean a = getGlobalBeginning()< gBeg&& getGlobalEnd() > gBeg;
+        boolean b = getGlobalEnd() > gBeg&& getGlobalBeginning()< gEnd;
+        boolean c = getGlobalBeginning()== gBeg;
+        boolean d = getGlobalEnd() == gEnd;
+        boolean e = getGlobalEnd() < gEnd&& getGlobalEnd() > gBeg;
+
         if(a || b || c || d || e)
             return true;
         return false;
@@ -31,6 +38,26 @@ public class Gap{
 
     public int getEnd(){
         return end;
+    }
+
+    public int getWidth(){
+        return getEnd() - getBeginning();
+    }
+
+    public int getGlobalBeginning(){
+        return beginning + globalCorrectionFactor;
+    }
+
+    public int getGlobalEnd(){
+        return end + globalCorrectionFactor;
+    }
+
+    public int getGlobalCorrectionFactor() {
+        return globalCorrectionFactor;
+    }
+
+    public void setGlobalCorrectionFactor(int globalCorrectionFactor) {
+        this.globalCorrectionFactor = globalCorrectionFactor;
     }
 
     @Override

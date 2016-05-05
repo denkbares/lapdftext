@@ -6,6 +6,7 @@ import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueExcepti
 import edu.isi.bmkeg.lapdf.features.HorizontalSplitFeature;
 import edu.isi.bmkeg.lapdf.model.*;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
+import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 import edu.isi.bmkeg.lapdf.utils.PageImageOutlineRenderer;
@@ -46,24 +47,11 @@ public class RuleBasedParser implements Parser {
 	
 	private int eastWestSpacing;
 
-	//MANUALLY SET THESE BOOLEAN VALUES FOR SWITCHING OPERATION MODE
-	//Default Value : false
 	private boolean quickly = false;
-	private boolean maxMode = true;
 
 	protected AbstractModelFactory modelFactory;
-	
-	protected String path;
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
 	
 	private boolean isDebugImages() {
 		return debugImages;
@@ -92,7 +80,6 @@ public class RuleBasedParser implements Parser {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	@Override
 	public LapdfDocument parse(File file) 
 			throws Exception {
 
@@ -152,19 +139,12 @@ public class RuleBasedParser implements Parser {
 				this.northSouthSpacing = (pageBlock.getMostPopularWordHeightPage() ) / 2
 						+ pageBlock.getMostPopularVerticalSpaceBetweenWordsPage();
 
-				if(this.maxMode) {
-					idGenerator = pageBlock.addAll(
-							new ArrayList<SpatialEntity>(MaxPowerChunkingClass.buildChunkBlocks(pageBlock)),
-							idGenerator
-					);
+				if (this.quickly) {
+					buildChunkBlocksQuickly(pageWordBlockList, pageBlock);
+				} else {
+					buildChunkBlocksSlowly(pageWordBlockList, pageBlock);
 				}
-				else {
-					if (this.quickly) {
-						buildChunkBlocksQuickly(pageWordBlockList, pageBlock);
-					} else {
-						buildChunkBlocksSlowly(pageWordBlockList, pageBlock);
-					}
-				}
+
 				mergeHighlyOverlappedChunkBlocks(pageBlock);
 
 			}
@@ -259,25 +239,10 @@ public class RuleBasedParser implements Parser {
 		
 		return document;
 	}
-
-	public LapdfDocument parseXml(File file) 
-			throws Exception {
+	
+	public LapdfDocument parseXml(File file) throws Exception {
 
 		FileReader reader = new FileReader(file);
-		return this.parseXml(reader);
-		
-	}
-
-	public LapdfDocument parseXml(String str) 
-			throws Exception {
-
-		StringReader reader = new StringReader(str);
-		return this.parseXml(reader);
-	
-	}
-	
-	private LapdfDocument parseXml(Reader reader) 
-			throws Exception {
 
 		LapdftextXMLDocument xmlDoc = XmlBindingTools.parseXML(reader, LapdftextXMLDocument.class);
 		
@@ -526,8 +491,7 @@ public class RuleBasedParser implements Parser {
 				wordsToAddThisIteration.removeAll(chunkWords);
 				
 				//
-				// TODO Add criteria here to improve blocking by 
-				// dropping newly found words that should be excluded.
+				// TODO Add criteria here to improve blocking by dropping newly found words that should be excluded.
 				//
 				List<WordBlock> wordsToKill = new ArrayList<WordBlock>();
 				for( WordBlock w : wordsToAddThisIteration) {
@@ -571,6 +535,7 @@ public class RuleBasedParser implements Parser {
 
 	}
 
+	//TODO : CAN WE USE THIS FOR MAXPOWER?
 	private void divideBlocksVertically(PageBlock page)
 			throws InvalidPopularSpaceValueException {
 
@@ -603,6 +568,8 @@ public class RuleBasedParser implements Parser {
 
 	}
 
+
+	//TODO : CAN WE USE THIS FOR MAXPOWER?
 	private boolean verticalSplitCandidate(ChunkBlock block)
 			throws InvalidPopularSpaceValueException {
 
@@ -617,7 +584,7 @@ public class RuleBasedParser implements Parser {
 		Integer[] currSpace = new Integer[] { -100, -100 };
 		Integer[] currWidest = new Integer[] { -100, -100 };
 
-		PageBlock parent = (PageBlock) block.getContainer();
+		PageBlock parent = block.getPage();
 		List<SpatialEntity> wordBlockList = parent.containsByType(block,
 				SpatialOrdering.MIXED_MODE, WordBlock.class);
 		
@@ -684,6 +651,7 @@ public class RuleBasedParser implements Parser {
 			return false;
 	}
 
+	//TODO : CAN WE USE THIS FOR MAXPOWER?
 	private void splitBlockDownTheMiddle(ChunkBlock block) {
 
 		PageBlock parent = (PageBlock) block.getContainer();
@@ -810,7 +778,7 @@ public class RuleBasedParser implements Parser {
 				lineHeightFrequencyCounter.getMostPopular()
 				);
 
-		//NOTE: Completely redundant! SpaceWidths are never initialized!
+		//NOTE : SpaceWidths are never initialized!
 		chunkBlock.setMostPopularWordSpaceWidth(
 				spaceFrequencyCounter.getMostPopular()
 				);
@@ -885,7 +853,7 @@ public class RuleBasedParser implements Parser {
 		featureList.add(feature);
 		feature = null;
 		HorizontalSplitFeature featureMinusOne;
-		
+
 		//
 		// What kind of column is this?
 		//

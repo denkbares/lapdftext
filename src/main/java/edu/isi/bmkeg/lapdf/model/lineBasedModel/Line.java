@@ -52,7 +52,10 @@ public class Line{
             } else if (b.getX1() - prev.getX2() > 0) {
                 //We need to add a gap of the size of the distance between the word blocks
                 int prevX2 = prev.getX2()-getX1();
-                addGap(new Gap(prevX2,bX1));
+
+                Gap newGap = new Gap(prevX2,bX1);
+                newGap.setGlobalCorrectionFactor(getX1());
+                addGap(newGap);
             }
 
             //TODO Check for Gaps inside of the WordBlock - Complications. How to determine Char width? --> Sebastian?

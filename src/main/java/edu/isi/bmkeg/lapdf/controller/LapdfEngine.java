@@ -13,6 +13,7 @@ import edu.isi.bmkeg.lapdf.model.PageBlock;
 import edu.isi.bmkeg.lapdf.model.RTree.RTModelFactory;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
+import edu.isi.bmkeg.lapdf.parser.Parser;
 import edu.isi.bmkeg.lapdf.parser.RuleBasedParser;
 import edu.isi.bmkeg.lapdf.text.SectionsTextWriter;
 import edu.isi.bmkeg.lapdf.text.SpatialLayoutFeaturesReportGenerator;
@@ -51,7 +52,7 @@ public class LapdfEngine  {
 
 	private static Logger logger = Logger.getLogger(LapdfEngine.class);
 
-	private RuleBasedParser parser;
+	private Parser parser;
 
 	private File ruleFile;
 
@@ -110,11 +111,11 @@ public class LapdfEngine  {
 	
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	public RuleBasedParser getParser() {
+	public Parser getParser() {
 		return parser;
 	}
 
-	public void setParser(RuleBasedParser parser) {
+	public void setParser(Parser parser) {
 		this.parser = parser;
 	}
 	
@@ -141,8 +142,6 @@ public class LapdfEngine  {
 
 		String stem = inFile.getName();
 		stem = stem.substring(0, stem.lastIndexOf("."));
-		
-		this.parser.setPath(outDir.getPath());
 		
 		LapdfDocument doc = blockifyFile(inFile);
 		
@@ -185,8 +184,6 @@ public class LapdfEngine  {
 
 		String stem = inFile.getName();
 		stem = stem.substring(0, stem.lastIndexOf("."));
-		
-		this.parser.setPath(outDir.getPath());
 		
 		LapdfDocument doc = blockifyFile(inFile);
 		if (doc == null) {
@@ -244,8 +241,6 @@ public class LapdfEngine  {
 
 		String stem = inFile.getName();
 		stem = stem.substring(0, stem.lastIndexOf("."));
-
-		this.parser.setPath(outDir.getPath());
 		
 		logger.info("Running block detection on " + inFile.getPath());
 							
@@ -314,21 +309,6 @@ public class LapdfEngine  {
 		return doc;
 	
 	}
-
-	public LapdfDocument blockifyXml(String s) throws Exception {
-		
-		LapdfDocument doc = null;
-		
-		doc = parser.parseXml( s );
-		
-		if (doc.hasjPedalDecodeFailed()) {
-			return null;
-		}
-
-		return doc;
-	
-	}
-
 	
 	public void classifyDocumentWithBaselineRules(LapdfDocument document) 
 					throws ClassificationException, 
@@ -360,7 +340,7 @@ public class LapdfEngine  {
 			PageBlock page = document.getPage(i);
 			List<ChunkBlock> chunkList = page.getAllChunkBlocks(SpatialOrdering.MIXED_MODE);
 			//********
-			//TODO INSERTION POINT FOR SETTING P(TABLE) OF ALL PAGE CHUNKS
+			//NOTE: If we want to set the prior probability of P(Table), this is the spot where to do it
 			//********
 			classifier.classify(chunkList);
 		}
