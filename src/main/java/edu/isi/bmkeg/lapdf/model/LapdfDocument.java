@@ -205,6 +205,8 @@ public class LapdfDocument implements Serializable {
 	public void calculateBodyTextFrame() {
 
 		String mp = (String) this.fontFrequencyCounter.getMostPopular();
+		if (mp == null) return;
+
 		String[] mpArray = mp.split(";");
 		
 		int x_min = 10000;
@@ -262,12 +264,12 @@ public class LapdfDocument implements Serializable {
 		// most popular font style. Need to check if the last page is not just the 
 		// same font as the rest of the document.
 		//
-		if( mp.equals( lastPage ) && mpCount < nmpCount * 7) {
+		if( lastPage.equals(mp) && mpCount < nmpCount * 7) {
 			
 			this.setMostPopularFontStyle(nmp);
 			this.setNextMostPopularFontStyle(nnmp);
 			
-		} else if( nmp.equals( lastPage ) ) {
+		} else if( lastPage.equals(nmp) ) {
 
 			this.setMostPopularFontStyle(mp);
 			this.setNextMostPopularFontStyle(nnmp);
