@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
+import edu.isi.bmkeg.lapdf.parser.MaxPowerChunkingClass;
 import edu.isi.bmkeg.utils.Converters;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -29,6 +30,10 @@ public class ImagifyBlocks extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		LapdfEngine engine = new LapdfEngine();
+
+		//NOTE : Here we can set which parser to use
+		//Comment the line for using the default parser
+		engine.setParser(new MaxPowerChunkingClass());
 
 		List<String> parameters = getParameters().getRaw();
 		String[] args = parameters.toArray(new String[parameters.size()]);

@@ -38,5 +38,9 @@ public interface WordBlock extends Block, SpatialEntity {
 	public void writeFlushArray(List<WordBlock> wordsToCheck); 
 
 	public WordBlock[] getFlushArray();
+
+	public PageBlock getPage();
+
+	public void setPage(PageBlock page);
 	
 }

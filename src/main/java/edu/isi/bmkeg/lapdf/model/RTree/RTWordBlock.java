@@ -123,7 +123,7 @@ public class RTWordBlock extends RTSpatialEntity implements WordBlock {
 	
 	@Override
 	public String readLeftRightMidLine() {
-		PageBlock parent = (PageBlock) this.getContainer().getContainer();
+		PageBlock parent = getPage();
 		int median = parent.getMedian();
 		int X1 = this.getX1();
 		int width = this.getWidth();

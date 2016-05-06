@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
+import com.denkbares.lapdf.classification.structures.LineBasedTableDetector;
 import edu.isi.bmkeg.lapdf.model.Block;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.PageBlock;
@@ -164,10 +165,25 @@ public class PageImageOutlineRenderer {
 								countMap.get(chunk.getType()) + 1);
 					}
 				}
-				
-				drawRectangle(chunk.getX1(), chunk.getY1(),
-						chunk.getWidth(), chunk.getHeight(), image,
-						Color.red, chunk);
+
+				//For table debugging
+				boolean tableDraw = true;
+				if(!tableDraw) {
+					drawRectangle(chunk.getX1(), chunk.getY1(),
+							chunk.getWidth(), chunk.getHeight(), image,
+							Color.red, chunk);
+				}
+				else {
+					LineBasedTableDetector lbtd = new LineBasedTableDetector();
+					lbtd.setMethod(3);
+					double table = lbtd.classify(chunk,null);
+					int r = (int)(255*table);
+					int b = (int)(255*(1-table));
+					Color drawCol = new Color(r,0,b);
+					drawRectangle(chunk.getX1(), chunk.getY1(),
+							chunk.getWidth(), chunk.getHeight(),image,
+							drawCol, chunk);
+				}
 				
 			} else if (block != null) {
 				

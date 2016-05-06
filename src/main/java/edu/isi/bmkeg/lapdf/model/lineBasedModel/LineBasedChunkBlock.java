@@ -15,35 +15,40 @@ import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 
 /**
  * Created by Maximilian on 11.03.2016.
- *
- * TODO Check the methods from RTSpatialEntity and ChunkBlock and rewrite if necessary
  */
 public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //Implemented by me
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     int x1,x2,y1,y2;
     ArrayList<Line> lines;
     ArrayList<WordBlock> wordBlocks = new ArrayList<>();
 
 
-    public LineBasedChunkBlock(ArrayList<Line> lines){
-        this.lines = lines;
-        int[] bounds = createBounds();
+    public static LineBasedChunkBlock buildLineBasedChunkBlock(ArrayList<Line> lines){
+        int[] bounds = createBounds(lines);
+        int x1,x2,y1,y2;
         x1 = bounds[0];
         x2 = bounds[1];
         y1 = bounds[2];
         y2 = bounds[3];
-        refreshWordBlocks();
+        LineBasedChunkBlock block = new LineBasedChunkBlock(x1,y1,x2,y2,0);
+        block.setLines(lines);
+        return block;
     }
 
     public LineBasedChunkBlock(int x1, int y1, int x2, int y2, int order){
         super(x1, y1, x2, y2, order);
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
     }
 
-    private int[] createBounds(){
+    public void setLines(ArrayList<Line> lines){
+        this.lines = lines;
+        refreshWordBlocks();
+    }
+
+    private static int[] createBounds(ArrayList<Line> lines){
         int xMin = -1, xMax = -1, yMin = -1, yMax = -1;
         for(Line l : lines){
             if(l.getX1() < xMin || xMin == -1)

@@ -203,7 +203,7 @@ public class LineBasedOperations {
      * @return Whether the lineBlock should be split in half.
      */
     public static boolean verticalSplitCandidate(ArrayList<Line> lineBlock, PageBlock parent){
-        LineBasedChunkBlock temp = new LineBasedChunkBlock(lineBlock);
+        LineBasedChunkBlock temp = LineBasedChunkBlock.buildLineBasedChunkBlock(lineBlock);
         temp.setPage(parent);
         return verticalSplitCandidate(temp);
     }
@@ -224,6 +224,8 @@ public class LineBasedOperations {
         //Find widest Gaps of each line and add their width to the spaceList
         for(Line currentLine : lineBlock.getLines()){
             int currentWidest = 0;
+            if(currentLine.getGaps().size() == 0)
+                continue;
             for(Gap g : currentLine.getGaps()){
                 if(g.getWidth() > currentWidest)
                     currentWidest = g.getWidth();
@@ -308,8 +310,8 @@ public class LineBasedOperations {
 
         }
 
-        LineBasedChunkBlock leftBlock = new LineBasedChunkBlock(leftLines);
-        LineBasedChunkBlock rightBlock = new LineBasedChunkBlock(rightLines);
+        LineBasedChunkBlock leftBlock = LineBasedChunkBlock.buildLineBasedChunkBlock(leftLines);
+        LineBasedChunkBlock rightBlock = LineBasedChunkBlock.buildLineBasedChunkBlock(rightLines);
 
         double relativeOverlap = leftBlock.getRelativeOverlap(rightBlock);
 
@@ -346,20 +348,8 @@ public class LineBasedOperations {
 
                 if (wordBlockLeftRightMidLine.equals(Block.LEFT))
                     leftBlocks.add(currentWordBlock);
-                else if (wordBlockLeftRightMidLine.equals(Block.RIGHT))
+                else
                     rightBlocks.add(currentWordBlock);
-                else if (wordBlockLeftRightMidLine.equals(Block.MIDLINE)) {
-
-                    // Assign the current word to the left or right side depending upon
-                    // whether most of the word is on the left or right side of the median.
-                    if (Math.abs(median - currentWordBlock.getX1()) > Math.abs(currentWordBlock.getX2() - median)) {
-                        currentWordBlock.resize(currentWordBlock.getX1(), currentWordBlock.getY1(), median - currentWordBlock.getX1(), currentWordBlock.getHeight());
-                        leftBlocks.add(currentWordBlock);
-                    } else {
-                        currentWordBlock.resize(median, currentWordBlock.getY1(),currentWordBlock.getX2() - median, currentWordBlock.getHeight());
-                        rightBlocks.add(currentWordBlock);
-                    }
-                }
             }
 
             if(leftBlocks.size() == 0 || rightBlocks.size() == 0){

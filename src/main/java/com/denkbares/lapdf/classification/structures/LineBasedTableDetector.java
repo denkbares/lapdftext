@@ -24,6 +24,8 @@ import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.lineBasedModel.Gap;
 import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
+import edu.isi.bmkeg.lapdf.utils.LineBasedOperations;
+import edu.isi.bmkeg.lapdf.utils.PageOperations;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,7 +49,7 @@ public class LineBasedTableDetector implements StructureDetector {
 			case 1:
 				return method2(block, features);
 			default:
-				return method2(block, features);
+				return method3(block, features);
 		}
 
 	}
@@ -172,6 +174,28 @@ public class LineBasedTableDetector implements StructureDetector {
 	}
 
 	/**
+	 * Far more simple approach to finding the table probability.
+	 * 1. Creates Lines for each WordBlock
+	 * 2. Finds overlapping gaps upwards and downwards
+	 * 3. Depending on the count of continuous gaps calculates per WB pTable
+	 * 4. Returns mean pTable of all WBs of block
+	 *
+	 * @param block
+	 * @param features
+	 * @return
+	 */
+	protected double method3(ChunkBlock block, ChunkFeatures features){
+		double pTableSum = 0.0;
+		for(WordBlock wb : block.getWordBlocks()){
+			pTableSum += checkForSeparation(wb);
+		}
+		pTableSum = pTableSum / block.getWordBlocks().size();
+
+		block.setTableProbability(pTableSum);
+		return pTableSum;
+	}
+
+	/**
 	 * Creates a boolean array with a cell for every pixel of the TableCandidate
 	 * The first index indicates the line of the TC, the second index indicates the pixel
 	 * True means that this position is empty (i.e. space char / space between WordBlocks)
@@ -230,4 +254,161 @@ public class LineBasedTableDetector implements StructureDetector {
 		return map;
 	}
 
+
+	private double checkForSeparation(WordBlock b){
+		//Create lines
+		ArrayList<Line> lines = PageOperations.createLinesOfPage(b.getPage().getAllWordBlocks(SpatialOrdering.MIXED_MODE));
+
+		//Find the line containing b
+		Line thisLine = null;
+		for(Line l : lines)
+				if(l.getWordBlocks().contains(b))
+					thisLine = l;
+		if(thisLine == null){
+			//ERROR
+		}
+
+		//take the gaps of the line
+		ArrayList<Gap> thisLineGaps = thisLine.getGaps();
+
+		//Create Array of gaps
+		int gapOccurrences[] = new int[b.getPage().getPageBoxWidth()];
+
+		//For each gap raise counter
+		for (Gap g : thisLineGaps) {
+			for (int i = g.getGlobalBeginning(); i <= g.getGlobalEnd(); i++)
+				gapOccurrences[i]++;
+		}
+
+		//Counter for the lines checked upwards
+		int aboveCounter = 0;
+
+		boolean newGapFound = false;
+		Line aboveLine = thisLine;
+		while(newGapFound || aboveCounter == 0) {
+			//Take line above
+			aboveLine = PageOperations.getLineInDirOf("UP", aboveLine, lines);
+
+			if(aboveLine == null)
+				break;
+
+			//Take it's gaps
+			ArrayList<Gap> aboveGaps = aboveLine.getGaps();
+
+			//for each gap in the line raise the counter
+			for (Gap g : aboveGaps) {
+				for (int i = g.getGlobalBeginning(); i < g.getGlobalEnd(); i++)
+					gapOccurrences[i]++;
+			}
+
+			newGapFound = false;
+			//Check whether we found new gap overlaps
+			for (int i = 0; i < b.getPage().getPageBoxWidth(); i++) {
+				if (gapOccurrences[i] == aboveCounter)
+					newGapFound = true;
+			}
+			if (newGapFound)
+				aboveCounter++;
+			//Repeat check with next line above
+		}
+		//Abort search upwards
+
+		//Continue search downwards
+		//Create Array for gap occurrences
+		int gapOccurrencesBelow[] = new int[b.getPage().getPageBoxWidth()];
+
+		//For each gap in this line raise counter by 1
+		for (Gap g : thisLineGaps) {
+			for (int i = g.getGlobalBeginning(); i < g.getGlobalEnd(); i++)
+				gapOccurrencesBelow[i]++;
+		}
+
+		//Count the lines checked downwards
+		int belowCounter = 0;
+
+		newGapFound = false;
+		Line belowLine = thisLine;
+		while(newGapFound || belowCounter == 0) {
+			//Take the line below
+			belowLine = PageOperations.getLineInDirOf("DOWN", belowLine, lines);
+
+			if(belowLine == null)
+				break;
+
+			//Take the gaps of the line below
+			ArrayList<Gap> belowGaps = belowLine.getGaps();
+
+			//For each of those gaps raise the counter by 1
+			for (Gap g : belowGaps) {
+				for (int i = g.getGlobalBeginning(); i < g.getGlobalEnd(); i++)
+					gapOccurrencesBelow[i]++;
+			}
+
+			//Check whether we found new gap overlaps
+			for (int i = 0; i < b.getPage().getPageBoxWidth(); i++) {
+				if (gapOccurrencesBelow[i] == aboveCounter)
+					newGapFound = true;
+			}
+			if (newGapFound)
+				belowCounter++;
+			//Repeat with next line below
+		}
+
+		//Table Probability
+		double pTable = 0.0;
+
+		//Evaluate!
+		if(aboveCounter > 0 || belowCounter > 0){
+			//Might be a table!
+			if(aboveCounter > 0){
+				pTable += 0.1;
+			}
+			if(belowCounter > 0){
+				pTable += 0.1;
+			}
+
+			//Check above for column count
+			int gapOccurrencesReduced[] = new int[gapOccurrences.length];
+			for(int i = 0; i < gapOccurrences.length; i++){
+				if(gapOccurrences[i] - aboveCounter < 0)
+					gapOccurrencesReduced[i] = 0;
+				else
+					gapOccurrencesReduced[i] = 1;
+			}
+
+			int sumColumnsAbove = 0;
+			for(int i : gapOccurrencesReduced){
+				sumColumnsAbove += i;
+			}
+
+			//Check below for column count
+			gapOccurrencesReduced = new int[gapOccurrences.length];
+			for(int i = 0; i < gapOccurrences.length; i++){
+				if(gapOccurrences[i] - aboveCounter < 0)
+					gapOccurrencesReduced[i] = 0;
+				else
+					gapOccurrencesReduced[i] = 1;
+			}
+
+			int sumColumnsBelow = 0;
+			for(int i : gapOccurrencesReduced){
+				sumColumnsBelow += i;
+			}
+
+			//Set Table probability
+			if(sumColumnsAbove >= 2)
+				pTable += 0.2;
+			else if(sumColumnsAbove > 1)
+				pTable += 0.1;
+			if(sumColumnsBelow >= 2)
+				pTable += 0.2;
+			else if(sumColumnsBelow > 1)
+				pTable += 0.1;
+			if(sumColumnsAbove == sumColumnsBelow && sumColumnsAbove != 0)
+				pTable += 0.2;
+
+		}
+
+		return pTable;
+	}
 }

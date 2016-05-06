@@ -763,6 +763,7 @@ public class RuleBasedParser implements Parser {
 			}
 
 			wordBlock.setContainer(chunkBlock);
+			wordBlock.setPage(pageBlock);
 
 		}
 		

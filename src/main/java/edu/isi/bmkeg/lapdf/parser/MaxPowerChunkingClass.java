@@ -60,15 +60,15 @@ public class MaxPowerChunkingClass implements Parser{
             @Override
             public int compare(WordBlock o1, WordBlock o2) {
                 if (o1.getY1() < o2.getY1())
-                    return 1;
+                    return -1;
                 else if (o1.getY1() == o2.getY1())
                     return 0;
                 else
-                    return -1;
+                    return 1;
             }
         });
 
-        return buildChunkBlocks(blocksOfPage);
+        return buildChunkBlocks(blocksOfPage, page);
     }
 
     /**
@@ -77,9 +77,8 @@ public class MaxPowerChunkingClass implements Parser{
      * @param wordBlocks The List of WordBlocks from which we will create ChunkBlocks
      * @return A list of ChunkBlocks.
      */
-    public static ArrayList<ChunkBlock> buildChunkBlocks(ArrayList<WordBlock> wordBlocks){
+    public static ArrayList<ChunkBlock> buildChunkBlocks(ArrayList<WordBlock> wordBlocks, PageBlock parent){
         ArrayList<ArrayList<Line>> chunkCandidates = createChunkCandidates(PageOperations.createLinesOfPage(wordBlocks));
-        PageBlock parent = wordBlocks.get(0).getPage();
         ArrayList<ChunkBlock> returner = new ArrayList<>();
         ArrayList<ArrayList<Line>> splitResults = new ArrayList<>();
         //Further process chunkCandidates by :
@@ -87,52 +86,16 @@ public class MaxPowerChunkingClass implements Parser{
         // - over-line features (How homogeneous WordBlocks in a ChCan are, possible vertical separators)
 
         for(ArrayList<Line> currentCandidate : chunkCandidates) {
-            if(LineBasedOperations.verticalSplitCandidate(currentCandidate, parent)) {
+            if (LineBasedOperations.verticalSplitCandidate(currentCandidate, parent)) {
                 ArrayList<Line>[] result = LineBasedOperations.splitLineBlockCandidateDownTheMiddle(currentCandidate);
                 ChunkBlock leftHalf = createChunkFromLines(result[0]);
                 ChunkBlock rightHalf = createChunkFromLines(result[1]);
                 returner.add(leftHalf);
                 returner.add(rightHalf);
-            }
-            else {
+            } else {
                 returner.add(createChunkFromLines(currentCandidate));
             }
-
-            /*
-            ArrayList<Line> leftHalf = new ArrayList<>(currentCandidate);
-
-
-            This are ye olde ways of finding the separation grade, we now tried ye ways of RuleBasedParser.verticalSplitCandidate().
-            //Look for horizontal separation and split if possible
-            double separation = LineBasedOperations.getHorizontalSeparation(currentCandidate);
-
-            //Play with this value to increase splitting sensitivity
-            if(separation > 0.9){
-                //TODO set table probability prior to splitting!
-                int splitCoord = LineBasedOperations.getSplitCoord(currentCandidate);
-                ArrayList<Line> rightHalf = new ArrayList<>();
-                for(Line line : currentCandidate){
-                    line.setTableProbability(separation);
-                    rightHalf.add(line.split(splitCoord)[1]);
-                    leftHalf.set(currentCandidate.indexOf(line), line.split(splitCoord)[0]);
-                }
-            }
-
-            //Finally, add block to returner
-            returner.add(createChunkFromLines(leftHalf));
-            **/
         }
-
-        /*
-        //Process split halves
-        for(ArrayList<Line> currentCandidate : splitResults){
-            //Add block to returner
-            ChunkBlock newBlock =createChunkFromLines(currentCandidate);
-            //Might be improved by using mean table prob, but at the moment get(0).get.. suffices.
-            newBlock.setTableProbability(currentCandidate.get(0).getTableProbability());
-            returner.add(newBlock);
-        }
-        **/
 
         return returner;
     }
@@ -171,7 +134,7 @@ public class MaxPowerChunkingClass implements Parser{
             }
         }
 
-        ChunkBlock newBlock = new LineBasedChunkBlock(lines);
+        ChunkBlock newBlock = LineBasedChunkBlock.buildLineBasedChunkBlock(lines);
 
         newBlock.setMostPopularWordFont(
                 (String) fontFrequencyCounter.getMostPopular()
@@ -190,7 +153,12 @@ public class MaxPowerChunkingClass implements Parser{
                 spaceFrequencyCounter.getMostPopular()
         );
 
+        //Set containers
+        for(WordBlock b : newBlock.getWordBlocks())
+            b.setContainer(newBlock);
+
         newBlock.setContainer(page);
+        newBlock.setPage(page);
 
         return newBlock;
     }
@@ -339,8 +307,6 @@ public class MaxPowerChunkingClass implements Parser{
                     pageExtractor.getCurrentPageBoxHeight(),
                     document);
 
-            pageList.add(pageBlock);
-
             pageWordBlockList = pageExtractor.next();
 
             idGenerator = pageBlock.initialize(pageWordBlockList, idGenerator);
@@ -366,6 +332,8 @@ public class MaxPowerChunkingClass implements Parser{
                 **/
 
             }
+
+            pageList.add(pageBlock);
         }
 
         if (!document.hasjPedalDecodeFailed()) {
