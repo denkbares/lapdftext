@@ -342,7 +342,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		// <-- Document -->
 
 		//Page Number
-		double pNum = chunkFeatures.getPageNumber();
+		int pNum = chunkFeatures.getPageNumber();
 		QuestionNum pageNumber = (QuestionNum) manager.searchQuestion("Page Number");
 		NumValue pageNumberValue = new NumValue(pNum);
 		fact = FactFactory.createFact(pageNumber, pageNumberValue, session, PSMethodUserSelected.getInstance());
