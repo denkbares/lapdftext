@@ -171,6 +171,28 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
         return tableProb;
     }
 
+    double unorderedListProb = 0.0;
+    @Override
+    public void setUnorderedListProbability(double d){
+        unorderedListProb = d;
+    }
+
+    @Override
+    public double getUnorderedListProbability(){
+        return unorderedListProb;
+    }
+
+    double orderedListProbability = 0.0;
+    @Override
+    public void setOrderedListProbability(double d){
+        orderedListProbability = d;
+    }
+
+    @Override
+    public double getOrderedListProbability(){
+        return orderedListProbability;
+    }
+
     @Override
     public List<WordBlock> getWordBlocks() {
         return wordBlocks;

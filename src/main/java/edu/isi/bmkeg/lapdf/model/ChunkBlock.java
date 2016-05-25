@@ -124,6 +124,14 @@ public interface ChunkBlock extends Block, SpatialEntity {
 
 	public double getTableProbability();
 
+	public void setOrderedListProbability(double d);
+
+	public double getOrderedListProbability();
+
+	public void setUnorderedListProbability(double d);
+
+	public double getUnorderedListProbability();
+
 	/**
 	 * Returns all word blocks ordered in {@link SpatialOrdering#MIXED_MODE}
 	 * @return word blocks ordered in mixed mode

@@ -137,6 +137,28 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 		return tableProbability;
 	}
 
+	double unorderedListProb = 0.0;
+	@Override
+	public void setUnorderedListProbability(double d){
+		unorderedListProb = d;
+	}
+
+	@Override
+	public double getUnorderedListProbability(){
+		return unorderedListProb;
+	}
+
+	double orderedListProbability = 0.0;
+	@Override
+	public void setOrderedListProbability(double d){
+		orderedListProbability = d;
+	}
+
+	@Override
+	public double getOrderedListProbability(){
+		return orderedListProbability;
+	}
+
 	@Override
 	public List<WordBlock> getWordBlocks(String ordering) {
 		if (!(container instanceof PageBlock)) {
