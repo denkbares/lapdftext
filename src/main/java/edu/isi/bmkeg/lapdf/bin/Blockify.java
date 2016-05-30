@@ -130,6 +130,8 @@ public class Blockify extends Application {
 
 		}
 
+		System.exit(0);
+
 	}
 
 }
