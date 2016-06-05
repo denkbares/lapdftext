@@ -26,7 +26,7 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 	private String alignment = null;
 	private String type = ChunkBlock.TYPE_UNCLASSIFIED;
 	private boolean wasClassified = false;
-	private Boolean headerOrFooter=null;
+	private Boolean headerOrFooter=false;
 	
 	private double density = -1;
 
