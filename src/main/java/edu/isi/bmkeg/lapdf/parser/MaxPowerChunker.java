@@ -1,5 +1,15 @@
 package edu.isi.bmkeg.lapdf.parser;
 
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.isi.bmkeg.lapdf.extraction.Extractor;
 import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
@@ -14,16 +24,14 @@ import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 import edu.isi.bmkeg.lapdf.utils.LineBasedOperations;
 import edu.isi.bmkeg.lapdf.utils.PageOperations;
-import edu.isi.bmkeg.lapdf.xml.model.*;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLChunk;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLFontStyle;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLPage;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
-
-import java.io.File;
-import java.io.FileReader;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Maximilian Schirm (denkbares GmbH), 9.3.2016
@@ -32,7 +40,7 @@ import java.util.regex.Pattern;
  * of the "RuleBasedParser" class. It should offer better results than the
  * legacy method.
  */
-public class MaxPowerChunkingClass implements Parser{
+public class MaxPowerChunker implements Parser{
 
     protected String path;
 
@@ -422,7 +430,7 @@ public class MaxPowerChunkingClass implements Parser{
             //LineBasedModel : Create Lines and ChunkBlocks
             List<SpatialEntity> pageChunks = new ArrayList<>();
             for(ChunkBlock b : buildChunkBlocks(pageBlock))
-                pageChunks.add((LineBasedChunkBlock)b);
+                pageChunks.add(b);
 
             pageBlock.addAll(pageChunks, idGenerator);
             pageCounter++;
