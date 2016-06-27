@@ -41,11 +41,7 @@ import edu.isi.bmkeg.utils.xml.XmlBindingTools;
  *         of the "RuleBasedParser" class. It should offer better results than the
  *         legacy method.
  */
-<<<<<<< HEAD:src/main/java/edu/isi/bmkeg/lapdf/parser/MaxPowerChunkingClass.java
-public class MaxPowerChunkingClass implements Parser {
-=======
 public class MaxPowerChunker implements Parser{
->>>>>>> origin/master:src/main/java/edu/isi/bmkeg/lapdf/parser/MaxPowerChunker.java
 
     protected String path;
 
@@ -436,13 +432,8 @@ public class MaxPowerChunker implements Parser{
 
             //LineBasedModel : Create Lines and ChunkBlocks
             List<SpatialEntity> pageChunks = new ArrayList<>();
-<<<<<<< HEAD:src/main/java/edu/isi/bmkeg/lapdf/parser/MaxPowerChunkingClass.java
-            for (ChunkBlock b : buildChunkBlocks(pageBlock))
-                pageChunks.add((LineBasedChunkBlock) b);
-=======
             for(ChunkBlock b : buildChunkBlocks(pageBlock))
                 pageChunks.add(b);
->>>>>>> origin/master:src/main/java/edu/isi/bmkeg/lapdf/parser/MaxPowerChunker.java
 
             pageBlock.addAll(pageChunks, idGenerator);
             pageCounter++;
