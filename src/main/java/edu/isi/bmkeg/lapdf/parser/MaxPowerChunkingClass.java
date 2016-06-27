@@ -12,6 +12,7 @@ import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
 import edu.isi.bmkeg.lapdf.model.lineBasedModel.LineBasedChunkBlock;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
+import edu.isi.bmkeg.lapdf.utils.ChunkBlockOperations;
 import edu.isi.bmkeg.lapdf.utils.LineBasedOperations;
 import edu.isi.bmkeg.lapdf.utils.PageOperations;
 import edu.isi.bmkeg.lapdf.xml.model.*;
@@ -27,12 +28,12 @@ import java.util.regex.Pattern;
 
 /**
  * @author Maximilian Schirm (denkbares GmbH), 9.3.2016
- *
- * This class offers methods to replace the method "buildChunkBlock"
- * of the "RuleBasedParser" class. It should offer better results than the
- * legacy method.
+ *         <p>
+ *         This class offers methods to replace the method "buildChunkBlock"
+ *         of the "RuleBasedParser" class. It should offer better results than the
+ *         legacy method.
  */
-public class MaxPowerChunkingClass implements Parser{
+public class MaxPowerChunkingClass implements Parser {
 
     protected String path;
 
@@ -47,13 +48,13 @@ public class MaxPowerChunkingClass implements Parser{
     }
 
     /**
-     * This method takes the Page's WordBlocks, sorts them by their coordiates from top to bottom and passes them to
+     * This method takes the Page's WordBlocks, sorts them by their coordinates from top to bottom and passes them to
      * the build ChunkBlocks(ArrayList<WordBlock>) method for further operations.
      *
      * @param page The page we want to chunk
      * @return A list of ChunkBlocks, created by the complementary method.
      */
-    public static ArrayList<ChunkBlock> buildChunkBlocks(PageBlock page){
+    public static ArrayList<ChunkBlock> buildChunkBlocks(PageBlock page) {
         ArrayList<WordBlock> blocksOfPage = (ArrayList<WordBlock>) page.getAllWordBlocks(SpatialOrdering.MIXED_MODE);
         //Sort by coordinates (descending)
         blocksOfPage.sort(new Comparator<WordBlock>() {
@@ -77,7 +78,7 @@ public class MaxPowerChunkingClass implements Parser{
      * @param wordBlocks The List of WordBlocks from which we will create ChunkBlocks
      * @return A list of ChunkBlocks.
      */
-    public static ArrayList<ChunkBlock> buildChunkBlocks(ArrayList<WordBlock> wordBlocks, PageBlock parent){
+    public static ArrayList<ChunkBlock> buildChunkBlocks(ArrayList<WordBlock> wordBlocks, PageBlock parent) {
         ArrayList<ArrayList<Line>> chunkCandidates = createChunkCandidates(PageOperations.createLinesOfPage(wordBlocks));
         ArrayList<ChunkBlock> returner = new ArrayList<>();
         ArrayList<ArrayList<Line>> splitResults = new ArrayList<>();
@@ -85,7 +86,7 @@ public class MaxPowerChunkingClass implements Parser{
         // - in-line features (Font Style)
         // - over-line features (How homogeneous WordBlocks in a ChCan are, possible vertical separators)
 
-        for(ArrayList<Line> currentCandidate : chunkCandidates) {
+        for (ArrayList<Line> currentCandidate : chunkCandidates) {
             if (LineBasedOperations.verticalSplitCandidate(currentCandidate, parent)) {
                 ArrayList<Line>[] result = LineBasedOperations.splitLineBlockCandidateDownTheMiddle(currentCandidate);
                 ChunkBlock leftHalf = createChunkFromLines(result[0]);
@@ -97,15 +98,17 @@ public class MaxPowerChunkingClass implements Parser{
             }
         }
 
-        return returner;
+        //Experimental post processing TODO Debug and Test
+        return new ArrayList<>(ChunkBlockOperations.mergeContainedChunkBlocks(returner));
     }
 
     /**
      * Creates a ChunkBlock from the list of lines.
+     *
      * @param lines A list of lines.
      * @return A new ChunkBlock
      */
-    private static ChunkBlock createChunkFromLines(ArrayList<Line> lines){
+    private static ChunkBlock createChunkFromLines(ArrayList<Line> lines) {
         // vv Create Block vv
         //This is a proof-of-concept implementation, closely built like the original buildChunkBlocks() method.
         PageBlock page = null;
@@ -115,17 +118,16 @@ public class MaxPowerChunkingClass implements Parser{
         FrequencyCounter styleFrequencyCounter = new FrequencyCounter();
 
 
-
-        for(Line l : lines){
+        for (Line l : lines) {
             lineHeightFrequencyCounter.add(l.getHeight());
 
-            for(WordBlock b : l.getWordBlocks()){
-                if( b.getFont() != null ) {
+            for (WordBlock b : l.getWordBlocks()) {
+                if (b.getFont() != null) {
                     fontFrequencyCounter.add(b.getFont());
                 } else {
                     fontFrequencyCounter.add("");
                 }
-                if( b.getFont() != null ) {
+                if (b.getFont() != null) {
                     styleFrequencyCounter.add(b.getFontStyle());
                 } else {
                     styleFrequencyCounter.add("");
@@ -154,7 +156,7 @@ public class MaxPowerChunkingClass implements Parser{
         );
 
         //Set containers
-        for(WordBlock b : newBlock.getWordBlocks())
+        for (WordBlock b : newBlock.getWordBlocks())
             b.setContainer(newBlock);
 
         newBlock.setContainer(page);
@@ -165,15 +167,16 @@ public class MaxPowerChunkingClass implements Parser{
 
     /**
      * Groups lines that are likely to become chunks
+     *
      * @param lines The lines which are to be grouped
      * @return Groups of likely Chunk - Line clusters
      */
-    private static ArrayList<ArrayList<Line>> createChunkCandidates(ArrayList<Line> lines){
+    private static ArrayList<ArrayList<Line>> createChunkCandidates(ArrayList<Line> lines) {
 
-        ArrayList<ArrayList<Line>> potentialChunks=  new ArrayList<ArrayList<Line>>();
+        ArrayList<ArrayList<Line>> potentialChunks = new ArrayList<ArrayList<Line>>();
         double avgLineDist = PageOperations.getAverageVerticalDistanceOfLines(lines);
 
-        for(Line line : lines){
+        for (Line line : lines) {
             //Two checks :
             // 1. Does this line have a line above it, with the distance to that line being greater than avg?
             // 2. Does this line have a line below it, with the distance to that line being greater than avg?
@@ -184,14 +187,14 @@ public class MaxPowerChunkingClass implements Parser{
             Line topmostLine = lineAbove;
             boolean topmostLineFound = false;
 
-            if(lineAbove != null){
+            if (lineAbove != null) {
                 distAbove = line.distanceTo(lineAbove, "UP");
                 originalDist = distAbove;
                 //TODO : Change avgLineDist formula  to improve coverage if necessary
-                if(distAbove < avgLineDist/2){
+                if (distAbove < avgLineDist / 2) {
                     //We might have a chunk candidate here.
                     //Proceed checking upwards whether there are more lines with that exact distance.
-                    while (lineAbove != null && distAbove == originalDist){
+                    while (lineAbove != null && distAbove == originalDist) {
                         topmostLine = lineAbove;
                         lineAbove = PageOperations.getLineInDirOf("UP", lineAbove, lines);
                         distAbove = topmostLine.distanceTo(lineAbove, "UP");
@@ -200,10 +203,10 @@ public class MaxPowerChunkingClass implements Parser{
                     topmostLineFound = true;
                 }
             }
-            if(lineBelow != null && !topmostLineFound){
+            if (lineBelow != null && !topmostLineFound) {
                 distBelow = line.distanceTo(lineBelow, "DOWN");
                 originalDist = distBelow;
-                if(distBelow < avgLineDist){
+                if (distBelow < avgLineDist) {
                     //We might have a chunk candidate here.
                     //Since we had no line above this one, assume this is the topmost line in the chunk.
                     topmostLine = line;
@@ -212,12 +215,12 @@ public class MaxPowerChunkingClass implements Parser{
             }
 
             //If we have found the topmost line of our chunk, collect lines with our original distance downwards.
-            if(topmostLineFound) {
+            if (topmostLineFound) {
                 ArrayList<Line> tableCandidate = new ArrayList<>();
                 tableCandidate.add(topmostLine);
                 lineBelow = PageOperations.getLineInDirOf("DOWN", topmostLine, lines);
                 distBelow = topmostLine.distanceTo(lineBelow, "DOWN");
-                while(lineBelow != null && distBelow == originalDist){
+                while (lineBelow != null && distBelow == originalDist) {
                     tableCandidate.add(lineBelow);
                     Line oldLineBelow = lineBelow;
                     lineBelow = PageOperations.getLineInDirOf("DOWN", lineBelow, lines);
@@ -229,8 +232,8 @@ public class MaxPowerChunkingClass implements Parser{
         }
         //Remove any duplicates
         ArrayList<ArrayList<Line>> duplicateFree = new ArrayList<>();
-        for(ArrayList<Line> candidate : potentialChunks){
-            if(!duplicateFree.contains(candidate)){
+        for (ArrayList<Line> candidate : potentialChunks) {
+            if (!duplicateFree.contains(candidate)) {
                 duplicateFree.add(candidate);
             }
         }
@@ -246,9 +249,9 @@ public class MaxPowerChunkingClass implements Parser{
      */
     public LapdfDocument parse(File file) throws Exception {
 
-        if( file.getName().endsWith( ".pdf") ) {
+        if (file.getName().endsWith(".pdf")) {
             return this.parsePdf(file);
-        } else if(file.getName().endsWith( "_lapdf.xml")) {
+        } else if (file.getName().endsWith("_lapdf.xml")) {
             return this.parseXml(file);
         } else {
             throw new Exception("File type of " + file.getName() + " not *.pdf or *_lapdf.xml");
@@ -319,7 +322,7 @@ public class MaxPowerChunkingClass implements Parser{
                 );
 
                 //Update Average Font Size and Frequency counters
-                for(WordBlock word : pageBlock.getAllWordBlocks(SpatialOrdering.MIXED_MODE)) {
+                for (WordBlock word : pageBlock.getAllWordBlocks(SpatialOrdering.MIXED_MODE)) {
                     pageBlock.getDocument().getAvgHeightFrequencyCounter().add(
                             word.getHeight());
                     pageBlock.getDocument().getFontFrequencyCounter().add(
@@ -342,7 +345,7 @@ public class MaxPowerChunkingClass implements Parser{
             String s = file.getName().replaceAll("\\.pdf", "");
             Pattern p = Pattern.compile("(\\d+)");
             Matcher m = p.matcher(file.getName());
-            if( m.find() ) {
+            if (m.find()) {
                 s = m.group(1);
             }
 
@@ -376,12 +379,12 @@ public class MaxPowerChunkingClass implements Parser{
 
         LapdfDocument document = new LapdfDocument();
 
-        Map<Integer, String> fsMap = new HashMap<Integer,String>();
-        for( LapdftextXMLFontStyle xmlFs : xmlDoc.getFontStyles() ) {
-            fsMap.put( xmlFs.getId(), xmlFs.getFontStyle() );
+        Map<Integer, String> fsMap = new HashMap<Integer, String>();
+        for (LapdftextXMLFontStyle xmlFs : xmlDoc.getFontStyles()) {
+            fsMap.put(xmlFs.getId(), xmlFs.getFontStyle());
         }
 
-        for( LapdftextXMLPage xmlPage : xmlDoc.getPages() ) {
+        for (LapdftextXMLPage xmlPage : xmlDoc.getPages()) {
 
             PageBlock pageBlock = modelFactory.createPageBlock(pageCounter, xmlPage.getW(), xmlPage.getH(), document);
             pageList.add(pageBlock);
@@ -389,31 +392,31 @@ public class MaxPowerChunkingClass implements Parser{
             ArrayList<WordBlock> pageWords = new ArrayList<>();
             List<ChunkBlock> chunkBlockList = new ArrayList<ChunkBlock>();
 
-            for( LapdftextXMLChunk xmlChunk : xmlPage.getChunks() ) {
+            for (LapdftextXMLChunk xmlChunk : xmlPage.getChunks()) {
                 String font = xmlChunk.getFont();
                 List<WordBlock> chunkWords = new ArrayList<WordBlock>();
                 pageWords = new ArrayList<>();
 
-                for( LapdftextXMLWord xmlWord : xmlChunk.getWords() ) {
+                for (LapdftextXMLWord xmlWord : xmlChunk.getWords()) {
                     int x1 = xmlWord.getX();
                     int y1 = xmlWord.getY();
                     int x2 = xmlWord.getX() + xmlWord.getW();
                     int y2 = xmlWord.getY() + xmlWord.getH();
 
-                    WordBlock wordBlock = modelFactory.createWordBlock(x1, y1, x2, y2, 1, font, "", xmlWord.getT(), xmlWord.getI() );
+                    WordBlock wordBlock = modelFactory.createWordBlock(x1, y1, x2, y2, 1, font, "", xmlWord.getT(), xmlWord.getI());
 
                     pageBlock.add(wordBlock, xmlWord.getId());
                     wordBlock.setPage(pageBlock);
 
-                    String f = fsMap.get( xmlWord.getfId() );
-                    wordBlock.setFont( f );
+                    String f = fsMap.get(xmlWord.getfId());
+                    wordBlock.setFont(f);
 
-                    String s = fsMap.get( xmlWord.getsId() );
-                    wordBlock.setFontStyle( s );
+                    String s = fsMap.get(xmlWord.getsId());
+                    wordBlock.setFontStyle(s);
 
                     // add this word's height and font to the counts.
                     document.getAvgHeightFrequencyCounter().add(xmlWord.getH());
-                    document.getFontFrequencyCounter().add(f + ";" + s );
+                    document.getFontFrequencyCounter().add(f + ";" + s);
 
                     pageWords.add(wordBlock);
                 }
@@ -421,8 +424,8 @@ public class MaxPowerChunkingClass implements Parser{
 
             //LineBasedModel : Create Lines and ChunkBlocks
             List<SpatialEntity> pageChunks = new ArrayList<>();
-            for(ChunkBlock b : buildChunkBlocks(pageBlock))
-                pageChunks.add((LineBasedChunkBlock)b);
+            for (ChunkBlock b : buildChunkBlocks(pageBlock))
+                pageChunks.add((LineBasedChunkBlock) b);
 
             pageBlock.addAll(pageChunks, idGenerator);
             pageCounter++;
