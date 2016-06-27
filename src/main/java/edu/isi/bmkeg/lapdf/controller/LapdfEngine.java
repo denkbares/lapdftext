@@ -1,6 +1,19 @@
 package edu.isi.bmkeg.lapdf.controller;
 
-import com.denkbares.lapdf.classification.D3ChunkClassifier;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import edu.isi.bmkeg.lapdf.classification.Classifier;
 import edu.isi.bmkeg.lapdf.classification.ruleBased.RuleBasedChunkClassifier;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
@@ -13,6 +26,7 @@ import edu.isi.bmkeg.lapdf.model.PageBlock;
 import edu.isi.bmkeg.lapdf.model.RTree.RTModelFactory;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
+import edu.isi.bmkeg.lapdf.parser.MaxPowerChunker;
 import edu.isi.bmkeg.lapdf.parser.Parser;
 import edu.isi.bmkeg.lapdf.parser.RuleBasedParser;
 import edu.isi.bmkeg.lapdf.text.SectionsTextWriter;
@@ -28,11 +42,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.jpedal.exception.PdfException;
 
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
+import com.denkbares.lapdf.classification.D3ChunkClassifier;
 
 
 /**
@@ -65,7 +75,7 @@ public class LapdfEngine  {
 	public LapdfEngine() 
 			throws Exception {
 
-		this.parser = new RuleBasedParser(new RTModelFactory());
+		this.parser = new MaxPowerChunker();
 		
 	}
 
@@ -347,7 +357,7 @@ public class LapdfEngine  {
 	}
 	
 	public String readBasicText(LapdfDocument document) 
-			throws IOException,FileNotFoundException {
+			throws IOException {
 
 		List<Set<String>> stack = new ArrayList<Set<String>>();
 		
@@ -365,7 +375,7 @@ public class LapdfEngine  {
 	}
 
 	public String readCompleteText(LapdfDocument document) 
-			throws IOException,FileNotFoundException {
+			throws IOException {
 
 		List<Set<String>> stack = new ArrayList<Set<String>>();
 		
@@ -425,7 +435,7 @@ public class LapdfEngine  {
 	}
 
 	public String readClassifiedText(LapdfDocument document, List<Set<String>> stack) 
-			throws IOException,FileNotFoundException {
+			throws IOException {
 
 		StringBuilder text = new StringBuilder();
 
@@ -443,7 +453,7 @@ public class LapdfEngine  {
 
 		
 	public String readClassifiedText(LapdfDocument document, Set<String> sections) 
-			throws IOException,FileNotFoundException {
+			throws IOException {
 
 		StringBuilder sb = new StringBuilder();
 		
