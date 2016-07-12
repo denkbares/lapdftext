@@ -6,11 +6,12 @@
 	<version>1.7.5-SNAPSHOT</version>
 	<name>LA-PDFText</name>
 	<description>A text extraction tool based on the layout of blocks withing PDF files.</description>
+
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<d3webKnowWE.version>1.0-SNAPSHOT</d3webKnowWE.version>
+		<d3web.version>12.0-SNAPSHOT</d3web.version>
 	</properties>
 	<build>
 		<resources>
@@ -558,27 +559,27 @@
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Kernel</artifactId>
-			<version>${d3webKnowWE.version}</version>
+			<version>${d3web.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Plugin-CostBenefit</artifactId>
-			<version>${d3webKnowWE.version}</version>
+			<version>${d3web.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Plugin-DiaFlux</artifactId>
-			<version>${d3webKnowWE.version}</version>
+			<version>${d3web.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Plugin-XCL</artifactId>
-			<version>${d3webKnowWE.version}</version>
+			<version>${d3web.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.uniwue.d3web</groupId>
 			<artifactId>d3web-Plugin-BasicProperties</artifactId>
-			<version>${d3webKnowWE.version}</version>
+			<version>${d3web.version}</version>
 		</dependency>
 
 		<!-- MISC -->
