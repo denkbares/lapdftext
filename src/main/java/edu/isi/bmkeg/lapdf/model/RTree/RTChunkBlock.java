@@ -1,6 +1,6 @@
 package edu.isi.bmkeg.lapdf.model.RTree;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 import edu.isi.bmkeg.lapdf.model.*;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
@@ -41,30 +41,37 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 		super(x1, y1, x2, y2, order);
 	}
 
+	@Override
 	public int getMostPopularWordSpaceWidth() {
 		return mostPopularWordSpaceWidth;
 	}
 
+	@Override
 	public void setMostPopularWordSpaceWidth(int mostPopularWordSpaceWidth) {
 		this.mostPopularWordSpaceWidth = mostPopularWordSpaceWidth;
 	}
 
+	@Override
 	public String getMostPopularWordFont() {
 		return mostPopularWordFont;
 	}
 
+	@Override
 	public void setMostPopularWordFont(String mostPopularWordFont) {
 		this.mostPopularWordFont = mostPopularWordFont;
 	}
 
+	@Override
 	public void setMostPopularWordHeight(int height) {
 		this.mostPopularWordHeight = height;
 	}
 
+	@Override
 	public List<WordBlock> getRotatedWords() {
 		return rotatedWords;
 	}
 
+	@Override
 	public void setRotatedWords(List<WordBlock> rotatedWords) {
 		this.rotatedWords = rotatedWords;
 	}
@@ -288,10 +295,8 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 		String text = this.readChunkText();
 		Matcher matcher = pattern.matcher(text);
 
-		if (matcher.find())
-			return true;
+		return matcher.find();
 
-		return false;
 	}
 
 	/**
@@ -305,7 +310,7 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
 		List<ChunkBlock> list = getOverlappingNeighbors(nsew,
 				(PageBlock) this.getContainer(),
-				(ChunkBlock) this);
+				this);
 
 		for (ChunkBlock chunky : list)
 			if (chunky.getType().equalsIgnoreCase(type))
@@ -320,7 +325,7 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
 		List<ChunkBlock> list = getOverlappingNeighbors(LapdfDirection.NORTH,
 				(PageBlock) this.getContainer(),
-				(ChunkBlock) this);
+				this);
 
 		double threshold = this.getMostPopularWordHeight() * 2;
 
@@ -429,6 +434,7 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 		 private void readObjectNoData()
 		     throws ObjectStreamException;*/
 
+	@Override
 	public boolean isFlush(String condition, int value) {
 		PageBlock parent = (PageBlock) this.getContainer();
 		int median = parent.getMedian();
