@@ -74,15 +74,8 @@ public class LapdfEngine  {
 		this.parser = parser;
 	}
 
-	public LapdfEngine() 
-			throws Exception {
-<<<<<<< HEAD
-
-		this.parser = new RuleBasedParser(new RTModelFactory());
-		
-=======
+	public LapdfEngine() throws Exception {
 		this(new RuleBasedParser(new RTModelFactory()));
->>>>>>> c950c4873e323becda6853c27d7c49c4e9d0d7bd
 	}
 
 	public LapdfEngine(File ruleFile) 

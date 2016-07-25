@@ -36,7 +36,6 @@ import edu.isi.bmkeg.utils.xml.XmlBindingTools;
 
 /**
  * @author Maximilian Schirm (denkbares GmbH), 9.3.2016
- *         <p>
  *         This class offers methods to replace the method "buildChunkBlock"
  *         of the "RuleBasedParser" class. It should offer better results than the
  *         legacy method.
