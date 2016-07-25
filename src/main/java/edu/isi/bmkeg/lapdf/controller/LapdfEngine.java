@@ -75,7 +75,7 @@ public class LapdfEngine  {
 	public LapdfEngine() 
 			throws Exception {
 
-		this.parser = new MaxPowerChunker();
+		this.parser = new RuleBasedParser(new RTModelFactory());
 		
 	}
 
