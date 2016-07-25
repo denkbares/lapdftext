@@ -48,8 +48,8 @@ import de.d3web.core.session.values.ChoiceValue;
 import de.d3web.core.session.values.NumValue;
 import de.d3web.core.session.values.TextValue;
 import de.d3web.indication.inference.PSMethodUserSelected;
-import de.d3web.plugin.JPFPluginManager;
-import de.d3web.plugin.test.InitPluginManager;
+import com.denkbares.plugin.JPFPluginManager;
+import com.denkbares.plugin.test.InitPluginManager;
 
 /**
  * @author Sebastian Furth (denkbares GmbH)
@@ -163,28 +163,28 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Is Aligned with Column Boundaries?
 		boolean alignedWithBoundaries = chunkFeatures.isAlignedWithColumnBoundaries();
 		QuestionYN aWB = (QuestionYN) manager.searchQuestion("Is Aligned with Column Boundaries?");
-		ChoiceValue alignBoundariesValue = alignedWithBoundaries ? new ChoiceValue(aWB.getAnswerChoiceYes()) : new ChoiceValue(aWB.getAnswerChoiceNo());
+		ChoiceValue alignBoundariesValue = new ChoiceValue(alignedWithBoundaries ? aWB.getAnswerChoiceYes() : aWB.getAnswerChoiceNo());
 		fact = FactFactory.createFact(aWB, alignBoundariesValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is Column Centered?
 		boolean columnCentered = chunkFeatures.isColumnCentered();
 		QuestionYN colCent = (QuestionYN) manager.searchQuestion("Is Column Centered?");
-		ChoiceValue columnCenteredValue = columnCentered ? new ChoiceValue(colCent.getAnswerChoiceYes()) : new ChoiceValue(colCent.getAnswerChoiceNo());
+		ChoiceValue columnCenteredValue = new ChoiceValue(columnCentered ? colCent.getAnswerChoiceYes() : colCent.getAnswerChoiceNo());
 		fact = FactFactory.createFact(colCent, columnCenteredValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is Outlier?
 		boolean outlier = chunkFeatures.isOutlier();
 		QuestionYN outl = (QuestionYN) manager.searchQuestion("Is Outlier?");
-		ChoiceValue isOutlierValue = outlier ? new ChoiceValue(outl.getAnswerChoiceYes()) : new ChoiceValue(outl.getAnswerChoiceNo());
+		ChoiceValue isOutlierValue = new ChoiceValue(outlier ? outl.getAnswerChoiceYes() : outl.getAnswerChoiceNo());
 		fact = FactFactory.createFact(outl, isOutlierValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is in Top Half?
 		boolean topHalf = chunkFeatures.isInTopHalf();
 		QuestionYN topHalfQ = (QuestionYN) manager.searchQuestion("Is Outlier?");
-		ChoiceValue topHalfValue = topHalf ? new ChoiceValue(outl.getAnswerChoiceYes()) : new ChoiceValue(outl.getAnswerChoiceNo());
+		ChoiceValue topHalfValue = new ChoiceValue(topHalf ? outl.getAnswerChoiceYes() : outl.getAnswerChoiceNo());
 		fact = FactFactory.createFact(topHalfQ, topHalfValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
@@ -198,7 +198,8 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Is Header or Footer
 		Boolean hof = block.isHeaderOrFooter();
 		QuestionYN headerOrFooter = (QuestionYN) manager.searchQuestion("Is Header or Footer");
-		ChoiceValue headerOrFooterValue = hof != null && hof ? new ChoiceValue(headerOrFooter.getAnswerChoiceYes()) : new ChoiceValue(headerOrFooter.getAnswerChoiceNo());
+		ChoiceValue headerOrFooterValue = new ChoiceValue(hof != null && hof ? headerOrFooter.getAnswerChoiceYes() : headerOrFooter
+				.getAnswerChoiceNo());
 		fact = FactFactory.createFact(headerOrFooter, headerOrFooterValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
@@ -263,35 +264,37 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Is all Capitals?
 		boolean allCapitals = chunkFeatures.isAllCapitals();
 		QuestionYN allCap = (QuestionYN) manager.searchQuestion("Is all Capitals?");
-		ChoiceValue isAllCapitalsValue = allCapitals ? new ChoiceValue(allCap.getAnswerChoiceYes()) : new ChoiceValue(allCap.getAnswerChoiceNo());
+		ChoiceValue isAllCapitalsValue = new ChoiceValue(allCapitals ? allCap.getAnswerChoiceYes() : allCap.getAnswerChoiceNo());
 		fact = FactFactory.createFact(allCap, isAllCapitalsValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is most popular font modifier bold?
 		boolean bold = chunkFeatures.isMostPopularFontModifierBold();
 		QuestionYN isBold = (QuestionYN) manager.searchQuestion("Is most popular font modifier bold?");
-		ChoiceValue isBoldValue = bold ? new ChoiceValue(isBold.getAnswerChoiceYes()) : new ChoiceValue(isBold.getAnswerChoiceNo());
+		ChoiceValue isBoldValue = new ChoiceValue(bold ? isBold.getAnswerChoiceYes() : isBold.getAnswerChoiceNo());
 		fact = FactFactory.createFact(isBold, isBoldValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is most popular font modifier italic?
 		boolean italic = chunkFeatures.isMostPopularFontModifierItalic();
 		QuestionYN isItalic = (QuestionYN) manager.searchQuestion("Is most popular font modifier italic?");
-		ChoiceValue isItalicValue = italic ? new ChoiceValue(isItalic.getAnswerChoiceYes()) : new ChoiceValue(isItalic.getAnswerChoiceNo());
+		ChoiceValue isItalicValue = new ChoiceValue(italic ? isItalic.getAnswerChoiceYes() : isItalic.getAnswerChoiceNo());
 		fact = FactFactory.createFact(isItalic, isItalicValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is most popular font modifier italic?
 		boolean mostPopularFontInDocument = chunkFeatures.isMostPopularFontInDocument();
 		QuestionYN isMostPopularFontInDocument = (QuestionYN) manager.searchQuestion("Is most popular font in document?");
-		ChoiceValue mostPopularFontInDocumentValue = mostPopularFontInDocument ? new ChoiceValue(isItalic.getAnswerChoiceYes()) : new ChoiceValue(isItalic.getAnswerChoiceNo());
+		ChoiceValue mostPopularFontInDocumentValue = new ChoiceValue(mostPopularFontInDocument ? isItalic.getAnswerChoiceYes() : isItalic
+				.getAnswerChoiceNo());
 		fact = FactFactory.createFact(isMostPopularFontInDocument, mostPopularFontInDocumentValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is most popular font modifier italic?
 		boolean nextMostPopularFontInDocument = chunkFeatures.isNextMostPopularFontInDocument();
 		QuestionYN isNextMostPopularFontInDocument = (QuestionYN) manager.searchQuestion("Is next most popular font in document?");
-		ChoiceValue nextMostPopularFontInDocumentValue = nextMostPopularFontInDocument ? new ChoiceValue(isItalic.getAnswerChoiceYes()) : new ChoiceValue(isItalic.getAnswerChoiceNo());
+		ChoiceValue nextMostPopularFontInDocumentValue = new ChoiceValue(nextMostPopularFontInDocument ? isItalic.getAnswerChoiceYes() : isItalic
+				.getAnswerChoiceNo());
 		fact = FactFactory.createFact(isNextMostPopularFontInDocument, nextMostPopularFontInDocumentValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
@@ -300,14 +303,14 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Contains first Line of Page?
 		boolean flP = chunkFeatures.isContainingFirstLineOfPage();
 		QuestionYN containingFlP= (QuestionYN) manager.searchQuestion("Contains first Line of Page?");
-		ChoiceValue flpValue = flP ? new ChoiceValue(containingFlP.getAnswerChoiceYes()) : new ChoiceValue(containingFlP.getAnswerChoiceNo());
+		ChoiceValue flpValue = new ChoiceValue(flP ? containingFlP.getAnswerChoiceYes() : containingFlP.getAnswerChoiceNo());
 		fact = FactFactory.createFact(containingFlP, flpValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Contains last Line of Page?
 		boolean llP = chunkFeatures.isContainingLastLineOfPage();
 		QuestionYN containingllP= (QuestionYN) manager.searchQuestion("Contains last Line of Page?");
-		ChoiceValue llpValue = llP ? new ChoiceValue(containingllP.getAnswerChoiceYes()) : new ChoiceValue(containingllP.getAnswerChoiceNo());
+		ChoiceValue llpValue = new ChoiceValue(llP ? containingllP.getAnswerChoiceYes() : containingllP.getAnswerChoiceNo());
 		fact = FactFactory.createFact(containingllP, llpValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 

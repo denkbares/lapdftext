@@ -18,10 +18,10 @@
  */
 package com.denkbares.lapdf.classification.structures;
 
+import java.util.Objects;
+
 import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
-
-import java.util.Objects;
 
 /**
  * This class serves as gateway for detecting basic structures like tables or lists in
@@ -101,9 +101,9 @@ public class ChunkStructures {
 	private final ChunkBlock block;
 	private final ChunkFeatures features;
 
-	private StructureDetector tableDetector;
-	private StructureDetector orderedListDetector;
-	private StructureDetector unorderedListDetector;
+	private final StructureDetector tableDetector;
+	private final StructureDetector orderedListDetector;
+	private final StructureDetector unorderedListDetector;
 
 	private ChunkStructures(Builder builder) {
 		this.block = builder.block;
@@ -118,7 +118,8 @@ public class ChunkStructures {
 	 * @return confidence for block being a table.
 	 */
 	public double isTable() {
-		return tableDetector.classify(block, features);
+		return 0;
+//		return tableDetector.classify(block, features);
 	}
 
 	/**

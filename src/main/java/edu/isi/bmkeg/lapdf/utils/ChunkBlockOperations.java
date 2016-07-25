@@ -1,6 +1,6 @@
 package edu.isi.bmkeg.lapdf.utils;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.PageBlock;
 import edu.isi.bmkeg.lapdf.model.RTree.RTModelFactory;
@@ -182,8 +182,8 @@ public class ChunkBlockOperations {
         int b2Y1 = b2.getY1();
         int b2Y2 = b2.getY2();
 
-        boolean xinBounds = (b1X1 >= b2X1 && b1X2 <= b2X2) ? true : false;
-        boolean yinBounds = (b1Y1 >= b2Y1 && b1Y2 <= b2Y2) ? true : false;
+		boolean xinBounds = (b1X1 >= b2X1 && b1X2 <= b2X2);
+		boolean yinBounds = (b1Y1 >= b2Y1 && b1Y2 <= b2Y2);
 
         return xinBounds && yinBounds;
     }

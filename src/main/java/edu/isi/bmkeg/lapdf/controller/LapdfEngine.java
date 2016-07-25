@@ -3,7 +3,6 @@ package edu.isi.bmkeg.lapdf.controller;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -26,7 +25,6 @@ import edu.isi.bmkeg.lapdf.model.PageBlock;
 import edu.isi.bmkeg.lapdf.model.RTree.RTModelFactory;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
-import edu.isi.bmkeg.lapdf.parser.MaxPowerChunker;
 import edu.isi.bmkeg.lapdf.parser.Parser;
 import edu.isi.bmkeg.lapdf.parser.RuleBasedParser;
 import edu.isi.bmkeg.lapdf.text.SectionsTextWriter;
@@ -60,7 +58,7 @@ import com.denkbares.lapdf.classification.D3ChunkClassifier;
  */
 public class LapdfEngine  {
 
-	private static Logger logger = Logger.getLogger(LapdfEngine.class);
+	private static final Logger logger = Logger.getLogger(LapdfEngine.class);
 
 	private Parser parser;
 
@@ -68,18 +66,24 @@ public class LapdfEngine  {
 
 	private boolean imgFlag = false;
 	
-	private JPedalPDFRenderer imagifier = new JPedalPDFRenderer();
+	private final JPedalPDFRenderer imagifier = new JPedalPDFRenderer();
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+	public LapdfEngine(Parser parser) {
+		this.parser = parser;
+	}
+
 	public LapdfEngine() 
 			throws Exception {
+<<<<<<< HEAD
 
 		this.parser = new RuleBasedParser(new RTModelFactory());
 		
+=======
+		this(new RuleBasedParser(new RTModelFactory()));
+>>>>>>> c950c4873e323becda6853c27d7c49c4e9d0d7bd
 	}
-
-
 
 	public LapdfEngine(File ruleFile) 
 			throws Exception {
