@@ -3,10 +3,12 @@ package edu.isi.bmkeg.lapdf.utils;
 import com.denkbares.utils.Log;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.PageBlock;
+import edu.isi.bmkeg.lapdf.model.RTree.RTChunkBlock;
 import edu.isi.bmkeg.lapdf.model.RTree.RTModelFactory;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
 import edu.isi.bmkeg.lapdf.model.lineBasedModel.LineBasedChunkBlock;
+import edu.isi.bmkeg.lapdf.parser.MaxPowerChunker;
 import edu.isi.bmkeg.lapdf.parser.RuleBasedParser;
 
 import java.util.*;
@@ -36,7 +38,7 @@ public class ChunkBlockOperations {
             for (ChunkBlock b1 : candidates) {
                 for (ChunkBlock b2 : candidates) {
                     //We lookup if b1 is contained in any blocks
-                    if (checkIsContainedIn(b1, b2)) {
+                    if (checkIsContainedIn(b1, b2) && !b1.equals(b2)) {
 
                         ArrayList<ChunkBlock> temp;
                         if (containsMap.containsKey(b2)) {
@@ -56,18 +58,14 @@ public class ChunkBlockOperations {
 
             //Conduct merges and add to candidates
             for (ChunkBlock parentChunk : containsMap.keySet()) {
-                ChunkBlock combinedContained = forceCombineMultipleChunkBlocks(containsMap.get(parentChunk));
+                ArrayList<ChunkBlock> combinedParentAndChildren = containsMap.get(parentChunk);
+                combinedParentAndChildren.add(parentChunk);
+                ChunkBlock combinedContained = forceCombineMultipleChunkBlocks(combinedParentAndChildren);
+                //To avoid checking them again
+                candidates.removeAll(combinedParentAndChildren);
+                checkedChunks.addAll(combinedParentAndChildren);
 
-                //to check whether we got all blocks after building
-                for (ChunkBlock checker : containsMap.get(parentChunk)) {
-                    if (!checkedChunks.contains(checker))
-                        checkedChunks.add(checker);
-                }
-                if (!checkedChunks.contains(parentChunk))
-                    checkedChunks.add(parentChunk);
-
-                ChunkBlock parentAndChildrenMerged = combineChunkBlocks(parentChunk, combinedContained);
-                returner.add(parentAndChildrenMerged);
+                returner.add(combinedContained);
             }
 
             //Include blocks from candidates that were not merged into any other blocks
@@ -85,7 +83,7 @@ public class ChunkBlockOperations {
 
 
     /**
-     * Returns true if there are possible merges between the blocks of the input collection.
+     * Returns true if there are definitely possible merges between the blocks of the input collection.
      *
      * @param candidates
      * @return
@@ -93,7 +91,7 @@ public class ChunkBlockOperations {
     private static boolean shouldBeMerged(Collection<ChunkBlock> candidates) {
         for (ChunkBlock b1 : candidates) {
             for (ChunkBlock b2 : candidates) {
-                if (checkIsContainedIn(b1, b2))
+                if (!b1.equals(b2) && checkIsContainedIn(b1, b2))
                     return true;
             }
         }
@@ -108,6 +106,32 @@ public class ChunkBlockOperations {
      * @return
      */
     public static ChunkBlock forceCombineMultipleChunkBlocks(Collection<ChunkBlock> blocks) {
+        boolean oldMode = false;
+        if(oldMode)
+            return forceCombineMultipleChunkBlocksOLDMETHOD(blocks);
+        else
+            return forceCombineMultipleChunkBlocksNEWMETHOD(blocks);
+    }
+
+    private static ChunkBlock forceCombineMultipleChunkBlocksNEWMETHOD(Collection<ChunkBlock> blocks) {
+        ArrayList<WordBlock> allWordBlocks = new ArrayList<>();
+        for(ChunkBlock chunkBlock : blocks){
+            for(WordBlock wordBlock : chunkBlock.getWordBlocks()){
+                if(!allWordBlocks.contains(wordBlock))
+                    allWordBlocks.add(wordBlock);
+            }
+        }
+
+        try {
+            RuleBasedParser builder = new RuleBasedParser(new RTModelFactory());
+            return builder.buildChunkBlock(allWordBlocks, allWordBlocks.get(0).getPage());
+        } catch (Exception e) {
+            Log.severe("Failed to merge Chunks by creating new Chunk from their WordBlocks. Returned null.", e);
+        }
+        return null;
+    }
+
+    private static ChunkBlock forceCombineMultipleChunkBlocksOLDMETHOD(Collection<ChunkBlock> blocks){
         //Push all input elements to a stack
         Stack<ChunkBlock> blockStack = new Stack<>();
         for (ChunkBlock b : blocks)
@@ -188,8 +212,26 @@ public class ChunkBlockOperations {
         return xinBounds && yinBounds;
     }
 
-    //TODO : COMPLETE
     public static boolean overlapsXPercent(ChunkBlock b1, ChunkBlock b2, double x){
-        return true;
+        if(overlapPercentage(b1,b2) >= x)
+            return true;
+        else
+            return false;
+    }
+
+    private static double overlapPercentage(ChunkBlock b1, ChunkBlock b2){
+        //b1 coordinates inside b2?
+        boolean b1LeftEdgeInsideB2Perimeter = (b1.getX1() >= b2.getX1() && b1.getX1() < b2.getX2());
+        boolean b1RightEdgeInsideB2Perimeter = (b1.getX2() > b2.getX1() && b1.getX2() <= b2.getX2());
+        boolean b1TopEdgeInsideB2Perimeter = (b1.getY1() >= b2.getY1() && b1.getY1() < b2.getY2());
+        boolean b1LowEdgeInsideB2Perimeter = (b1.getY2() > b2.getY1() && b1.getY2() <= b2.getY2());
+        //b2 coordinates inside b1
+        boolean b2LeftEdgeInsideB1Perimeter = (b2.getX1() >= b1.getX1() && b2.getX1() < b1.getX2());
+        boolean b2RightEdgeInsideB1Perimeter = (b2.getX2() > b1.getX1() && b2.getX2() <= b1.getX2());
+        boolean b2TopEdgeInsideB1Perimeter = (b2.getY1() >= b1.getY1() && b2.getY1() < b1.getY2());
+        boolean b2LowEdgeInsideB1Perimeter = (b2.getY2() > b1.getY1() && b2.getY2() <= b1.getY2());
+
+        //TODO COMPLETE
+        return 0;
     }
 }

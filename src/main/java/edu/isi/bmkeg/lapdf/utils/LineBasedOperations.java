@@ -344,26 +344,24 @@ public class LineBasedOperations {
             ArrayList<WordBlock> currentWords = currentLine.getWordBlocks();
 
             for(WordBlock currentWordBlock : currentWords){
-                String wordBlockLeftRightMidLine = currentWordBlock.readLeftRightMidLine();
+                int medianOfBlock = currentWordBlock.getX1() + (currentWordBlock.getWidth()/2);
 
-                if (wordBlockLeftRightMidLine.equals(Block.LEFT))
-                    leftBlocks.add(currentWordBlock);
-                else
+                if(medianOfBlock > median)
                     rightBlocks.add(currentWordBlock);
-            }
-
-            if(leftBlocks.size() == 0 || rightBlocks.size() == 0){
-                //NOTE : If we have one line in which we cannot divide the WordBlocks on two sides we just move all Words to the Left Line
-                leftBlocks = currentWords;
+                else
+                    leftBlocks.add(currentWordBlock);
             }
 
             //Create new Lines leftPart and rightPart and add them to the respective lists
-            Line leftPart = new Line(leftBlocks);
-            Line rightPart = new Line(rightBlocks);
+            if(leftBlocks.size() != 0){
+                Line leftPart = new Line(leftBlocks);
+                leftLines.add(leftPart);
+            }
 
-            leftLines.add(leftPart);
-            rightLines.add(rightPart);
-
+            if(rightBlocks.size() != 0){
+                Line rightPart = new Line(rightBlocks);
+                rightLines.add(rightPart);
+            }
         }
         ArrayList<Line>[] returner = new ArrayList[2];
         returner[0] = leftLines;

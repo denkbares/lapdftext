@@ -118,8 +118,7 @@ public class ChunkStructures {
 	 * @return confidence for block being a table.
 	 */
 	public double isTable() {
-		return 0;
-//		return tableDetector.classify(block, features);
+		return tableDetector.classify(block, features);
 	}
 
 	/**

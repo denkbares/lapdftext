@@ -197,8 +197,8 @@ public class MaxPowerChunker implements Parser{
             if (lineAbove != null) {
                 distAbove = line.distanceTo(lineAbove, "UP");
                 originalDist = distAbove;
-                //TODO : Change avgLineDist formula  to improve coverage if necessary
-                if (distAbove < avgLineDist / 2) {
+                //TODO : Change avgLineDist formula  to improve coverage if necessary --> Include Variance Awareness?
+                if (distAbove < avgLineDist) {
                     //We might have a chunk candidate here.
                     //Proceed checking upwards whether there are more lines with that exact distance.
                     while (lineAbove != null && distAbove == originalDist) {
@@ -223,20 +223,21 @@ public class MaxPowerChunker implements Parser{
 
             //If we have found the topmost line of our chunk, collect lines with our original distance downwards.
             if (topmostLineFound) {
-                ArrayList<Line> tableCandidate = new ArrayList<>();
-                tableCandidate.add(topmostLine);
+                ArrayList<Line> chunkCandidate = new ArrayList<>();
+                chunkCandidate.add(topmostLine);
                 lineBelow = PageOperations.getLineInDirOf("DOWN", topmostLine, lines);
                 distBelow = topmostLine.distanceTo(lineBelow, "DOWN");
-                while (lineBelow != null && distBelow == originalDist) {
-                    tableCandidate.add(lineBelow);
+                while (lineBelow != null && distBelow <= 1.1*originalDist) {
+                    chunkCandidate.add(lineBelow);
                     Line oldLineBelow = lineBelow;
                     lineBelow = PageOperations.getLineInDirOf("DOWN", lineBelow, lines);
                     distBelow = oldLineBelow.distanceTo(lineBelow, "DOWN");
                 }
-                //chunkCandidate now contains all our suspected table lines downwards. TODO Does it add the next one that was originally referenced?
-                potentialChunks.add(tableCandidate);
+                //chunkCandidate now contains all our suspected table lines downwards.
+                potentialChunks.add(chunkCandidate);
             }
         }
+
         //Remove any duplicates
         ArrayList<ArrayList<Line>> duplicateFree = new ArrayList<>();
         for (ArrayList<Line> candidate : potentialChunks) {
@@ -244,6 +245,7 @@ public class MaxPowerChunker implements Parser{
                 duplicateFree.add(candidate);
             }
         }
+
         return duplicateFree;
     }
 
@@ -323,10 +325,7 @@ public class MaxPowerChunker implements Parser{
 
             if (!pageWordBlockList.isEmpty()) {
 
-                idGenerator = pageBlock.addAll(
-                        new ArrayList<SpatialEntity>(buildChunkBlocks(pageBlock)),
-                        idGenerator
-                );
+                idGenerator = pageBlock.addAll(new ArrayList<SpatialEntity>(buildChunkBlocks(pageBlock)), idGenerator);
 
                 //Update Average Font Size and Frequency counters
                 for (WordBlock word : pageBlock.getAllWordBlocks(SpatialOrdering.MIXED_MODE)) {
@@ -357,7 +356,6 @@ public class MaxPowerChunker implements Parser{
             }
 
             document.addPages(pageList);
-
             document.calculateBodyTextFrame();
             document.calculateMostPopularFontStyles();
 
