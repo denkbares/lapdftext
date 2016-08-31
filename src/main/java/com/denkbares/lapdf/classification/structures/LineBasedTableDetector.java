@@ -18,18 +18,16 @@
  */
 package com.denkbares.lapdf.classification.structures;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.lineBasedModel.Gap;
 import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
-import edu.isi.bmkeg.lapdf.utils.LineBasedOperations;
 import edu.isi.bmkeg.lapdf.utils.PageOperations;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 
 /**
  * @author Sebastian Furth (denkbares GmbH), Maximilian Schirm
@@ -265,7 +263,8 @@ public class LineBasedTableDetector implements StructureDetector {
 				if(l.getWordBlocks().contains(b))
 					thisLine = l;
 		if(thisLine == null){
-			//ERROR
+			// FIXME: ERROR
+			return 0.0;
 		}
 
 		//take the gaps of the line
