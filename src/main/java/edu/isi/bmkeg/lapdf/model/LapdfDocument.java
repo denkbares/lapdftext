@@ -417,8 +417,7 @@ public class LapdfDocument implements Serializable {
 
 	}
 	
-	public List<ChunkBlock> readAllChunkBlocks() 
-			throws IOException,FileNotFoundException {
+	public List<ChunkBlock> readAllChunkBlocks(){
 
 		List<ChunkBlock> blocks = new ArrayList<ChunkBlock>(); 
 		

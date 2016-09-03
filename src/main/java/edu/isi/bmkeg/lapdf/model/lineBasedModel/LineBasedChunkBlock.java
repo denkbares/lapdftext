@@ -511,4 +511,52 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //End content copied from RTChunkBlock
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        LineBasedChunkBlock that = (LineBasedChunkBlock) o;
+
+        if (getX1() != that.getX1()) return false;
+        if (getX2() != that.getX2()) return false;
+        if (getY1() != that.getY1()) return false;
+        if (getY2() != that.getY2()) return false;
+        if (getMostPopularWordHeight() != that.getMostPopularWordHeight()) return false;
+        if (getMostPopularWordSpaceWidth() != that.getMostPopularWordSpaceWidth()) return false;
+        if (!getWordBlocks().equals(that.getWordBlocks())) return false;
+        if (!getContainer().equals(that.getContainer())) return false;
+        if (getMostPopularWordFont() != null ? !getMostPopularWordFont().equals(that.getMostPopularWordFont()) : that.getMostPopularWordFont() != null)
+            return false;
+        if (getMostPopularWordStyle() != null ? !getMostPopularWordStyle().equals(that.getMostPopularWordStyle()) : that.getMostPopularWordStyle() != null)
+            return false;
+        if (headerOrFooter != null ? !headerOrFooter.equals(that.headerOrFooter) : that.headerOrFooter != null)
+            return false;
+        if (getRotatedWords() != null ? !getRotatedWords().equals(that.getRotatedWords()) : that.getRotatedWords() != null)
+            return false;
+        return !(alignment != null ? !alignment.equals(that.alignment) : that.alignment != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getX1();
+        result = 31 * result + getX2();
+        result = 31 * result + getY1();
+        result = 31 * result + getY2();
+        result = 31 * result + getWordBlocks().hashCode();
+        result = 31 * result + getContainer().hashCode();
+        result = 31 * result + getMostPopularWordHeight();
+        result = 31 * result + getMostPopularWordSpaceWidth();
+        result = 31 * result + (getMostPopularWordFont() != null ? getMostPopularWordFont().hashCode() : 0);
+        result = 31 * result + (getMostPopularWordStyle() != null ? getMostPopularWordStyle().hashCode() : 0);
+        result = 31 * result + (headerOrFooter != null ? headerOrFooter.hashCode() : 0);
+        result = 31 * result + (getRotatedWords() != null ? getRotatedWords().hashCode() : 0);
+        result = 31 * result + (alignment != null ? alignment.hashCode() : 0);
+        return result;
+    }
+
 }

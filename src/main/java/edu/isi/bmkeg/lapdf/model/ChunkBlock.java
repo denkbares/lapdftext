@@ -155,4 +155,6 @@ public interface ChunkBlock extends Block, SpatialEntity {
 
 	boolean getWasClassified();
 
+	int hashCode();
+
 }
