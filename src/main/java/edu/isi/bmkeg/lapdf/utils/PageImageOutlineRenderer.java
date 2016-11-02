@@ -176,7 +176,7 @@ public class PageImageOutlineRenderer {
 				else {
 					LineBasedTableDetector lbtd = new LineBasedTableDetector();
 					lbtd.setMethod(3);
-					double table = lbtd.classify(chunk,null);
+					double table = lbtd.classify(chunk);
 					int r = (int)(255*table);
 					int b = (int)(255*(1-table));
 					Color drawCol = new Color(r,0,b);
