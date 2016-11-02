@@ -36,7 +36,7 @@ public class NaiveOrderedListDetector implements StructureDetector {
 	private static final Pattern NUM_PATTERN = Pattern.compile("\\d+");
 
 	@Override
-	public double classify(ChunkBlock block, ChunkFeatures features) {
+	public double classify(ChunkBlock block) {
 		List<Integer> numbers = new ArrayList<>();
 
 		// extract all numbers

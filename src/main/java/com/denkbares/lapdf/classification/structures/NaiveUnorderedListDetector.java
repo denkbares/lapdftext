@@ -28,7 +28,7 @@ import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 public class NaiveUnorderedListDetector implements StructureDetector {
 
 	@Override
-	public double classify(ChunkBlock block, ChunkFeatures features) {
+	public double classify(ChunkBlock block) {
 		return 0;
 	}
 }

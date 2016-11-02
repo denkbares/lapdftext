@@ -481,7 +481,6 @@ public class ChunkFeatures {
 		
 	}
 
-	//TODO: DEBUG NEXT 4 METHODS
 	//Returns x-coordinate of left boundary
 	public int getXCoordsLeft(){
 		int minx = parent.getPageBoxWidth();

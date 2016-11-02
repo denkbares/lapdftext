@@ -44,15 +44,15 @@ public class LineBasedTableDetector implements StructureDetector {
 	int method = 3;
 
 	@Override
-	public double classify(ChunkBlock block, ChunkFeatures features) {
+	public double classify(ChunkBlock block) {
 
 		switch (method) {
 			case 0:
-				return method1(block, features);
+				return method1(block);
 			case 1:
-				return method2(block, features);
+				return method2(block);
 			default:
-				return method3(block, features);
+				return method3(block);
 		}
 
 	}
@@ -62,7 +62,7 @@ public class LineBasedTableDetector implements StructureDetector {
 	}
 
 	//TODO Replace with spaceOverlap approach!
-	protected double method1(ChunkBlock block, ChunkFeatures features) {
+	protected double method1(ChunkBlock block) {
 		ArrayList<WordBlock> blocksOfPage = (ArrayList<WordBlock>) block.getPage().getAllWordBlocks(SpatialOrdering.ORIGINAL_MODE);
 
 		blocksOfPage.sort(new Comparator<WordBlock>() {
@@ -169,10 +169,9 @@ public class LineBasedTableDetector implements StructureDetector {
 	 * the table detection from MPCC once method 2 is finished!
 	 *
 	 * @param block    The block for which we want to determine the TableProbability
-	 * @param features The Features of that Block
 	 * @return A value 0.0-1.0 how likely this ChunkBlock contains a table or is part of a table
 	 */
-	protected double method2(ChunkBlock block, ChunkFeatures features) {
+	protected double method2(ChunkBlock block) {
 		return block.getTableProbability();
 	}
 
@@ -187,7 +186,7 @@ public class LineBasedTableDetector implements StructureDetector {
 	 * @param features
 	 * @return
 	 */
-	protected double method3(ChunkBlock block, ChunkFeatures features){
+	protected double method3(ChunkBlock block){
 		double pTableSum = 0.0;
 		for(WordBlock wb : block.getWordBlocks()){
 			pTableSum += checkForSeparation(wb);

@@ -42,18 +42,15 @@ public class ChunkStructures {
 
 		// required
 		private final ChunkBlock block;
-		private final ChunkFeatures features;
 
 		// optional
 		private StructureDetector tableDetector = new LineBasedTableDetector();
 		private StructureDetector orderedListDetector = new NaiveOrderedListDetector();
 		private StructureDetector unorderedListDetector = new NaiveUnorderedListDetector();
 
-		public Builder(ChunkBlock block, ChunkFeatures features) {
+		public Builder(ChunkBlock block) {
 			Objects.requireNonNull(block);
-			Objects.requireNonNull(features);
 			this.block = block;
-			this.features = features;
 		}
 
 		/**
@@ -99,7 +96,6 @@ public class ChunkStructures {
 	}
 
 	private final ChunkBlock block;
-	private final ChunkFeatures features;
 
 	private final StructureDetector tableDetector;
 	private final StructureDetector orderedListDetector;
@@ -107,7 +103,6 @@ public class ChunkStructures {
 
 	private ChunkStructures(Builder builder) {
 		this.block = builder.block;
-		this.features = builder.features;
 		this.tableDetector = builder.tableDetector;
 		this.unorderedListDetector = builder.unorderedListDetector;
 		this.orderedListDetector = builder.orderedListDetector;
@@ -118,7 +113,7 @@ public class ChunkStructures {
 	 * @return confidence for block being a table.
 	 */
 	public double isTable() {
-		return tableDetector.classify(block, features);
+		return tableDetector.classify(block);
 	}
 
 	/**
@@ -126,7 +121,7 @@ public class ChunkStructures {
 	 * @return confidence for block being a ordered list.
 	 */
 	public double isOrderedList() {
-		return orderedListDetector.classify(block, features);
+		return orderedListDetector.classify(block);
 	}
 
 	/**
@@ -134,7 +129,7 @@ public class ChunkStructures {
 	 * @return confidence for block being a unordered list.
 	 */
 	public double isUnorderedList() {
-		return unorderedListDetector.classify(block, features);
+		return unorderedListDetector.classify(block);
 	}
 
 }

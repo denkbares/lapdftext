@@ -122,7 +122,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		ChunkFeatures chunkFeatures = new ChunkFeatures(block, modelFactory);
 
 		// create ChunkStructures instances, TODO: configure with better structure detectors...
-		ChunkStructures chunkStructures = new ChunkStructures.Builder(block, chunkFeatures).build();
+		ChunkStructures chunkStructures = new ChunkStructures.Builder(block).build();
 
 		// <-- Structures -->
 

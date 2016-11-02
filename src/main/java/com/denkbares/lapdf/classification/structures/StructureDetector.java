@@ -41,9 +41,8 @@ public interface StructureDetector {
 	 * an absolutely certain match and 0.0 representing an absolutely uncertain match
 	 *
 	 * @param block the block to be classified
-	 * @param features the corresponding features
 	 * @return certainty of the block being a structure
 	 */
-	double classify(ChunkBlock block, ChunkFeatures features);
+	double classify(ChunkBlock block);
 
 }
