@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @author burns
  *
  */
-public interface Block {
+public interface Block extends Serializable {
 
 	public static final String MIDLINE = "MIDLINE";
 	public static final String LEFT = "LEFT";

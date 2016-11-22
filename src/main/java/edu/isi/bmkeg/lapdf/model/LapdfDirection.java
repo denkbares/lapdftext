@@ -1,8 +1,10 @@
 package edu.isi.bmkeg.lapdf.model;
 
+import java.io.Serializable;
+
 /** Static variables denoting direction in a document**/
 
-public class LapdfDirection {
+public class LapdfDirection implements Serializable {
 
 	public static int CENTER = -1;
 	public static int NORTH = 0;
