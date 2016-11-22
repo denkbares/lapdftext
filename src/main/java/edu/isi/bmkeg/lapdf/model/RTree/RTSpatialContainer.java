@@ -1,5 +1,6 @@
 package edu.isi.bmkeg.lapdf.model.RTree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -14,7 +15,7 @@ import edu.isi.bmkeg.lapdf.model.spatial.SpatialContainer;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 
-public abstract class RTSpatialContainer implements SpatialContainer {
+public abstract class RTSpatialContainer implements SpatialContainer, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -25,8 +26,8 @@ public abstract class RTSpatialContainer implements SpatialContainer {
 	private int[] margin = null;
 	
 	private List<WordBlock> list = null;
-	
-	protected RTree tree;
+
+	protected transient RTree tree;
 
 	private int maxNode = 1500;
 	private int minNode = 1; 
