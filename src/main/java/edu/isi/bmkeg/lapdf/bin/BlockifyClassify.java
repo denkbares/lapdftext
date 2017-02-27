@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import edu.isi.bmkeg.lapdf.controller.LapdfEngine;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
-import edu.isi.bmkeg.lapdf.parser.MaxPowerChunker;
 import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
 import edu.isi.bmkeg.utils.Converters;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
@@ -27,7 +26,7 @@ public class BlockifyClassify {
 
 		//NOTE : Here we can set which parser to use
 		//Comment the line for using the default parser
-		engine.setParser(new MaxPowerChunker());
+//		engine.setParser(new MaxPowerChunker());
 
 
 		if (args.length < 1) {
