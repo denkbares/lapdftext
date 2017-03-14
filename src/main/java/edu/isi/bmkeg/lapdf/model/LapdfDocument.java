@@ -1,18 +1,28 @@
 package edu.isi.bmkeg.lapdf.model;
 
-import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
-import edu.isi.bmkeg.lapdf.model.RTree.RTSpatialEntity;
-import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
-import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
-import edu.isi.bmkeg.lapdf.xml.model.*;
-import edu.isi.bmkeg.utils.FrequencyCounter;
-import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
+import edu.isi.bmkeg.lapdf.model.RTree.RTSpatialEntity;
+import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
+import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLChunk;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLFontStyle;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLPage;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLRectangle;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
+import edu.isi.bmkeg.utils.FrequencyCounter;
+import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 
 public class LapdfDocument implements Serializable {
 
@@ -264,12 +274,12 @@ public class LapdfDocument implements Serializable {
 		// most popular font style. Need to check if the last page is not just the 
 		// same font as the rest of the document.
 		//
-		if( lastPage.equals(mp) && mpCount < nmpCount * 7) {
+		if( lastPage != null && lastPage.equals(mp) && mpCount < nmpCount * 7) {
 			
 			this.setMostPopularFontStyle(nmp);
 			this.setNextMostPopularFontStyle(nnmp);
 			
-		} else if( lastPage.equals(nmp) ) {
+		} else if( lastPage != null && lastPage.equals(nmp) ) {
 
 			this.setMostPopularFontStyle(mp);
 			this.setNextMostPopularFontStyle(nnmp);
