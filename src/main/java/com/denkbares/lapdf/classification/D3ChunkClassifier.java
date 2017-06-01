@@ -30,6 +30,8 @@ import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 
 import com.denkbares.lapdf.classification.structures.ChunkStructures;
+import com.denkbares.plugin.JPFPluginManager;
+import com.denkbares.plugin.test.InitPluginManager;
 import de.d3web.core.io.PersistenceManager;
 import de.d3web.core.knowledge.KnowledgeBase;
 import de.d3web.core.knowledge.TerminologyManager;
@@ -48,8 +50,6 @@ import de.d3web.core.session.values.ChoiceValue;
 import de.d3web.core.session.values.NumValue;
 import de.d3web.core.session.values.TextValue;
 import de.d3web.indication.inference.PSMethodUserSelected;
-import com.denkbares.plugin.JPFPluginManager;
-import com.denkbares.plugin.test.InitPluginManager;
 
 /**
  * @author Sebastian Furth (denkbares GmbH)
@@ -90,7 +90,15 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		TerminologyManager manager = knowledgeBase.getManager();
 		for (ChunkBlock block : blockList) {
 			Session session = SessionFactory.createSession(knowledgeBase);
-			setFacts(block, manager, session);
+			try {
+				session.getPropagationManager().openPropagation();
+
+				setFacts(block, manager, session);
+			}
+			finally {
+
+				session.getPropagationManager().commitPropagation();
+			}
 			setChunkType(block, manager, session);
 		}
 

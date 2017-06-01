@@ -1,65 +1,55 @@
 package edu.isi.bmkeg.lapdf.parser;
 
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.isi.bmkeg.lapdf.extraction.Extractor;
 import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.InvalidPopularSpaceValueException;
 import edu.isi.bmkeg.lapdf.features.HorizontalSplitFeature;
-import edu.isi.bmkeg.lapdf.model.*;
+import edu.isi.bmkeg.lapdf.model.Block;
+import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import edu.isi.bmkeg.lapdf.model.LapdfDocument;
+import edu.isi.bmkeg.lapdf.model.PageBlock;
+import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
-import edu.isi.bmkeg.lapdf.model.lineBasedModel.Line;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 import edu.isi.bmkeg.lapdf.utils.PageImageOutlineRenderer;
-import edu.isi.bmkeg.lapdf.xml.model.*;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLChunk;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLDocument;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLFontStyle;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLPage;
+import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class RuleBasedParser implements Parser {
 
-    private static Logger logger = Logger.getLogger(RuleBasedParser.class);
-
-    private boolean debugImages = false;
-
-    private ArrayList<PageBlock> pageList;
-
+    private static final Logger logger = Logger.getLogger(RuleBasedParser.class);
+    private final ArrayList<PageBlock> pageList;
     //	private JPedalExtractor pageExtractor;
     //private PDFBoxExtractor pageExtractor;
-    private Extractor pageExtractor;
-
-    private int idGenerator;
-
-    private IntegerFrequencyCounter avgHeightFrequencyCounter;
-
-    private FrequencyCounter fontFrequencyCounter;
-
-    private int northSouthSpacing;
-
-    private int eastWestSpacing;
-
-    private boolean quickly = false;
-
+    private final Extractor pageExtractor;
+    private final IntegerFrequencyCounter avgHeightFrequencyCounter;
+    private final FrequencyCounter fontFrequencyCounter;
+    private final boolean quickly = true;
     protected AbstractModelFactory modelFactory;
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    private boolean isDebugImages() {
-        return debugImages;
-    }
-
-    private void setDebugImages(boolean debugImages) {
-        this.debugImages = debugImages;
-    }
+    private boolean debugImages = false;
+    private int idGenerator;
+    private int northSouthSpacing;
+    private int eastWestSpacing;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -78,8 +68,19 @@ public class RuleBasedParser implements Parser {
 
     }
 
+    private boolean isDebugImages() {
+        return debugImages;
+    }
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    private void setDebugImages(boolean debugImages) {
+        this.debugImages = debugImages;
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    @Override
     public LapdfDocument parse(File file)
             throws Exception {
 
@@ -646,10 +647,7 @@ public class RuleBasedParser implements Parser {
 		/*
 		 * if (spaceWidthToPageWidth > 0.015) return true; else return false;
 		 */
-        if (averageWidth > parent.getMostPopularHorizontalSpaceBetweenWordsPage())
-            return true;
-        else
-            return false;
+        return averageWidth > parent.getMostPopularHorizontalSpaceBetweenWordsPage();
     }
 
     private void splitBlockDownTheMiddle(ChunkBlock block) {
