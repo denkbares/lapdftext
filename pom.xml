@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.denkbares</groupId>
@@ -321,14 +321,6 @@
 			<url>https://repository.jboss.org/nexus/content/repositories/releases</url>
 		</repository>
 
-		<!-- JSI Repository on SourceForge -->
-
-		<repository>
-			<id>jsi.sourceforge.net</id>
-			<name>sourceforge jsi repository</name>
-			<url>http://sourceforge.net/projects/jsi/files/m2_repo</url>
-		</repository>
-
 		<!-- BMKEG local repository at hugin.isi.edu -->
 
 		<repository>
@@ -495,17 +487,15 @@
 			<version>1.8.10</version>
 		</dependency>
 
-		<!-- Data Structures -->
-
 		<dependency>
-			<groupId>net.sourceforge.jsi</groupId>
+			<groupId>com.denkbares.jsi</groupId>
 			<artifactId>jsi</artifactId>
-			<version>1.0.0</version>
+			<version>1.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.trove4j</groupId>
 			<artifactId>trove4j</artifactId>
-			<version>2.0.2</version>
+			<version>3.0.3</version>
 		</dependency>
 
 		<!-- XML / HTMl -->

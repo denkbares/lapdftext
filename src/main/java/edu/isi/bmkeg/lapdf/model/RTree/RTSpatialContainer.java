@@ -5,32 +5,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.infomatiq.jsi.Point;
-import com.infomatiq.jsi.Rectangle;
-import com.infomatiq.jsi.rtree.RTree;
-
 import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialContainer;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 
+import com.denkbares.jsi.Point;
+import com.denkbares.jsi.Rectangle;
+import com.denkbares.jsi.rtree.RTree;
+
 public abstract class RTSpatialContainer implements SpatialContainer, Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+	private final int maxNode = 1500;
+	private final int minNode = 1;
+	protected transient RTree tree;
 	private int mostPopularHorizontalSpaceBetweenWords = -100;
 	private int mostPopularWordWidth = -100;
 	private int mostPopularVerticalSpaceBetweenWords = -100;
 	private int mostPopularWordHeightPerPage = -100;
 	private int[] margin = null;
-	
 	private List<WordBlock> list = null;
-
-	protected transient RTree tree;
-
-	private int maxNode = 1500;
-	private int minNode = 1; 
 	
 	protected RTSpatialContainer() {
 		
@@ -60,10 +56,11 @@ public abstract class RTSpatialContainer implements SpatialContainer, Serializab
 		return startId;
 	}
 
+	@Override
 	public List<SpatialEntity> intersects(SpatialEntity entity, String ordering) {
 
 		return this.intersectsByType(entity, ordering, null);
-	
+
 	}
 
 	@Override

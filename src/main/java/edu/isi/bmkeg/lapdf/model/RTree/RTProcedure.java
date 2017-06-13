@@ -1,23 +1,23 @@
 package edu.isi.bmkeg.lapdf.model.RTree;
 
-import edu.isi.bmkeg.lapdf.model.ChunkBlock;
-import edu.isi.bmkeg.lapdf.model.WordBlock;
-import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
-import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
-import gnu.trove.TIntProcedure;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
+import edu.isi.bmkeg.lapdf.model.ChunkBlock;
+import edu.isi.bmkeg.lapdf.model.WordBlock;
+import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
+import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
+import gnu.trove.procedure.TIntProcedure;
+
 public class RTProcedure implements TIntProcedure {
 
-	private Collection<SpatialEntity> foundEntities;
-	private RTSpatialContainer tree;
+	private final Collection<SpatialEntity> foundEntities;
+	private final RTSpatialContainer tree;
+	private final RTSpatialEntity sourceEnity;
+	private final boolean isContainmentQuery;
 	private Class type = null;
-	private RTSpatialEntity sourceEnity;
-	private boolean isContainmentQuery;
 
 	public RTProcedure(RTSpatialContainer tree, String ordering,
 			RTSpatialEntity sourceEntity, Class type, boolean isContainmentQuery) {
