@@ -450,6 +450,18 @@
 			<groupId>org.drools</groupId>
 			<artifactId>drools-compiler</artifactId>
 			<version>5.2.1.Final</version>
+			<exclusions>
+				<!-- Contains version 3, which conflicts with GWT 2.8.0 -->
+				<exclusion>
+					<groupId>org.eclipse.jdt.core.compiler</groupId>
+					<artifactId>ecj</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jdt.core.compiler</groupId>
+			<artifactId>ecj</artifactId>
+			<version>4.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.drools</groupId>
