@@ -3,7 +3,6 @@ package edu.isi.bmkeg.lapdf.extraction;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,7 +33,7 @@ import org.w3c.dom.Element;
 
 public class JPedalExtractor implements Extractor {
 
-	private static Logger logger = Logger.getLogger(JPedalExtractor.class);
+	private static final Logger logger = Logger.getLogger(JPedalExtractor.class);
 	
 	Set<WordBlock> wordListPerPage = null;
 	PdfDecoderFX PDFDecoder = null;
@@ -45,10 +44,10 @@ public class JPedalExtractor implements Extractor {
 
 	private static int pageHeight;
 	private static int pageWidth;
-	private IntegerFrequencyCounter avgHeightFrequencyCounter;
-	private Map<Integer,IntegerFrequencyCounter> spaceFrequencyCounterMap;
-	
-	private AbstractModelFactory modelFactory;
+	private final IntegerFrequencyCounter avgHeightFrequencyCounter;
+	private final Map<Integer, IntegerFrequencyCounter> spaceFrequencyCounterMap;
+
+	private final AbstractModelFactory modelFactory;
 	
 	private File currentFile;
 
@@ -75,13 +74,14 @@ public class JPedalExtractor implements Extractor {
 
 	}
 
+	@Override
 	public void init(File file) throws Exception {
-		
+
 		if (PDFDecoder.isOpen()) {
 			PDFDecoder.flushObjectValues(true);
 			PDFDecoder.closePdfFile();
 		}
-		
+
 		this.currentFile = file;
 
 		PDFDecoder.openPdfFile(file.getPath());
@@ -92,7 +92,6 @@ public class JPedalExtractor implements Extractor {
 		} else if (PDFDecoder.isEncrypted()) {
 			throw new EncryptionException(file.getPath());
 		}
-
 	}
 
 	private int[] generatePageBoundaries(PdfPageData currentPageData) {
@@ -129,7 +128,7 @@ public class JPedalExtractor implements Extractor {
 	}
 
 	private String getFontData(String xml, String item)
-			throws UnsupportedEncodingException, IOException {
+			throws IOException {
 		
 		xml = "<root>" + xml + "</root>";
 
@@ -177,7 +176,7 @@ public class JPedalExtractor implements Extractor {
 				dimensions[0], dimensions[1], dimensions[2], dimensions[3], 
 				currentPage,
 				true,
-				"" 
+				""
 				// Used to be "&:=()!;\\/\"\"\'\'" 
 				// NOTE that this strips out these text elements 
 				// 		from the document as part of the parse!
@@ -247,9 +246,9 @@ public class JPedalExtractor implements Extractor {
 					1, font, style, currentWord, i);
 			
 			if( font == null || style == null ) {
-				logger.debug("Minor font error for word on pg." + this.currentPage + 
-						" in '" + this.currentFile.getName() + "', info:" + 
-						wordBlock.toString() + "\n");
+				logger.debug("Minor font error for word on pg." + this.currentPage +
+						" in '" + this.currentFile.getName() + "', info:" +
+						wordBlock + "\n");
 			}
 			
 			wordListPerPage.add(wordBlock);
