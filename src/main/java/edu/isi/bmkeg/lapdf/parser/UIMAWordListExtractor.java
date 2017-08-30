@@ -64,7 +64,10 @@ public class UIMAWordListExtractor {
 			int x2 = x1 + getIntAttribute(element, "width");
 			int y1 = getIntAttribute(element, "y");
 			int y2 = y1 + getIntAttribute(element, "height");
-			int spaceWidth = (x2 - x1) / element.getTextContent().length();
+			int spaceWidth = 0;
+			if (element.getTextContent().length() != 0) {
+				spaceWidth = (x2 - x1) / element.getTextContent().length();
+			}
 			String font = element.getAttribute("font-name");
 			String fontSize = element.getAttribute("font-size");
 			String style = "";
