@@ -494,9 +494,9 @@
 		<!--</dependency>-->
 
 		<dependency>
-			<groupId>org.apache.pdfbox</groupId>
+			<groupId>org.apache.lapdfpdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
-			<version>1.8.10</version>
+			<version>1.8.14-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,15 +24,15 @@ import edu.isi.bmkeg.lapdf.xml.model.LapdftextXMLWord;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
+import org.apache.lapfdtextpdfbox.pdmodel.PDDocument;
+import org.apache.lapfdtextpdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.apache.log4j.Logger;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class PDFBoxExtractor implements Extractor {
 
-	private static Logger logger = Logger.getLogger(PDFBoxExtractor.class);
+	private static final Logger logger = Logger.getLogger(PDFBoxExtractor.class);
 	
 	Set<WordBlock> wordListPerPage = null;
 	LAPDFTextStripper lapdfTextStripper = null;
@@ -44,10 +43,10 @@ public class PDFBoxExtractor implements Extractor {
 
 	private static int pageHeight;
 	private static int pageWidth;
-	private IntegerFrequencyCounter avgHeightFrequencyCounter;
-	private Map<Integer,IntegerFrequencyCounter> spaceFrequencyCounterMap;
-	
-	private AbstractModelFactory modelFactory;
+	private final IntegerFrequencyCounter avgHeightFrequencyCounter;
+	private final Map<Integer, IntegerFrequencyCounter> spaceFrequencyCounterMap;
+
+	private final AbstractModelFactory modelFactory;
 	
 	private File currentFile;
 
@@ -69,10 +68,10 @@ public class PDFBoxExtractor implements Extractor {
 
 	}
 
+	@Override
 	public void init(File file) throws Exception {
-		
-		this.currentFile = file;
 
+		this.currentFile = file;
 	}
 	
 	public int getPageCount() {
@@ -124,7 +123,7 @@ public class PDFBoxExtractor implements Extractor {
 	}*/
 
 	private String getFontData(String xml, String item)
-			throws UnsupportedEncodingException, IOException {
+			throws IOException {
 		
 		xml = "<root>" + xml + "</root>";
 
@@ -244,9 +243,9 @@ public class PDFBoxExtractor implements Extractor {
 					1, font, "", t, i);
 			
 			if( font == null ) {
-				logger.debug("Minor font error for word on pg." + this.currentPage + 
-						" in '" + this.currentFile.getName() + "', info:" + 
-						wordBlock.toString() + "\n");
+				logger.debug("Minor font error for word on pg." + this.currentPage +
+						" in '" + this.currentFile.getName() + "', info:" +
+						wordBlock + "\n");
 			}
 			
 			wordListPerPage.add(wordBlock);

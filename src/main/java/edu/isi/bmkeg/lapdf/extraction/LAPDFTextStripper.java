@@ -36,23 +36,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.cos.COSStream;
-import org.apache.pdfbox.exceptions.CryptographyException;
-import org.apache.pdfbox.exceptions.WrappedIOException;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.COSObjectable;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.common.PDStream;
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
-import org.apache.pdfbox.pdmodel.interactive.pagenavigation.PDThreadBead;
-import org.apache.pdfbox.util.PDFStreamEngine;
-import org.apache.pdfbox.util.PositionWrapper;
-import org.apache.pdfbox.util.ResourceLoader;
-import org.apache.pdfbox.util.TextNormalize;
-import org.apache.pdfbox.util.TextPosition;
-import org.apache.pdfbox.util.TextPositionComparator;
+import org.apache.lapfdtextpdfbox.cos.COSDocument;
+import org.apache.lapfdtextpdfbox.cos.COSStream;
+import org.apache.lapfdtextpdfbox.exceptions.CryptographyException;
+import org.apache.lapfdtextpdfbox.exceptions.WrappedIOException;
+import org.apache.lapfdtextpdfbox.pdmodel.PDDocument;
+import org.apache.lapfdtextpdfbox.pdmodel.PDPage;
+import org.apache.lapfdtextpdfbox.pdmodel.common.COSObjectable;
+import org.apache.lapfdtextpdfbox.pdmodel.common.PDRectangle;
+import org.apache.lapfdtextpdfbox.pdmodel.common.PDStream;
+import org.apache.lapfdtextpdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
+import org.apache.lapfdtextpdfbox.pdmodel.interactive.pagenavigation.PDThreadBead;
+import org.apache.lapfdtextpdfbox.util.PDFStreamEngine;
+import org.apache.lapfdtextpdfbox.util.PositionWrapper;
+import org.apache.lapfdtextpdfbox.util.ResourceLoader;
+import org.apache.lapfdtextpdfbox.util.TextNormalize;
+import org.apache.lapfdtextpdfbox.util.TextPosition;
+import org.apache.lapfdtextpdfbox.util.TextPositionComparator;
 
 
 /**
@@ -116,7 +116,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 	// A MUCH BETTER LONG TERM SOLUTION IS TO DIRECTLY IMPLEMENT LAPDF IN PDFBOX
 	//
 	private int globalCount = 0;
-	private Pattern cntrlRegex = Pattern.compile("\\p{Cntrl}");
+	private final Pattern cntrlRegex = Pattern.compile("\\p{Cntrl}");
 
 	private String lineSeparator = ""; // systemLineSeparator;
 	private String pageSeparator = ""; //systemLineSeparator;
@@ -166,7 +166,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 	 */
 	protected Vector<List<TextPosition>> charactersByArticle = new Vector<List<TextPosition>>();
 
-	private Map<String, TreeMap<Float, TreeSet<Float>>> characterListMapping =
+	private final Map<String, TreeMap<Float, TreeSet<Float>>> characterListMapping =
 			new HashMap<String, TreeMap<Float, TreeSet<Float>>>();
 
 	/**
@@ -279,6 +279,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void resetEngine() {
 		super.resetEngine();
 		currentPageNo = 0;
@@ -417,7 +418,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 			charactersByArticle.setSize(numberOfArticleSections);
 			for (int i = 0; i < numberOfArticleSections; i++) {
 				if (numberOfArticleSections < originalSize) {
-					((List<TextPosition>) charactersByArticle.get(i)).clear();
+					charactersByArticle.get(i).clear();
 				}
 				else {
 					charactersByArticle.set(i, new ArrayList<TextPosition>());
@@ -544,7 +545,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 			int rtlCnt = 0;
 
 			while (textIter.hasNext()) {
-				TextPosition position = (TextPosition) textIter.next();
+				TextPosition position = textIter.next();
 				String stringValue = position.getCharacter();
 				for (int a = 0; a < stringValue.length(); a++) {
 					byte dir = Character.getDirectionality(stringValue.charAt(a));
@@ -586,7 +587,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 			//Keeps track of the previous average character width
 			float previousAveCharWidth = -1;
 			while (textIter.hasNext()) {
-				TextPosition position = (TextPosition) textIter.next();
+				TextPosition position = textIter.next();
 				PositionWrapper current = new PositionWrapper(position);
 				String characterValue = position.getCharacter();
 
@@ -844,6 +845,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 	 *
 	 * @param text The text to process.
 	 */
+	@Override
 	protected void processTextPosition(TextPosition text) {
 		boolean showCharacter = true;
 		if (suppressDuplicateOverlappingText) {
@@ -901,7 +903,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 			float y = text.getY();
 			if (shouldSeparateByBeads) {
 				for (int i = 0; i < pageArticles.size() && foundArticleDivisionIndex == -1; i++) {
-					PDThreadBead bead = (PDThreadBead) pageArticles.get(i);
+					PDThreadBead bead = pageArticles.get(i);
 					if (bead != null) {
 						PDRectangle rect = bead.getRectangle();
 						if (rect.contains(x, y)) {
@@ -946,7 +948,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 				articleDivisionIndex = charactersByArticle.size() - 1;
 			}
 
-			List<TextPosition> textList = (List<TextPosition>) charactersByArticle.get(articleDivisionIndex);
+			List<TextPosition> textList = charactersByArticle.get(articleDivisionIndex);
 
             /* In the wild, some PDF encoded documents put diacritics (accents on
              * top of characters) into a separate Tj element.  When displaying them
@@ -962,7 +964,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
                  * Note that we are making an assumption that we need to only look back
                  * one TextPosition to find what we are overlapping.  
                  * This may not always be true. */
-				TextPosition previousTextPosition = (TextPosition) textList.get(textList.size() - 1);
+				TextPosition previousTextPosition = textList.get(textList.size() - 1);
 				if (text.isDiacritic() && previousTextPosition.contains(text)) {
 					previousTextPosition.mergeDiacritic(text, normalize);
 				}
@@ -1457,6 +1459,7 @@ public class LAPDFTextStripper extends PDFStreamEngine {
 	 * @param str a string obtained from font.encoding()
 	 * @return the reversed string
 	 */
+	@Override
 	public String inspectFontEncoding(String str) {
 		if (!sortByPosition || str == null || str.length() < 2) {
 			return str;
