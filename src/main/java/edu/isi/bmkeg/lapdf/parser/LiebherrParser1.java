@@ -22,15 +22,14 @@ package edu.isi.bmkeg.lapdf.parser;
 import java.util.List;
 
 import edu.isi.bmkeg.lapdf.model.WordBlock;
-import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 
 /**
  * @author Jonas Müller
  * @created 27.09.17
  */
 public class LiebherrParser1 extends SpiralBlockParser {
-	public LiebherrParser1(AbstractModelFactory modelFactory) throws Exception {
-		super(modelFactory);
+	public LiebherrParser1() throws Exception {
+		super();
 	}
 
 	@Override

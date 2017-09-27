@@ -10,6 +10,7 @@ import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
 import edu.isi.bmkeg.lapdf.model.PageBlock;
+import edu.isi.bmkeg.lapdf.model.RTree.RTModelFactory;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
 import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
@@ -38,6 +39,10 @@ public class SpiralBlockParser implements Parser {
 	private int eastWestSpacing;
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	public SpiralBlockParser() throws Exception {
+		this(new RTModelFactory());
+	}
 
 	public SpiralBlockParser(AbstractModelFactory modelFactory)
 			throws Exception {

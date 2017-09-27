@@ -22,7 +22,6 @@ package edu.isi.bmkeg.lapdf.parser;
 import java.util.List;
 
 import edu.isi.bmkeg.lapdf.model.WordBlock;
-import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
 
 /**
  * @author Jonas Müller
@@ -30,8 +29,8 @@ import edu.isi.bmkeg.lapdf.model.factory.AbstractModelFactory;
  */
 public class LiebherrParser2 extends SpiralBlockParser {
 
-	public LiebherrParser2(AbstractModelFactory modelFactory) throws Exception {
-		super(modelFactory);
+	public LiebherrParser2() throws Exception {
+		super();
 	}
 
 	@Override
