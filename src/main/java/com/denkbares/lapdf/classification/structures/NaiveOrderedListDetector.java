@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.isi.bmkeg.lapdf.features.ChunkFeatures;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
 
@@ -37,28 +36,34 @@ public class NaiveOrderedListDetector implements StructureDetector {
 
 	@Override
 	public double classify(ChunkBlock block) {
-		List<Integer> numbers = new ArrayList<>();
+		List<Long> numbers = new ArrayList<>();
 
-		// extract all numbers
-		List<WordBlock> wordBlocks = block.getWordBlocks();
-		for (WordBlock wordBlock : wordBlocks) {
-			Matcher matcher = NUM_PATTERN.matcher(wordBlock.getWord());
-			while (matcher.find()) {
-				String number = matcher.group(0);
-				numbers.add(Integer.parseInt(number));
+		try {
+
+			// extract all numbers
+			List<WordBlock> wordBlocks = block.getWordBlocks();
+			for (WordBlock wordBlock : wordBlocks) {
+				Matcher matcher = NUM_PATTERN.matcher(wordBlock.getWord());
+				while (matcher.find()) {
+					String number = matcher.group(0);
+					numbers.add(Long.parseLong(number));
+				}
 			}
-		}
 
-		// compute sequence length
-		int sequenceLength = 0;
-		for (int i = 1; i <= wordBlocks.size(); i++) {
-			if (!numbers.contains(i)) {
-				break;
+			// compute sequence length
+			int sequenceLength = 0;
+			for (int i = 1; i <= wordBlocks.size(); i++) {
+				if (!numbers.contains(i)) {
+					break;
+				}
+				sequenceLength++;
 			}
-			sequenceLength++;
-		}
 
-		return (double) sequenceLength / (double) numbers.size();
+			return (double) sequenceLength / (double) numbers.size();
+
+		} catch (Exception e) {
+			return 0.0;
+		}
 
 	}
 }
