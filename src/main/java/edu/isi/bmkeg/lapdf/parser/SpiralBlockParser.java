@@ -98,11 +98,12 @@ public class SpiralBlockParser implements Parser {
 		boolean specialcase = false;
 		if (!file.getName().contains("Buch")) {
 			specialcase = true;
-			File grandparent = file.getParentFile().getParentFile();
-			String groupName = grandparent.getName();
-			File xml = new File(grandparent, groupName + "_converted.xml");
-//			File grandparent = file.getParentFile();
-//			File xml = new File(grandparent, "WH_LH150C_1231_71201_2017-03-17_fr_converted.xml");
+			//File grandparent = file.getParentFile().getParentFile();
+			//String groupName = grandparent.getName();
+			//File xml = new File(grandparent, groupName + "_converted.xml");
+			File grandparent = file.getParentFile();
+			String xmlFileName = file.getName().substring(0, file.getName().length() - 4) + "_converted.xml";
+			File xml = new File(grandparent, xmlFileName);
 			uimaWordListExtractor = new UIMAWordListExtractor(xml);
 		}
 
