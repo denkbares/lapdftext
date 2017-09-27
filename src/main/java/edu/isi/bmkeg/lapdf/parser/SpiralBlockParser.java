@@ -215,16 +215,7 @@ public class SpiralBlockParser implements Parser {
 
 				// what other words on the page are close to this word
 				// and are still in the block?
-				// TODO this is customised for Liebherr #1 Chapter, abstract it!
-				List<WordBlock> wordsToAddThisIteration;
-				if (word.getX1() > 350) {
-					wordsToAddThisIteration = word.readNearbyWords(
-							eastWest, eastWest, -3, -3);
-				}
-				else {
-					wordsToAddThisIteration = word.readNearbyWords(
-							eastWest, eastWest, northSouth, northSouth);
-				}
+				List<WordBlock> wordsToAddThisIteration = addWordsToThisIteration(word, eastWest, northSouth);
 
 				// TODO how to add more precise word features without
 				//word.writeFlushArray(wordsToAddThisIteration);
@@ -288,6 +279,13 @@ public class SpiralBlockParser implements Parser {
 
 		idGenerator = page.addAll(new ArrayList<SpatialEntity>(
 				chunkBlockList1), idGenerator);
+	}
+
+	protected List<WordBlock> addWordsToThisIteration(WordBlock word, int eastWest, int northSouth) {
+		List<WordBlock> wordsToAddThisIteration;
+		wordsToAddThisIteration = word.readNearbyWords(
+				eastWest, eastWest, northSouth, northSouth);
+		return wordsToAddThisIteration;
 	}
 
 	public ChunkBlock buildChunkBlock(List<WordBlock> wordBlockList,
