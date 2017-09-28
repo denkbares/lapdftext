@@ -130,26 +130,30 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		ChunkFeatures chunkFeatures = new ChunkFeatures(block, modelFactory);
 
 		// create ChunkStructures instances, TODO: configure with better structure detectors...
-		ChunkStructures chunkStructures = new ChunkStructures.Builder(block).build();
+//		ChunkStructures chunkStructures = new ChunkStructures.Builder(block).build();
+		ChunkStructures chunkStructures = null;
 
 		// <-- Structures -->
 
 		// table
-		double tableConfidence = chunkStructures.isTable();
+//		double tableConfidence = chunkStructures.isTable();
+		double tableConfidence = 0.0;
 		QuestionNum table = (QuestionNum) manager.searchQuestion("Is Table? (confidence)");
 		NumValue tableValue = new NumValue(tableConfidence);
 		Fact fact = FactFactory.createFact(table, tableValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		// ordered list
-		double orderedListConfidence = chunkStructures.isOrderedList();
+//		double orderedListConfidence = chunkStructures.isOrderedList();
+		double orderedListConfidence = 0.0;
 		QuestionNum orderedList = (QuestionNum) manager.searchQuestion("Is Ordered List? (confidence)");
 		NumValue orderedListValue = new NumValue(orderedListConfidence);
 		fact = FactFactory.createFact(orderedList, orderedListValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		// unordered list
-		double unorderedListConfidence = chunkStructures.isUnorderedList();
+//		double unorderedListConfidence = chunkStructures.isUnorderedList();
+		double unorderedListConfidence = 0.0;
 		QuestionNum unorderedList = (QuestionNum) manager.searchQuestion("Is Unordered List? (confidence)");
 		NumValue unorderedListValue = new NumValue(unorderedListConfidence);
 		fact = FactFactory.createFact(unorderedList, unorderedListValue, session, PSMethodUserSelected.getInstance());
