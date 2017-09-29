@@ -527,11 +527,13 @@ public class ChunkFeatures {
 
 	//The coordinates are being counted from the lower left corner, therefore it is necessary to subtract top from bottom
 	public int getHeight(){
-		return getYCoordsBottom() - getYCoordsTop();
+		return chunk.getY2() - chunk.getY1();
+		//return getYCoordsBottom() - getYCoordsTop();
 	}
 
 	public int getWidth(){
-		return getXCoordsRight() - getXCoordsLeft();
+		//return getXCoordsRight() - getXCoordsLeft();
+		return chunk.getX2() - chunk.getX1();
 	}
 
 }
