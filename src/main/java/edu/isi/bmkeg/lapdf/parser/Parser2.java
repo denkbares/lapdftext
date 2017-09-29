@@ -34,10 +34,15 @@ public class Parser2 extends SpiralBlockParser {
 	}
 
 	@Override
-	protected List<WordBlock> addWordsToThisIteration(WordBlock word, int eastWest, int northSouth) {
-		if (word.getX1() < 500) {
-			return word.readNearbyWords(eastWest, eastWest, -1, -1);
+	protected List<WordBlock> addWordsToThisIteration(WordBlock word, int eastWest, int northSouth)  {
+		if (word.getX1() < 50 || word.getX1() > 545) {
+			return word.readNearbyWords(eastWest - 1, eastWest - 1, -3, -3);
 		}
-		return super.addWordsToThisIteration(word, eastWest, northSouth);
+		else if (word.getX1() > 350) {
+			return word.readNearbyWords(7, 7, -3, -3);
+		}
+		else {
+			return word.readNearbyWords(7, 7, northSouth, northSouth);
+		}
 	}
 }
