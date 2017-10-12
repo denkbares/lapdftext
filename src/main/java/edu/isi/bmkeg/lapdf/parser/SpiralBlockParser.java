@@ -17,6 +17,7 @@ import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import org.apache.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Stefan Plehn (denkbares GmbH)
@@ -101,15 +102,15 @@ public class SpiralBlockParser implements Parser {
 //		}
 		UIMAWordListExtractor uimaWordListExtractor = null;
 		boolean specialcase = false;
-		if (!file.getName().contains("Buch")) {
+		if (!file.getName().matches("(Buch.(Kapitel\\s)*[1I][^I]|Gruppe_000).*\\.pdf$")) {
 			specialcase = true;
-			//File grandparent = file.getParentFile().getParentFile();
-			//String groupName = grandparent.getName();
-			//File xml = new File(grandparent, groupName + "_converted.xml");
-			File grandparent = file.getParentFile();
-			String xmlFileName = file.getName().substring(0, file.getName().length() - 4) + "_converted.xml";
-			File xml = new File(grandparent, xmlFileName);
-			uimaWordListExtractor = new UIMAWordListExtractor(xml);
+			File grandparent = file.getParentFile().getParentFile();
+			String groupName = grandparent.getName();
+			File xml = new File(grandparent, groupName + "_converted.xml");
+//			File grandparent = file.getParentFile();
+//			String xmlFileName = file.getName().substring(0, file.getName().length() - 4) + "_converted.xml";
+//			File xml = new File(grandparent, xmlFileName);
+			uimaWordListExtractor = getUimaWordListExtractor(xml);
 		}
 
 		//
@@ -162,6 +163,13 @@ public class SpiralBlockParser implements Parser {
 		document.calculateMostPopularFontStyles();
 
 		return document;
+	}
+
+	@NotNull
+	protected UIMAWordListExtractor getUimaWordListExtractor(File xml) {
+		UIMAWordListExtractor uimaWordListExtractor;
+		uimaWordListExtractor = new UIMAWordListExtractor(xml);
+		return uimaWordListExtractor;
 	}
 
 	private void buildChunkBlocksByFanningOut(List<WordBlock> wordBlocksLeftInPage,
