@@ -32,18 +32,19 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 	private Block cropBlock;
 
 	public PdfToXmlExtractor(File xmlFile, int startPage, int endPage) {
-		super(startPage, endPage);
+		//normalize to zero based pages
+		super(startPage - 1, endPage - 1);
 		this.xmlFile = xmlFile;
 	}
 
 	public PdfToXmlExtractor(File xmlFile) {
-		this(xmlFile, 1, -1);
+		this(xmlFile, 0, -1);
 	}
 
 	public List<WordBlock> getWordBlockList(int pageNo) {
 
 		List<WordBlock> resultList = new LinkedList<>();
-		Node page = dom.getElementsByTagName("PAGE").item(pageNo - 1);
+		Node page = dom.getElementsByTagName("PAGE").item(pageNo);
 		if (page == null) {
 			return null;
 		}
@@ -161,8 +162,11 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 
 	@Override
 	public boolean hasNext() {
-		if (endPage > 0) {
-			return currentPage < endPage;
+		if (getWordBlockList(currentPage + 1) == null) {
+			return false;
+		}
+		if (endPage >= 0) {
+			return currentPage <= endPage;
 		}
 		else {
 			return getWordBlockList(currentPage + 1) != null;
@@ -177,7 +181,7 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 	}
 
 	private Block getBoxBlock(String boxName) {
-		Node page = dom.getElementsByTagName("PAGE").item(currentPage - 1);
+		Node page = dom.getElementsByTagName("PAGE").item(currentPage);
 		Element pageElement = getElement(page);
 		Node mediabox = null;
 		if (pageElement != null) {
