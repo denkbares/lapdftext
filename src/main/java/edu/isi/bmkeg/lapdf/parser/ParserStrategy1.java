@@ -27,20 +27,15 @@ import edu.isi.bmkeg.lapdf.model.WordBlock;
  * @author Jonas Müller
  * @created 27.09.17
  */
-public class Parser5 extends SpiralBlockParser {
-	public Parser5() throws Exception {
-		super();
-	}
+public class ParserStrategy1 implements ParserStrategy {
 
 	@Override
-	protected List<WordBlock> addWordsToThisIteration(WordBlock word, int eastWest, int northSouth) {
-		List<WordBlock> wordsToAddThisIteration;
-		if(word.getY1() > 320) {
-			wordsToAddThisIteration = word.readNearbyWords(
-					eastWest, eastWest, -3, -3);
-		} else {
-			wordsToAddThisIteration = super.addWordsToThisIteration(word, eastWest, northSouth);
+	public List<WordBlock> addWordsToThisIteration(WordBlock word, int east, int west, int north, int south) {
+		if (word.getX1() > 350) {
+			return word.readNearbyWords(east, west, -3, -3);
 		}
-		return wordsToAddThisIteration;
+		else {
+			return word.readNearbyWords(east, west, north, south);
+		}
 	}
 }

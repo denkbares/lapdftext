@@ -35,13 +35,15 @@ import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import edu.isi.bmkeg.utils.xml.XmlBindingTools;
 import org.apache.log4j.Logger;
 
+import com.denkbares.utils.Log;
+
 public class RuleBasedParser implements Parser {
 
 	private static final Logger logger = Logger.getLogger(RuleBasedParser.class);
 	private final ArrayList<PageBlock> pageList;
 	//	private JPedalExtractor pageExtractor;
 	//private PDFBoxExtractor pageExtractor;
-	private final Extractor pageExtractor;
+	private Extractor pageExtractor = null;
 	private final IntegerFrequencyCounter avgHeightFrequencyCounter;
 	private final FrequencyCounter fontFrequencyCounter;
 	private final boolean quickly = true;
@@ -53,12 +55,16 @@ public class RuleBasedParser implements Parser {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	public RuleBasedParser(AbstractModelFactory modelFactory)
-			throws Exception {
+	public RuleBasedParser(AbstractModelFactory modelFactory) {
 
 		pageList = new ArrayList<PageBlock>();
 //		pageExtractor = new PDFBoxExtractor(modelFactory);
-		pageExtractor = new JPedalExtractor(modelFactory);
+		try {
+			pageExtractor = new JPedalExtractor(modelFactory);
+		}
+		catch (Exception e) {
+			Log.severe(e.getMessage());
+		}
 
 		idGenerator = 1;
 		this.avgHeightFrequencyCounter = new IntegerFrequencyCounter(1);

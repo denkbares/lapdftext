@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import edu.isi.bmkeg.lapdf.extraction.Extractor;
-import edu.isi.bmkeg.lapdf.extraction.JPedalExtractor;
 import edu.isi.bmkeg.lapdf.model.ChunkBlock;
 import edu.isi.bmkeg.lapdf.model.LapdfDocument;
 import edu.isi.bmkeg.lapdf.model.PageBlock;
@@ -17,7 +16,6 @@ import edu.isi.bmkeg.lapdf.model.spatial.SpatialEntity;
 import edu.isi.bmkeg.utils.FrequencyCounter;
 import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import org.apache.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Stefan Plehn (denkbares GmbH)
@@ -38,25 +36,17 @@ public class SpiralBlockParser implements Parser {
 	private int idGenerator;
 	private int northSouthSpacing;
 	private int eastWestSpacing;
+	private ParserStrategy parserStrategy;
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	public SpiralBlockParser() throws Exception {
-		this(new RTModelFactory());
-	}
-
-	public SpiralBlockParser(AbstractModelFactory modelFactory)
-			throws Exception {
-
+	public SpiralBlockParser(Extractor extractor) {
+		modelFactory = new RTModelFactory();
 		pageList = new ArrayList<PageBlock>();
-//		pageExtractor = new PDFBoxExtractor(modelFactory);
-		pageExtractor = new JPedalExtractor(modelFactory);
-
 		idGenerator = 1;
 		this.avgHeightFrequencyCounter = new IntegerFrequencyCounter(1);
 		this.fontFrequencyCounter = new FrequencyCounter();
-
-		this.modelFactory = modelFactory;
+		this.pageExtractor = extractor;
 	}
 
 	private void init(File file) throws Exception {
@@ -100,18 +90,7 @@ public class SpiralBlockParser implements Parser {
 //		if (isDebugImages()) {
 //			imgDir.mkdir();
 //		}
-		UIMAWordListExtractor uimaWordListExtractor = null;
-		boolean specialcase = false;
-		if (!file.getName().matches("(Buch.(Kapitel\\s)*[1I][^I]|Gruppe_000).*\\.pdf$")) {
-			specialcase = true;
-			File grandparent = file.getParentFile().getParentFile();
-			String groupName = grandparent.getName();
-			File xml = new File(grandparent, groupName + "_converted.xml");
-//			File grandparent = file.getParentFile();
-//			String xmlFileName = file.getName().substring(0, file.getName().length() - 4) + "_converted.xml";
-//			File xml = new File(grandparent, xmlFileName);
-			uimaWordListExtractor = getUimaWordListExtractor(xml);
-		}
+
 
 		//
 		// Calling 'hasNext()' get the text from the extractor.
@@ -120,9 +99,6 @@ public class SpiralBlockParser implements Parser {
 
 			document.setjPedalDecodeFailed(false);
 			pageWordBlockList = pageExtractor.next();
-			if (specialcase) {
-				pageWordBlockList = uimaWordListExtractor.getWordBlockList(pageCounter);
-			}
 
 			pageBlock = modelFactory.createPageBlock(
 					pageCounter,
@@ -163,13 +139,6 @@ public class SpiralBlockParser implements Parser {
 		document.calculateMostPopularFontStyles();
 
 		return document;
-	}
-
-	@NotNull
-	protected UIMAWordListExtractor getUimaWordListExtractor(File xml) {
-		UIMAWordListExtractor uimaWordListExtractor;
-		uimaWordListExtractor = new UIMAWordListExtractor(xml);
-		return uimaWordListExtractor;
 	}
 
 	private void buildChunkBlocksByFanningOut(List<WordBlock> wordBlocksLeftInPage,
@@ -295,10 +264,14 @@ public class SpiralBlockParser implements Parser {
 	}
 
 	protected List<WordBlock> addWordsToThisIteration(WordBlock word, int eastWest, int northSouth) {
-		List<WordBlock> wordsToAddThisIteration;
-		wordsToAddThisIteration = word.readNearbyWords(
-				eastWest, eastWest, northSouth, northSouth);
-		return wordsToAddThisIteration;
+		if (parserStrategy == null) {
+			parserStrategy = new ParserDefaultStrategy();
+		}
+		return parserStrategy.addWordsToThisIteration(word, eastWest, eastWest, northSouth, northSouth);
+//		List<WordBlock> wordsToAddThisIteration;
+//		wordsToAddThisIteration = word.readNearbyWords(
+//				eastWest, eastWest, northSouth, northSouth);
+//		return wordsToAddThisIteration;
 	}
 
 	public ChunkBlock buildChunkBlock(List<WordBlock> wordBlockList,
@@ -368,5 +341,9 @@ public class SpiralBlockParser implements Parser {
 		chunkBlock.setContainer(pageBlock);
 
 		return chunkBlock;
+	}
+
+	public void setParserStrategy(ParserStrategy parserStrategy) {
+		this.parserStrategy = parserStrategy;
 	}
 }

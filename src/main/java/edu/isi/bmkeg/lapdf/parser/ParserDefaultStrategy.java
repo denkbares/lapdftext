@@ -19,39 +19,19 @@
 
 package edu.isi.bmkeg.lapdf.parser;
 
-import java.io.File;
 import java.util.List;
 
 import edu.isi.bmkeg.lapdf.model.WordBlock;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Jonas Müller
  * @created 27.09.17
  */
-public class Parser1Normalize extends SpiralBlockParser {
-	public Parser1Normalize() throws Exception {
-		super();
-	}
+public class ParserDefaultStrategy implements ParserStrategy {
 
 	@Override
-	protected List<WordBlock> addWordsToThisIteration(WordBlock word, int eastWest, int northSouth) {
-		List<WordBlock> wordsToAddThisIteration;
-		if (word.getX1() > 350) {
-			wordsToAddThisIteration = word.readNearbyWords(
-					eastWest, eastWest, -3, -3);
-		}
-		else {
-			wordsToAddThisIteration = super.addWordsToThisIteration(word, eastWest, northSouth);
-		}
-		return wordsToAddThisIteration;
-	}
-
-	@Override
-	@NotNull
-	protected UIMAWordListExtractor getUimaWordListExtractor(File xml) {
-		UIMAWordListExtractor uimaWordListExtractor;
-		uimaWordListExtractor = new UIMAWordListExtractor(xml, true);
-		return uimaWordListExtractor;
+	public List<WordBlock> addWordsToThisIteration(WordBlock word, int east, int west, int north, int south) {
+		return word.readNearbyWords(east, west, north, south);
 	}
 }
+

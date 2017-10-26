@@ -1,7 +1,8 @@
-package edu.isi.bmkeg.lapdf.parser;
+package edu.isi.bmkeg.lapdf.extraction;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,8 +10,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import edu.isi.bmkeg.lapdf.model.RTree.RTWordBlock;
 import edu.isi.bmkeg.lapdf.model.WordBlock;
+import edu.isi.bmkeg.utils.FrequencyCounter;
+import edu.isi.bmkeg.utils.IntegerFrequencyCounter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,40 +25,32 @@ import com.denkbares.utils.Log;
  * @author Stefan Plehn (denkbares GmbH)
  * @created 18.07.17
  */
-public class UIMAWordListExtractor {
+public class PdfToXmlExtractor extends AbstractExtractor {
 
-	private final Document dom;
 	private final File xmlFile;
-	//if this is true, alls blocks will be normalized to the coordinates of top-left coordinates of the page
-	//this prevents differences for same document category but different DPIs
-	private boolean normalize;
+	private Document dom;
 	private Block cropBlock;
 
-	public UIMAWordListExtractor(File xmlFile) {
-		this(xmlFile, false);
+	public PdfToXmlExtractor(File xmlFile, int startPage, int endPage) {
+		super(startPage, endPage);
+		this.xmlFile = xmlFile;
 	}
 
-	public UIMAWordListExtractor(File xmlFile, boolean normalize) {
-		dom = getDom(xmlFile);
-		this.xmlFile = xmlFile;
-		this.normalize = normalize;
+	public PdfToXmlExtractor(File xmlFile) {
+		this(xmlFile, 1, -1);
 	}
 
 	public List<WordBlock> getWordBlockList(int pageNo) {
 
 		List<WordBlock> resultList = new LinkedList<>();
 		Node page = dom.getElementsByTagName("PAGE").item(pageNo - 1);
-
+		if (page == null) {
+			return null;
+		}
 		if (page.getNodeType() == Node.ELEMENT_NODE) {
 			Element elementPage = (Element) page;
 			NodeList tokens = elementPage.getElementsByTagName("TOKEN");
-			if (normalize) {
-				Node cropbox = elementPage.getElementsByTagName("CROPBOX").item(0);
-				if (cropbox.getNodeType() == Node.ELEMENT_NODE) {
-					Element cropboxElement = (Element) cropbox;
-					cropBlock = new Block(cropboxElement).invokeCropbox();
-				}
-			}
+			cropBlock = getBoxBlock("CROPBOX");
 			resultList = getWordBlocksFromTokens(tokens);
 		}
 		return resultList;
@@ -73,7 +67,7 @@ public class UIMAWordListExtractor {
 	}
 
 	private WordBlock getWordBlock(Node token, int order) {
-		RTWordBlock rtWordBlock = null;
+		WordBlock wordBlock = null;
 		if (token.getNodeType() == Node.ELEMENT_NODE) {
 			Element element = (Element) token;
 			Block elementBlock = new Block(element).invokeToken();
@@ -81,12 +75,13 @@ public class UIMAWordListExtractor {
 			int x2 = elementBlock.getX2();
 			int y1 = elementBlock.getY1();
 			int y2 = elementBlock.getY2();
-			if (normalize) {
-				x1 = x1 - cropBlock.getX1();
-				x2 = x2 - cropBlock.getX1();
-				y1 = y1 - cropBlock.getY1();
-				y2 = y2 - cropBlock.getY1();
-			}
+			//normalize
+			x1 = x1 - cropBlock.getX1();
+			x2 = x2 - cropBlock.getX1();
+			y1 = y1 - cropBlock.getY1();
+			y2 = y2 - cropBlock.getY1();
+
+			avgHeightFrequencyCounter.add(y2 - y1);
 			int spaceWidth = 0;
 			if (!element.getTextContent().isEmpty()) {
 				spaceWidth = (x2 - x1) / element.getTextContent().length();
@@ -102,9 +97,9 @@ public class UIMAWordListExtractor {
 			if (bold.equals("yes")) {
 				style = "Bold";
 			}
-			rtWordBlock = new RTWordBlock(x1, y1, x2, y2, spaceWidth, font, style, element.getTextContent(), order);
+			wordBlock = modelFactory.createWordBlock(x1, y1, x2, y2, spaceWidth, font, style, element.getTextContent(), order);
 		}
-		return rtWordBlock;
+		return wordBlock;
 	}
 
 	private Document getDom(File xmlFile) {
@@ -131,8 +126,76 @@ public class UIMAWordListExtractor {
 		return dom;
 	}
 
-	private class Block {
-		private Element element;
+	@Override
+	public int getCurrentPageBoxHeight() {
+		Block block = getBoxBlock("MEDIABOX");
+		return block.getHeight();
+	}
+
+	@Override
+	public int getCurrentPageBoxWidth() {
+		Block block = getBoxBlock("MEDIABOX");
+		return block.getWidth();
+	}
+
+	@Override
+	public IntegerFrequencyCounter getAvgHeightFrequencyCounter() {
+		return avgHeightFrequencyCounter;
+	}
+
+	@Override
+	public FrequencyCounter getFontFrequencyCounter() {
+		return null;
+	}
+
+	@Override
+	public IntegerFrequencyCounter getSpaceFrequencyCounter(int height) {
+		return null;
+	}
+
+	@Override
+	public void init(File file) throws Exception {
+		this.dom = getDom(xmlFile);
+		this.pdfFile = file;
+	}
+
+	@Override
+	public boolean hasNext() {
+		if (endPage > 0) {
+			return currentPage < endPage;
+		}
+		else {
+			return getWordBlockList(currentPage + 1) != null;
+		}
+	}
+
+	@Override
+	public List<WordBlock> next() {
+		List<WordBlock> wordBlockList = getWordBlockList(currentPage);
+		currentPage++;
+		return new ArrayList<>(wordBlockList);
+	}
+
+	private Block getBoxBlock(String boxName) {
+		Node page = dom.getElementsByTagName("PAGE").item(currentPage - 1);
+		Element pageElement = getElement(page);
+		Node mediabox = null;
+		if (pageElement != null) {
+			mediabox = pageElement.getElementsByTagName(boxName).item(0);
+		}
+		Element mediaBoxElement = getElement(mediabox);
+		return new Block(mediaBoxElement).invokeBox();
+	}
+
+	private Element getElement(Node node) {
+		if (node.getNodeType() == Node.ELEMENT_NODE) {
+			return (Element) node;
+		}
+		return null;
+	}
+
+	private static class Block {
+		private final Element element;
 		private int x1;
 		private int x2;
 		private int y1;
@@ -158,6 +221,14 @@ public class UIMAWordListExtractor {
 			return y2;
 		}
 
+		public int getHeight() {
+			return y2 - y1;
+		}
+
+		public int getWidth() {
+			return x2 - x1;
+		}
+
 		public Block invokeToken() {
 			x1 = getIntAttribute(element, "x");
 			x2 = x1 + getIntAttribute(element, "width");
@@ -166,7 +237,7 @@ public class UIMAWordListExtractor {
 			return this;
 		}
 
-		public Block invokeCropbox() {
+		public Block invokeBox() {
 			x1 = getIntAttribute(element, "x1");
 			x2 = getIntAttribute(element, "x2");
 			y1 = getIntAttribute(element, "y1");

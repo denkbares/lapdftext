@@ -13,6 +13,7 @@ import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import edu.isi.bmkeg.lapdf.extraction.exceptions.AccessException;
 import edu.isi.bmkeg.lapdf.extraction.exceptions.EmptyPDFException;
@@ -30,6 +31,8 @@ import org.jpedal.objects.PdfPageData;
 import org.jpedal.utils.Strip;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.denkbares.utils.Log;
 
 public class JPedalExtractor implements Extractor {
 
@@ -51,12 +54,16 @@ public class JPedalExtractor implements Extractor {
 	
 	private File currentFile;
 
-	public JPedalExtractor(AbstractModelFactory modelFactory)
-			throws Exception {
+	public JPedalExtractor(AbstractModelFactory modelFactory) {
 
 		DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-		docBuilder = dbfac.newDocumentBuilder();
-		
+		try {
+			docBuilder = dbfac.newDocumentBuilder();
+		}
+		catch (ParserConfigurationException e) {
+			Log.severe(e.getMessage());
+		}
+
 		this.modelFactory = modelFactory;
 		this.PDFDecoder = new PdfDecoderFX();
 		FontMappings.setFontReplacements();
