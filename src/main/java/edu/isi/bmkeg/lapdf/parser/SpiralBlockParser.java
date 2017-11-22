@@ -221,9 +221,10 @@ public class SpiralBlockParser implements Parser {
 					// of the first word in this chunk +/- 1px
 					// (and outside the current line for the chunk)
 					if ((w.getHeight() > chunkTextHeight + 3 ||
-							w.getHeight() < chunkTextHeight - 3) &&
-							(w.getY1() < minY || w.getY2() > maxY) || !w.getFontStyle()
-							.equals(word.getFontStyle())) {
+							w.getHeight() < chunkTextHeight - 3) && (w.getY1() < minY || w.getY2() > maxY)
+						// TODO sometimes it is the same chunk even if font style is not matching
+						//|| !w.getFontStyle().equals(word.getFontStyle())
+							) {
 						wordsToKill.add(w);
 					}
 					//we start with i > 0, because only if chapter numbering gets captured by expaning from words we
@@ -284,25 +285,23 @@ public class SpiralBlockParser implements Parser {
 		FrequencyCounter fontFrequencyCounter = new FrequencyCounter();
 		FrequencyCounter styleFrequencyCounter = new FrequencyCounter();
 
+		String fontStyle = "";
 		for (WordBlock wordBlock : wordBlockList) {
 
 			lineHeightFrequencyCounter.add(wordBlock.getHeight());
 			spaceFrequencyCounter.add(wordBlock.getSpaceWidth());
 
 			avgHeightFrequencyCounter.add(wordBlock.getHeight());
-
 			if (wordBlock.getFont() != null) {
 				fontFrequencyCounter.add(wordBlock.getFont());
 			}
 			else {
 				fontFrequencyCounter.add("");
 			}
-			if (wordBlock.getFont() != null) {
-				styleFrequencyCounter.add(wordBlock.getFontStyle());
+			if (wordBlock.getFontStyle() != null && !wordBlock.getFontStyle().equals("")) {
+				fontStyle = wordBlock.getFontStyle();
 			}
-			else {
-				styleFrequencyCounter.add("");
-			}
+
 
 			if (chunkBlock == null) {
 
@@ -325,9 +324,7 @@ public class SpiralBlockParser implements Parser {
 				(String) fontFrequencyCounter.getMostPopular()
 		);
 
-		chunkBlock.setMostPopularWordStyle(
-				(String) styleFrequencyCounter.getMostPopular()
-		);
+		chunkBlock.setMostPopularWordStyle(fontStyle);
 
 		chunkBlock.setMostPopularWordHeight(
 				lineHeightFrequencyCounter.getMostPopular()

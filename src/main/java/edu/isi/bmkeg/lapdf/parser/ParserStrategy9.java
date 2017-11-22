@@ -31,11 +31,11 @@ public class ParserStrategy9 implements ParserStrategy {
 
 	@Override
 	public List<WordBlock> addWordsToThisIteration(WordBlock word, int east, int west, int north, int south) {
-		if (word.getY1() > 600) {
-			return word.readNearbyWords(east + 5, west + 5, north - 10, south - 10);
+		if (word.getY1() > 750) {
+			return word.readNearbyWords(37, 37, 1, 1);
 		}
 		else {
-			return word.readNearbyWords(east, west, north, south);
+			return word.readNearbyWords(west, east, north, south);
 		}
 	}
 }

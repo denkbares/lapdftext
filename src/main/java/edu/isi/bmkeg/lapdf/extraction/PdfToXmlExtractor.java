@@ -3,8 +3,10 @@ package edu.isi.bmkeg.lapdf.extraction;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,11 +32,20 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 	private final File xmlFile;
 	private Document dom;
 	private Block cropBlock;
+	private static final int maxSize = 1;
+
+	private static LinkedHashMap<File, Document> fileToDocument = new LinkedHashMap<File, Document>(maxSize, 0.75f, false) {
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<File, Document> eldest) {
+			return size() > maxSize;
+		}
+	};
 
 	public PdfToXmlExtractor(File xmlFile, int startPage, int endPage) {
 		//normalize to zero based pages
 		super(startPage - 1, endPage - 1);
 		this.xmlFile = xmlFile;
+
 	}
 
 	public PdfToXmlExtractor(File xmlFile) {
@@ -51,7 +62,7 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 		if (page.getNodeType() == Node.ELEMENT_NODE) {
 			Element elementPage = (Element) page;
 			NodeList tokens = elementPage.getElementsByTagName("TOKEN");
-			cropBlock = getBoxBlock("CROPBOX");
+			cropBlock = getBoxBlock("CROPBOX", currentPage);
 			resultList = getWordBlocksFromTokens(tokens);
 		}
 		return resultList;
@@ -103,7 +114,10 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 		return wordBlock;
 	}
 
-	private Document getDom(File xmlFile) {
+	private static synchronized Document getDom(File xmlFile) {
+		if (fileToDocument.containsKey(xmlFile)) {
+			return fileToDocument.get(xmlFile);
+		}
 		//get the factory
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		//Using factory get an instance of document builder
@@ -124,18 +138,19 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 		catch (IOException e) {
 			Log.severe("Input/Output error.", e);
 		}
+		fileToDocument.put(xmlFile, dom);
 		return dom;
 	}
 
 	@Override
 	public int getCurrentPageBoxHeight() {
-		Block block = getBoxBlock("MEDIABOX");
+		Block block = getBoxBlock("MEDIABOX", currentPage - 1);
 		return block.getHeight();
 	}
 
 	@Override
 	public int getCurrentPageBoxWidth() {
-		Block block = getBoxBlock("MEDIABOX");
+		Block block = getBoxBlock("MEDIABOX", currentPage - 1);
 		return block.getWidth();
 	}
 
@@ -162,14 +177,11 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 
 	@Override
 	public boolean hasNext() {
-		if (getWordBlockList(currentPage + 1) == null) {
-			return false;
-		}
-		if (endPage >= 0) {
-			return currentPage <= endPage;
+		if (endPage > 0) {
+			return getWordBlockList(currentPage) != null && currentPage <= endPage;
 		}
 		else {
-			return getWordBlockList(currentPage + 1) != null;
+			return getWordBlockList(currentPage) != null;
 		}
 	}
 
@@ -180,8 +192,8 @@ public class PdfToXmlExtractor extends AbstractExtractor {
 		return new ArrayList<>(wordBlockList);
 	}
 
-	private Block getBoxBlock(String boxName) {
-		Node page = dom.getElementsByTagName("PAGE").item(currentPage);
+	private Block getBoxBlock(String boxName, int pageNo) {
+		Node page = dom.getElementsByTagName("PAGE").item(pageNo);
 		Element pageElement = getElement(page);
 		Node mediabox = null;
 		if (pageElement != null) {
