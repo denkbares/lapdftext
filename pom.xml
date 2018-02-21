@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.denkbares</groupId>
 	<artifactId>lapdftext</artifactId>
-	<version>1.7.5-SNAPSHOT</version>
+	<version>1.7.5-rc2</version>
 	<name>LA-PDFText</name>
 	<description>A text extraction tool based on the layout of blocks withing PDF files.</description>
 
@@ -11,7 +11,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<d3web.version>12.0-SNAPSHOT</d3web.version>
+		<d3web.version>12.0-rc2</d3web.version>
 	</properties>
 	<build>
 		<resources>
@@ -303,6 +303,14 @@
 		</developer>
 	</developers>
 
+	<distributionManagement>
+		<repository>
+			<id>des-releases-public</id>
+			<name>Denkbares Public Releases Repository</name>
+			<url>https://repo.denkbares.com/releases-public/</url>
+		</repository>
+	</distributionManagement>
+
 	<repositories>
 
 		<!-- IDR Solutions Repository -->
@@ -496,13 +504,13 @@
 		<dependency>
 			<groupId>org.apache.lapdfpdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
-			<version>1.8.14-SNAPSHOT</version>
+			<version>1.8.14</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.denkbares.jsi</groupId>
 			<artifactId>jsi</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>1.1.0-rc2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.trove4j</groupId>
@@ -588,8 +596,8 @@
 
 		<dependency>
 			<groupId>edu.isi.bmkeg</groupId>
-			<artifactId>bmkeg-utils</artifactId>
-			<version>1.1.5-SNAPSHOT</version>
+			<artifactId>bmkeg-utils-des</artifactId>
+			<version>1.1.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
