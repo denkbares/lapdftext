@@ -77,7 +77,8 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 	private KnowledgeBase loadKnowledgeBase(File knowledgeBaseFile) throws IOException {
 		if (new File("./lib/").exists()) {
 			JPFPluginManager.init("./lib/");
-		} else {
+		}
+		else {
 			InitPluginManager.init();
 		}
 		PersistenceManager persistenceManager = PersistenceManager.getInstance();
@@ -114,14 +115,13 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 			if (state.hasState(Rating.State.ESTABLISHED)) {
 				block.setType(solution.getName());
 				block.setWasClassified(true);
+				return;
 			}
 		}
 
-		// fall back: docbook:Text
-		if (block.getType().equals("unclassified")) {
-			block.setType("docbook:Text");
-			block.setWasClassified(false);
-		}
+		// fallback
+		block.setType("docbook:Text");
+		block.setWasClassified(false);
 	}
 
 	private void setFacts(ChunkBlock block, TerminologyManager manager, Session session) {
@@ -247,7 +247,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		int h = chunkFeatures.getHeight();
 		QuestionNum height = (QuestionNum) manager.searchQuestion("Height");
 		NumValue heightValue = new NumValue(h);
-		fact = FactFactory.createFact(height, heightValue , session, PSMethodUserSelected.getInstance());
+		fact = FactFactory.createFact(height, heightValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Width
@@ -299,7 +299,8 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		QuestionYN isMostPopularFontInDocument = (QuestionYN) manager.searchQuestion("Is most popular font in document?");
 		ChoiceValue mostPopularFontInDocumentValue = new ChoiceValue(mostPopularFontInDocument ? isItalic.getAnswerChoiceYes() : isItalic
 				.getAnswerChoiceNo());
-		fact = FactFactory.createFact(isMostPopularFontInDocument, mostPopularFontInDocumentValue, session, PSMethodUserSelected.getInstance());
+		fact = FactFactory.createFact(isMostPopularFontInDocument, mostPopularFontInDocumentValue, session, PSMethodUserSelected
+				.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Is most popular font modifier italic?
@@ -307,21 +308,22 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		QuestionYN isNextMostPopularFontInDocument = (QuestionYN) manager.searchQuestion("Is next most popular font in document?");
 		ChoiceValue nextMostPopularFontInDocumentValue = new ChoiceValue(nextMostPopularFontInDocument ? isItalic.getAnswerChoiceYes() : isItalic
 				.getAnswerChoiceNo());
-		fact = FactFactory.createFact(isNextMostPopularFontInDocument, nextMostPopularFontInDocumentValue, session, PSMethodUserSelected.getInstance());
+		fact = FactFactory.createFact(isNextMostPopularFontInDocument, nextMostPopularFontInDocumentValue, session, PSMethodUserSelected
+				.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		// <-- Text in Chunk -->
 
 		//Contains first Line of Page?
 		boolean flP = chunkFeatures.isContainingFirstLineOfPage();
-		QuestionYN containingFlP= (QuestionYN) manager.searchQuestion("Contains first Line of Page?");
+		QuestionYN containingFlP = (QuestionYN) manager.searchQuestion("Contains first Line of Page?");
 		ChoiceValue flpValue = new ChoiceValue(flP ? containingFlP.getAnswerChoiceYes() : containingFlP.getAnswerChoiceNo());
 		fact = FactFactory.createFact(containingFlP, flpValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
 		//Contains last Line of Page?
 		boolean llP = chunkFeatures.isContainingLastLineOfPage();
-		QuestionYN containingllP= (QuestionYN) manager.searchQuestion("Contains last Line of Page?");
+		QuestionYN containingllP = (QuestionYN) manager.searchQuestion("Contains last Line of Page?");
 		ChoiceValue llpValue = new ChoiceValue(llP ? containingllP.getAnswerChoiceYes() : containingllP.getAnswerChoiceNo());
 		fact = FactFactory.createFact(containingllP, llpValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
@@ -350,7 +352,7 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		//Chunk Text
 		String cText = block.readChunkText();
 		QuestionText chunkText = (QuestionText) manager.searchQuestion("Chunk Text");
-		TextValue chunkTextValue  = new TextValue(cText);
+		TextValue chunkTextValue = new TextValue(cText);
 		fact = FactFactory.createFact(chunkText, chunkTextValue, session, PSMethodUserSelected.getInstance());
 		session.getBlackboard().addValueFact(fact);
 
@@ -367,10 +369,9 @@ public class D3ChunkClassifier implements Classifier<ChunkBlock> {
 		String lastClassificationText = chunkFeatures.getlastClassification();
 		if (lastClassificationText != null) {
 			QuestionText lastClassification = (QuestionText) manager.searchQuestion("Last Classification");
-			TextValue lastClassificationValue  = new TextValue(lastClassificationText);
+			TextValue lastClassificationValue = new TextValue(lastClassificationText);
 			fact = FactFactory.createFact(lastClassification, lastClassificationValue, session, PSMethodUserSelected.getInstance());
 			session.getBlackboard().addValueFact(fact);
 		}
-
 	}
 }
