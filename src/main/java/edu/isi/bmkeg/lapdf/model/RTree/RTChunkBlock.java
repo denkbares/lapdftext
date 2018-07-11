@@ -58,7 +58,7 @@ public class RTChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
 	@Override
 	public void setMostPopularWordFont(String mostPopularWordFont) {
-		this.mostPopularWordFont = mostPopularWordFont;
+		this.mostPopularWordFont = mostPopularWordFont.toUpperCase();
 	}
 
 	@Override

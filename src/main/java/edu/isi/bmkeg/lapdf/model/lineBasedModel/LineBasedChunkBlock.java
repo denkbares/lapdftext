@@ -336,7 +336,7 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
     @Override
     public void setMostPopularWordFont(String mostPopularWordFont) {
-        this.mostPopularWordFont = mostPopularWordFont;
+        this.mostPopularWordFont = mostPopularWordFont.toUpperCase();
     }
 
     @Override
@@ -392,11 +392,8 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
         String text = this.readChunkText();
         Matcher matcher = pattern.matcher(text);
 
-        if (matcher.find())
-            return true;
-
-        return false;
-    }
+		return matcher.find();
+	}
 
     //This could be optimized once a LineBasedPageBlock is introduced
     @Override
@@ -404,7 +401,7 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
         List<ChunkBlock> list = getOverlappingNeighbors(LapdfDirection.NORTH,
                 (PageBlock) this.getContainer(),
-                (ChunkBlock) this);
+				this);
 
         double threshold = this.getMostPopularWordHeight() * 2;
 
@@ -477,7 +474,7 @@ public class LineBasedChunkBlock extends RTSpatialEntity implements ChunkBlock {
 
         List<ChunkBlock> list = getOverlappingNeighbors(nsew,
                 (PageBlock) this.getContainer(),
-                (ChunkBlock) this);
+				this);
 
         for (ChunkBlock chunky : list)
             if (chunky.getType().equalsIgnoreCase(type))
