@@ -22,11 +22,11 @@ import edu.isi.bmkeg.lapdf.model.PageBlock;
 import edu.isi.bmkeg.lapdf.model.ordering.SpatialOrdering;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class OutlineXMLWriter {
 
-	private static final String NEWLINE = System.getProperty("line.separator");
-	private static final String ENCODING = "UTF-8";
 	private static final String ELEMENT_TOCITEMS = "TOCITEMS";
 	private static final String ELEMENT_TOCITEMLIST = "TOCITEMLIST";
 	private static final String ELEMENT_ITEM = "ITEM";
@@ -56,12 +56,11 @@ public class OutlineXMLWriter {
 			doc.appendChild(rootElement);
 
 			// root TOCITEMLIST (level 0)
-			Map<Integer, Element> itemListsByLevel = new HashMap<>();
-			Map<Integer, Element> lastElementByLevel = new HashMap<>();
+			Map<Integer, Element> ancestorsByLevel = new HashMap<>();
 			Element rootTocItemList = doc.createElement(ELEMENT_TOCITEMLIST);
 			rootTocItemList.setAttribute(TOCITEMLIST_ATTRIBUTE_LEVEL, Integer.toString(0));
-			itemListsByLevel.put(0, rootTocItemList);
 			rootElement.appendChild(rootTocItemList);
+			ancestorsByLevel.put(-1, rootElement);
 			int lastLevel = 0;
 
 			// EXPORT ITEMS
@@ -83,28 +82,16 @@ public class OutlineXMLWriter {
 						case "Heading 3":
 							level = 2;
 							break;
+						case "Heading 4":
+							level = 3;
+							break;
 						default:
 							continue;
-					}
-
-					// prepare parent (open new toc item list for current level)
-					if (level > 0 && level < lastLevel) {
-
-						// create actual element (TOCITEMLIST)
-						Element tocItemList = doc.createElement(ELEMENT_TOCITEMLIST);
-						tocItemList.setAttribute(TOCITEMLIST_ATTRIBUTE_LEVEL, Integer.toString(level));
-						doc.appendChild(tocItemList);
-
-						// set correct parent
-						Element parent = lastElementByLevel.get(level - 1);
-						tocItemList.setAttribute(TOCITEMLIST_ATTRIBUTE_IDITEMPARENT, parent.getAttribute(ITEM_ATTRIBUTE_ID));
-						itemListsByLevel.put(level, tocItemList);
 					}
 
 					// ITEM
 					Element item = doc.createElement(ELEMENT_ITEM);
 					item.setAttribute(ITEM_ATTRIBUTE_ID, Integer.toString(counter++));
-					itemListsByLevel.get(level).appendChild(item);
 
 					// STRING
 					Element string = doc.createElement(ELEMENT_STRING);
@@ -121,7 +108,22 @@ public class OutlineXMLWriter {
 					item.appendChild(link);
 
 					// references...
-					lastElementByLevel.put(level, item);
+					if (level == lastLevel) {
+						addChildElement(getAncestor(ancestorsByLevel, level - 1), item, doc, level);
+					}
+					else if (level > lastLevel) {
+						addChildElement(getAncestor(ancestorsByLevel, level), item, doc, level);
+					}
+					else if (level < lastLevel) {
+						while (level < lastLevel) {
+							ancestorsByLevel.remove(lastLevel);
+							lastLevel--;
+						}
+						addChildElement(getAncestor(ancestorsByLevel, level - 1), item, doc, level);
+					}
+
+					// for the next round...
+					ancestorsByLevel.put(level, item);
 					lastLevel = level;
 				}
 			}
@@ -134,10 +136,36 @@ public class OutlineXMLWriter {
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(outputFilename));
 			transformer.transform(source, result);
-
 		}
 		catch (ParserConfigurationException | TransformerException e) {
 			throw new IOException(e);
 		}
+	}
+
+	private void addChildElement(Element ancestor, Element item, Document doc, int level) {
+		Node tocItemList = getTocItemList(ancestor, doc, level);
+		tocItemList.appendChild(item);
+	}
+
+	private Element getTocItemList(Element ancestor, Document doc, int level) {
+		NodeList nodeList = ancestor.getElementsByTagName(ELEMENT_TOCITEMLIST);
+		if (nodeList.getLength() == 0) {
+			// create actual element (TOCITEMLIST)
+			Element tocItemList = doc.createElement(ELEMENT_TOCITEMLIST);
+			tocItemList.setAttribute(TOCITEMLIST_ATTRIBUTE_LEVEL, Integer.toString(level));
+			tocItemList.setAttribute(TOCITEMLIST_ATTRIBUTE_IDITEMPARENT, ancestor.getAttribute(ITEM_ATTRIBUTE_ID));
+			ancestor.appendChild(tocItemList);
+			return tocItemList;
+		}
+		return (Element) nodeList.item(0);
+	}
+
+	private Element getAncestor(Map<Integer, Element> ancestorsByLevel, int level) {
+		Element ancestor = null;
+		while (ancestor == null && level >= -1) {
+			ancestor = ancestorsByLevel.get(level);
+			level--;
+		}
+		return ancestor;
 	}
 }
