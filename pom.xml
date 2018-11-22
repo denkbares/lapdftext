@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.denkbares</groupId>
 	<artifactId>lapdftext</artifactId>
-	<version>1.7.5-SNAPSHOT</version>
+	<version>1.7.5</version>
 	<name>LA-PDFText</name>
 	<description>A text extraction tool based on the layout of blocks withing PDF files.</description>
 
@@ -11,7 +11,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<d3web.version>12.0-SNAPSHOT</d3web.version>
+		<d3web.version>12.0</d3web.version>
 	</properties>
 	<build>
 		<resources>
@@ -370,6 +370,14 @@
 			<url>https://repo.denkbares.com/repo-public/</url>
 		</repository>
 	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>des-releases-public</id>
+			<name>Denkbares Public Releases Repository</name>
+			<url>https://repo.denkbares.com/releases-public/</url>
+		</repository>
+	</distributionManagement>
 
 	<pluginRepositories>
 
