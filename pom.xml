@@ -304,70 +304,19 @@
 	</developers>
 
 	<repositories>
-
-		<!-- IDR Solutions Repository -->
-
-		<repository>
-			<id>IDRSolutions</id>
-			<name>IDRSolutions Maven Repository</name>
-			<url>https://github.com/IDRSolutions/maven_OpenViewerFX_repository/raw/master/</url>
-		</repository>
-
-		<!-- JBoss Repository -->
-
-		<repository>
-			<id>org.jboss.repository.releases</id>
-			<name>JBoss Repository - Releases</name>
-			<url>https://repository.jboss.org/nexus/content/repositories/releases</url>
-		</repository>
-
-		<!-- BMKEG local repository at hugin.isi.edu -->
-
-		<repository>
-			<id>hugin-snapshots</id>
-			<name>Hugin ISI MRP repository SNAPSHOTS</name>
-			<url>http://hugin.isi.edu:8180/nexus/content/repositories/BMKEG-SNAPSHOT/</url>
-		</repository>
-
-		<repository>
-			<id>hugin-releases</id>
-			<name>Hugin ISI MRP repository RELEASES</name>
-			<url>http://hugin.isi.edu:8180/nexus/content/repositories/releases/</url>
-		</repository>
-
-		<repository>
-			<id>hugin-3rd-party</id>
-			<name>Hugin Third Party Nexus Repository</name>
-			<url>http://hugin.isi.edu:8180/nexus/content/repositories/thirdparty/</url>
-		</repository>
-
-		<repository>
-			<id>hugin-3rd-party-snapshot</id>
-			<name>Hugin Third Party Nexus Repository</name>
-			<url>http://hugin.isi.edu:8180/nexus/content/repositories/thirdpartysnapshots/</url>
-		</repository>
-
-		<repository>
-			<id>maven-central</id>
-			<name>maven</name>
-			<url>http://central.maven.org/maven2/</url>
-		</repository>
-
 		<!-- d3web repositories -->
-
 		<repository>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>interval:60</updatePolicy>
+				<updatePolicy>never</updatePolicy>
 				<checksumPolicy>ignore</checksumPolicy>
 			</snapshots>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>interval:60</updatePolicy>
 			</releases>
 			<id>des-repo-des</id>
-			<name>Denkbares Public Repository</name>
-			<url>https://repo.denkbares.com/repo-public/</url>
+			<name>Denkbares Repository</name>
+			<url>https://repo.denkbares.com/repo-des/</url>
 		</repository>
 	</repositories>
 
